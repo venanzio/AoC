@@ -184,11 +184,20 @@ parens pa = delim "(" pa ")"
 
 -- parse a sequence of pas separated by ps
 seqSep :: Parser a -> String -> Parser [a]
-seqSep pa sep = seqSep' <|> return []
-  where seqSep' = do
+seqSep pa sep = seqSep1 pa sep <|> return []
+{-
+where seqSep' = do
           x <- pa
           xs <- many (symbol sep >> pa)
           return (x:xs)
+-}
+
+-- at least one
+seqSep1 :: Parser a -> String -> Parser [a]
+seqSep1 pa sep = do
+  x <- pa
+  xs <- many (symbol sep >> pa)
+  return (x:xs)
 
 -- Example: parsing a list of integers
 nats :: Parser [Integer]
