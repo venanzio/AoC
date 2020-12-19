@@ -31,6 +31,11 @@ parseAll pa src = case (parse pa src) of
   [(a,src')] -> error ("Incomplete parsing: "++src')
   _ -> error ("Parse error")
 
+parseFull :: Parser a -> Parser a
+parseFull p = P (\inp -> case parse p inp of
+                    [(a,"")] -> [(a,"")]
+                    _        -> [])
+
 -- Sequencing parsers
 
 instance Functor Parser where
@@ -77,6 +82,17 @@ Use with caution: it can cause inefficiency
 infixl 3 <||>
 (<||>) :: Parser a -> Parser a -> Parser a
 p1 <||> p2 = P (\inp -> (parse p1 inp) ++ (parse p2 inp))
+
+parallel :: [Parser a] -> Parser a
+parallel = foldl (<||>) empty
+
+someP :: Parser a -> Parser [a]
+someP p = do x <- p
+             xs <- manyP p
+             return (x:xs)
+
+manyP :: Parser a -> Parser [a]
+manyP p = someP p <||> return []
 
 -- Derived primitives
 
@@ -204,6 +220,13 @@ nats :: Parser [Integer]
 nats = delim "[" (seqSep natural ",") "]"
 
 
+-- parse p n times
+repN :: Int -> Parser a -> Parser [a]
+repN 0 p = return []
+repN n p = do x <- p
+              xs <- repN (n-1) p
+              return (x:xs)
+
 
 
 -- Parsing blocks of data separated by empty lines
@@ -211,9 +234,11 @@ nats = delim "[" (seqSep natural ",") "]"
 block :: Parser a -> Parser a
 block p = P $ \src ->
   case parse chunk src of
-    [(ch,src')] -> map (\(a,ch') -> (a,ch'++src')) (parse p ch)
+    [(ch,src')] -> case parse p ch of
+      [(a,ch')] -> if all isSpace ch' then [(a,src')] else []
+      _         -> []
     _ -> []
-    
+
 blocks :: Parser a -> Parser [a]
 blocks = many . block
 
@@ -221,7 +246,21 @@ blocks = many . block
 -- parse a string until empty line(s) or eof
 
 chunk :: Parser String
-chunk = beforeNL <|> pAll
+chunk = do s <- many (sat (/='\n'))
+           char '\n'
+           if all isSpace s then empty else return s
+
+
+
+
+
+
+
+             
+
+
+
+
 
 beforeNL :: Parser String
 beforeNL = do
