@@ -14,11 +14,18 @@ puzzle :: String -> IO Int
 puzzle fileName = do
   input <- readFile fileName
   let [(array,_)] = parse (some tileP) input
-  putStrLn (show $ head array)
+      gr = grid array
+      squares = map (\(pos,tl) -> (pos,dimensions (tsq tl))) (M.assocs gr)
+      pic = removeBorder $ gridPicture gr
+  putStrLn (show $ length pic)
+  putStrLn (show $ map length pic)
   return 0
 
 type Square = [String]
 type Tile = (Int,Square)
+
+dimensions :: Square -> (Int,Int)
+dimensions sq = (length sq, length (head sq))
 
 tileP :: Parser Tile
 tileP = do
@@ -43,6 +50,8 @@ side sq 0 = head sq
 side sq 1 = map last sq
 side sq 2 = reverse (last sq)
 side sq 3 = reverse (map head sq)
+side sq n = error ("Tried to take side " ++ show n ++
+                   " of square \n" ++ showSquare sq)
 
 -- mirror image arount the top-left to bottom-right diagonal
 mirror :: Square -> Square
@@ -60,15 +69,17 @@ allTrans sq = rots ++ map mirror rots
 
 -- match and transform a square so its n-side matches the given one
 matchSq :: String -> Int -> Square -> Maybe Square
-matchSq sd i = listMaybe . filter (\sq -> side sq i == sd) . allTrans
-
+matchSq sd i
+  | i<4 = listMaybe . filter (\sq -> side sq i == sd) . allTrans
+  | otherwise = error ("matchSq: side "++ show i)
+  
 listMaybe :: [a] -> Maybe a
 listMaybe [] = Nothing
 listMaybe (x:_) = Just x
 
 -- placing square sq1 on side i of square sq0
 placeSq :: Square -> Int -> Square -> Maybe Square
-placeSq sq0 i sq1 = matchSq (reverse $ side sq0 i) (i+2 `mod` 4) sq1
+placeSq sq0 i sq1 = matchSq (reverse $ side sq0 i) ((i+2) `mod` 4) sq1
 
 -- Constructing a grid from a list of tiles
 
@@ -119,6 +130,43 @@ tileSGrid (pos,t) i (ts,gr) =
     Just (pos',t') -> tileGrid (pos',t') (ts',M.insert pos' t' gr)
 
 grid :: [Tile] -> Grid
-grid (t:ts) = snd (tileGrid ((0,0),t) (ts,M.empty))
+grid (t:ts) = snd (tileGrid ((0,0),t) (ts,M.insert (0,0) t M.empty))
 
 
+-- Recombining the grid
+
+glue :: [String] -> [String] -> [String]
+glue (x:xs) (y:ys) = (x++y) : (glue xs ys)
+glue xs [] = xs
+glue _ ys = ys
+
+glueSq :: [Square] -> [String]
+glueSq = foldl glue []
+
+paste :: [[Square]] -> [String]
+paste = concat . map glueSq
+
+-- Assuming the positions are ordered,    
+byRow :: [(Position,a)] -> [[a]]
+byRow [] = []
+byRow xs = let (ys,zs) = span (\(p,_) -> fst p == fst (fst $ head xs)) xs
+           in map snd ys : byRow zs
+
+-- Removing the border of the picture
+
+dropLast :: [a] -> [a]
+dropLast [] = []
+dropLast [x] = []
+dropLast (x:xs) = x:dropLast xs
+
+removeBorder :: Square -> Square
+removeBorder = map tail . map dropLast . tail . dropLast
+
+-- Recovering the picture from the grid
+
+gridPicture :: Grid -> [String]
+gridPicture gr =
+  let tiles = M.assocs gr
+      squares = map (\(pos,tile) -> (pos, removeBorder (tsq tile))) tiles
+      arraySq = byRow squares
+  in paste arraySq
