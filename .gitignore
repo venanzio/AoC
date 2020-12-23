@@ -1,2 +1,6 @@
 input*
 *~
+*.o
+*.hi
+
+puzzle23
