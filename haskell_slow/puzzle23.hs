@@ -59,6 +59,52 @@ cups s mx =
              currentC = x,
              maxC = mx }
 
+-- Implementation of the moves
+
+-- Taking out the n elements clockwise from the current
+--  The elements are left hanging in the map (will be replaced later)
+takeC :: Cycle -> Int -> ([Int],Cycle)
+takeC c n = let x0 = currentC c
+                x = nxt c x0
+                l = takeM c x n
+                y = nxt c (last l)
+                m = nextC c
+            in (l, c { nextC = M.insert x0 y (nextC c) })
+
+takeM :: Cycle -> Int -> Int -> [Int]
+takeM c x 0 = []
+takeM c x n = x : takeM c (nxt c x) (n-1)
+
+destinationC :: Cycle -> [Int] -> Int
+destinationC c ys = dest (currentC c)
+  where mx = maxC c
+        dest x =
+          let x' = if x-1==0 then mx else x-1
+          in if x' `elem` ys then dest x' else x' 
+
+-- insert the elements ys after x in the cycle
+insertC :: Int -> [Int] -> Cycle -> Cycle
+insertC x ys c = c { nextC = insBetween x ys (nxt c x) (nextC c) }
+
+-- insert ys between x and z:
+-- x will point at the first of ys, last of ys will point at z
+insBetween :: Int -> [Int] -> Int -> M.Map Int Int -> M.Map Int Int
+insBetween x [] z m = M.insert x z m
+insBetween x (y:ys) z m = insBetween y ys z (M.insert x y m)
+
+-- One move: pick up three cups, insert them after the destination,
+--           move the current cup one place clockwise
+moveC :: Cycle -> Cycle
+moveC c = let (picks,c0) = takeC c 3
+              d = destinationC c0 picks
+              c1 = insertC d picks c0
+          in c1 {currentC = nxt c1 (currentC c1)} 
+
+-- Performing n moves in sequence
+movesC :: Cycle -> Int -> Cycle
+movesC c 0 = c
+movesC c n = movesC (moveC c) (n-1)
+
 
 
 
@@ -69,42 +115,6 @@ puzzle1 :: String -> String
 puzzle1 s = let w = read s
                 w' = movesC w 100
             in final w'
-
-
-
-
-
-take3 :: Cycle -> ([Int],Cycle)
-take3 c = let curr = currentC c
-              x0 = nxt c curr
-              x1 = nxt c x0
-              x2 = nxt c x1
-          in ([x0,x1,x2], c {nextC = M.insert curr (nxt c x2) (nextC c)})
-
-destinationC :: Cycle -> [Int] -> Int
-destinationC c ys = dest (currentC c)
-  where mx = maxC c
-        dest x =
-          let x' = if x-1==0 then mx else x-1
-          in if x' `elem` ys then dest x' else x' 
-
-insertC :: Int -> [Int] -> Cycle -> Cycle
-insertC x ys c = c { nextC = insBetween x ys (nxt c x) (nextC c) }
-
-insBetween :: Int -> [Int] -> Int -> M.Map Int Int -> M.Map Int Int
-insBetween x [] z m = M.insert x z m
-insBetween x (y:ys) z m = insBetween y ys z (M.insert x y m)
-
-moveC :: Cycle -> Cycle
-moveC c = let (picks,c0) = take3 c
-              d = destinationC c0 picks
-              c1 = insertC d picks c0
-          in c1 {currentC = nxt c1 (currentC c1)} 
-
-movesC :: Cycle -> Int -> Cycle
-movesC w 0 = w
-movesC w n = movesC (moveC w) (n-1)
-
 
 final :: Cycle -> String
 final c = concat $ map show $ (tail $ fromC c 1)
