@@ -3,6 +3,7 @@ module Main where
 import System.Environment
 
 import qualified Data.Map as M
+import qualified Data.Array as A
 
 input = "135468729"
 
@@ -22,10 +23,9 @@ class Cycle c where
   currentC :: c -> Int   -- current element in the cycle (head)
   setCurrentC :: Int -> c -> c
   maxC     :: c -> Int   -- maximum element in the cycle
-  setMaxC  :: Int -> c -> c
   nextC    :: Int -> c -> Int  -- following element in the cycle
   mapC     :: Int -> Int -> c -> c  -- inserting/changing a value
-  singleC  :: Int -> c   -- singleton cycle
+  defaultC :: Int -> c -- cycle with given maximum, default values (successors)
 
 -- move the current element one step clockwise
 rightC :: Cycle c => c -> c
@@ -41,19 +41,24 @@ fromC c i = i : fC (nextC i c)
 
 -- Cycle given by a list of integers
 listC :: Cycle c => [Int] -> c
-listC (x:xs) = lC x xs $ setMaxC (maximum (x:xs)) (singleC x)
+listC xs = listMaxC (maximum xs) xs
+
+-- Cycle from list and given maximum (elements not in list default)
+listMaxC :: Cycle c => Int -> [Int] -> c
+listMaxC mx (x:xs) = lC x xs $ defaultC mx  -- setMaxC (maximum (x:xs)) (singleC x)
   where lC y [] = mapC y x
         lC y (z:zs) = lC z zs . mapC y z
-
 
 -- For part 2: completing a given list with increasing steps up to a maximum
 --  we leave undefined the elements that point to the successor
 
 cups :: Cycle c => [Int] -> Int -> c
-cups xs mx = setCurrentC x $ mapC z zn $ mapC mx x $ setMaxC mx $ listC xs
+cups xs mx = setCurrentC x $ mapC z zn $ mapC mx x $ listMaxC mx xs
   where x = head xs
         z = last xs
         zn = maximum xs + 1
+
+
 
 -- Implementation of the moves
 
@@ -114,6 +119,9 @@ final c = concat $ map show $ (tail $ fromC c 1)
 
 -- Part 2
 
+-- Unfortunately this works less well than the quick version
+--   (Overhead due to abstraction?)
+
 puzzle2 :: String -> (Int,Int)
 puzzle2 s = let c = cups (readL s) 1000000 :: MapCycle
                 c' = movesC 10000000 c
@@ -133,17 +141,7 @@ main = do
   return ()
 
 
-
-
-
-
-
-
-
-
-
-
-{- instantiation as finite maps -}
+-- Instantiation as finite maps
 
 data MapCycle = MapCycle {
                      nextMC :: M.Map Int Int,
@@ -161,13 +159,16 @@ instance Cycle MapCycle where
   currentC = currentMC
   setCurrentC x c = c {currentMC = x}
   maxC     = maxMC
-  setMaxC x c = c {maxMC = x}
   nextC    = flip nxt
   mapC i j c = c { nextMC = M.insert i j (nextMC c) }
-  singleC i = MapCycle { nextMC = M.insert i i M.empty, currentMC = i, maxMC = i }
+  defaultC mx = MapCycle { nextMC = M.insert mx 1 M.empty, currentMC = 1, maxMC = mx }
 
 instance Show MapCycle where
   show = showC
 
 instance Read MapCycle where
   readsPrec d src = [(listC (readL src), "")]
+
+
+-- Instantiation as arrays
+
