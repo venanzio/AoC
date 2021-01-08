@@ -9,12 +9,6 @@ input = "135468729"
 readL :: String -> [Int]
 readL = map (read.pure)
 
--- Part 1
-
-puzzle1 :: String -> String
-puzzle1 s = let w = readC s
-                w' = movesC w 100
-            in final w'
 
 {- A cycle of integers is a finite map in which
    every elemnet is mapped to its successor
@@ -22,12 +16,13 @@ puzzle1 s = let w = readC s
 
 data Cycle = Cycle { nextC :: M.Map Int Int,
                      currentC :: Int,
-                     maxC :: Int
+                     maxC :: Int   -- highest value un the cycle
                    }
 
+-- The next element in a cycle, if not present default to successor
 nxt :: Cycle -> Int -> Int
 nxt c n = case M.lookup n (nextC c) of
-  Nothing -> error "no next element"
+  Nothing -> n+1
   Just m  -> m
 
 instance Show Cycle where
@@ -38,28 +33,44 @@ fromC c i = i : fM c i (nxt c i)
   where fM :: Cycle -> Int -> Int -> [Int]
         fM c i j = if i==j then [] else j : fM c i (nxt c j)
 
-
 instance Read Cycle where
   readsPrec d src = [(listC (readL src), "")]
 
-listM :: [Int] -> M.Map Int Int
-listM (x:xs) = lM M.empty x xs 
+listMap :: [Int] -> M.Map Int Int
+listMap (x:xs) = lM M.empty x xs 
   where lM m y [] = M.insert y x m
         lM m y (z:zs) = lM (M.insert y z m) z zs
         
 listC :: [Int] -> Cycle
-listC xs = Cycle { nextC = listM xs,
-                    currentC = head xs,
-                    maxC = maximum xs }
+listC xs = Cycle { nextC = listMap xs,
+                   currentC = head xs,
+                   maxC = maximum xs }
+
+-- For part 2: completing a given list with increasing steps up to a maximum
+--  we leave undefined the elements that point to the successor
+
+cups :: String -> Int -> Cycle
+cups s mx =
+  let xs = readL s
+      x = head xs
+      z = last xs
+      zn = maximum xs + 1
+  in Cycle { nextC = M.insert z zn $ M.insert mx x (listMap xs),
+             currentC = x,
+             maxC = mx }
 
 
 
 
 
+-- Part 1
+
+puzzle1 :: String -> String
+puzzle1 s = let w = read s
+                w' = movesC w 100
+            in final w'
 
 
-readC :: String -> Cycle
-readC = listC . readL
 
 
 
@@ -106,10 +117,6 @@ puzzle2 s = let c = cups s 1000000
             in resultC c'
             
 
-cups :: String -> Int -> Cycle
-cups s mx =
-  let l = readL s
-  in listC (l ++ [(maximum l + 1) .. mx])
 
 resultC :: Cycle -> (Int,Int)
 resultC c = let x1 = nxt c 1
