@@ -3,8 +3,12 @@ module Main where
 import System.Environment
 
 import qualified Data.Map as M
+
 -- import qualified Data.Array as A
-import GHC.Arr as A
+import qualified GHC.Arr as A
+
+import qualified Data.Array.IO as Arr
+import System.IO.Unsafe
 
 input = "135468729"
 
@@ -173,12 +177,26 @@ instance Read MapCycle where
 
 -- Instantiation as arrays
 
-data ArrCycle = AC Int (A.Array Int Int)
+data ACycle = AC Int (A.Array Int Int)
 
-instance Cycle ArrCycle where
+instance Cycle ACycle where
   currentC (AC x _) = x
   setCurrentC x (AC y a) = (AC x a)
   maxC (AC y a) = snd (A.bounds a)
   nextC x (AC _ a) = a A.! x
   mapC i j (AC x a) = AC x (a A.// [(i,j)])
   defaultC mx = AC 1 (A.array (1,mx) ([(i,i+1) | i <- [1..mx-1]] ++ [(mx,1)]))
+
+-- Instantiation as mutable arrays (with unsafe operations)
+--  DOESN'T WORK : needs to be done propertly without unsafe tricks
+
+data ArrCycle = ArrC Int (Arr.IOArray Int Int)
+
+instance Cycle ArrCycle where
+  currentC (ArrC x _) = x
+  setCurrentC x (ArrC y a) = (ArrC x a)
+  maxC (ArrC y a) = snd (unsafePerformIO $ Arr.getBounds a)
+  nextC x (ArrC _ a) = unsafePerformIO $ Arr.readArray a x
+  mapC i j (ArrC x a) = ArrC x $ unsafePerformIO (Arr.writeArray a i j >> return a)
+  defaultC mx = ArrC 1 (unsafePerformIO $ Arr.newListArray (1,mx) ([2..mx]++[1]))
+
