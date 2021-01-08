@@ -110,7 +110,7 @@ movesC n = movesC (n-1) . moveC
 -- Part 1
 
 puzzle1 :: String -> String
-puzzle1 s = let c = listC $ readL s :: MapCycle -- change to any instance of Cycle
+puzzle1 s = let c = listC $ readL s :: ArrCycle -- change to any instance of Cycle
                 c' = movesC 100 c
             in final c'
 
@@ -123,7 +123,7 @@ final c = concat $ map show $ (tail $ fromC c 1)
 --   (Overhead due to abstraction?)
 
 puzzle2 :: String -> (Int,Int)
-puzzle2 s = let c = cups (readL s) 1000000 :: MapCycle
+puzzle2 s = let c = cups (readL s) 1000000 :: ArrCycle
                 c' = movesC 10000000 c
             in resultC c'
 
@@ -172,3 +172,12 @@ instance Read MapCycle where
 
 -- Instantiation as arrays
 
+data ArrCycle = AC Int (A.Array Int Int)
+
+instance Cycle ArrCycle where
+  currentC (AC x _) = x
+  setCurrentC x (AC y a) = (AC x a)
+  maxC (AC y a) = snd (A.bounds a)
+  nextC x (AC _ a) = a A.! x
+  mapC i j (AC x a) = AC x (a A.// [(i,j)])
+  defaultC mx = AC 1 (A.array (1,mx) ([(i,i+1) | i <- [1..mx-1]] ++ [(mx,1)]))
