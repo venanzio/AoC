@@ -3,7 +3,8 @@ module Main where
 import System.Environment
 
 import qualified Data.Map as M
-import qualified Data.Array as A
+-- import qualified Data.Array as A
+import GHC.Arr as A
 
 input = "135468729"
 
