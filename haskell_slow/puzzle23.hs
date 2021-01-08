@@ -105,25 +105,23 @@ movesC n = movesC (n-1) . moveC
 -- Part 1
 
 puzzle1 :: String -> String
-puzzle1 s = let c = read s :: MapCycle 
+puzzle1 s = let c = listC $ readL s :: MapCycle -- change to any instance of Cycle
                 c' = movesC 100 c
             in final c'
 
-final :: MapCycle -> String
+final :: Cycle c => c -> String
 final c = concat $ map show $ (tail $ fromC c 1)
 
 -- Part 2
 
 puzzle2 :: String -> (Int,Int)
-puzzle2 s = let c = cups (readL s) 1000000
+puzzle2 s = let c = cups (readL s) 1000000 :: MapCycle
                 c' = movesC 10000000 c
             in resultC c'
-            
 
-
-resultC :: MapCycle -> (Int,Int)
-resultC c = let x1 = nxt c 1
-                x2 = nxt c x1
+resultC :: Cycle c => c -> (Int,Int)
+resultC c = let x1 = nextC 1 c
+                x2 = nextC x1 c
             in (x1,x2)
 
 main :: IO ()
