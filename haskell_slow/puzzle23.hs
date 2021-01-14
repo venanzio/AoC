@@ -1,6 +1,7 @@
 module Main where
 
 import System.Environment
+import Control.Monad
 
 import Data.IORef
 import Data.Array.IO
@@ -87,8 +88,12 @@ listMaxC n (x:xs) = do
   cycle <- defaultC n
   setCurrent cycle x
   last <- lMAdd cycle x xs
-  link cycle last (maximum (x:xs) + 1)
-  link cycle n x
+  let nxt = maximum (x:xs) + 1
+  if nxt <= n
+    then do
+      link cycle last nxt
+      link cycle n x    
+    else link cycle last x
   return cycle
 
 lMAdd :: Cycle -> Int -> [Int] -> IO Int
@@ -133,41 +138,46 @@ destFrom ys n x =
   in if x' `elem` ys then destFrom ys n x' else x'
 
 
-{-
-
 
 -- insert the elements ys after x in the cycle
-insertC :: Cycle c => Int -> [Int] -> c -> c
-insertC x ys c = insBetween x ys (nextC x c) c
+insertC :: Cycle -> Int -> [Int] -> IO ()
+insertC cycle x ys = do
+  z <- next cycle x
+  insBetween cycle x ys z
 
 -- insert ys between x and z:
 -- x will point at the first of ys, the last of ys will point at z
-insBetween :: Cycle c => Int -> [Int] -> Int -> c -> c
-insBetween x [] z = linkC x z
-insBetween x (y:ys) z = insBetween y ys z . linkC x y
+insBetween :: Cycle -> Int -> [Int] -> Int -> IO ()
+insBetween cycle x [] z = link cycle x z
+insBetween cycle x (y:ys) z = link cycle x y >> insBetween cycle y ys z
 
 -- One move: pick up three cups, insert them after the destination,
 --           move the current cup one place clockwise
-moveC :: Cycle c => c -> c
-moveC c = let (picks,c0) = takeC c 3
-              d = destinationC picks c0
-              c1 = insertC d picks c0
-          in rightC c1
+move :: Cycle -> IO ()
+move cycle = do
+  picks <- takeC cycle 3
+  d <- destination cycle picks
+  insertC cycle d picks
+  rightC cycle
 
 -- Performing n moves in sequence
-movesC :: Cycle c => Int -> c -> c
-movesC 0 = id
-movesC n = movesC (n-1) . moveC
+movesC :: Cycle -> Int -> IO ()
+movesC cycle n = replicateM_ n (move cycle)
 
 -- Part 1
 
-puzzle1 :: String -> String
-puzzle1 s = let c = listC $ readL s :: ArrCycle -- change to any instance of Cycle
-                c' = movesC 100 c
-            in final c'
+puzzle1 :: String -> IO String
+puzzle1 s = do
+  cycle <- listC $ readL s
+  movesC cycle 100
+  final cycle
 
-final :: Cycle c => c -> String
-final c = concat $ map show $ (tail $ fromC c 1)
+final :: Cycle -> IO String
+final cycle = do
+  l <- fromC cycle 1
+  return (concat $ map show (tail l))
+
+{-
 
 -- Part 2
 
