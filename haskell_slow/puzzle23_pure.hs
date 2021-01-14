@@ -1,9 +1,17 @@
 module Main where
 
+-- "Pure solution" using an implementation of cycles of integers
+--   performs worse than the original "quick" solution
+
 import System.Environment
 
-import Data.IORef
-import Data.Array.IO
+import qualified Data.Map as M
+
+-- import qualified Data.Array as A
+import qualified GHC.Arr as A
+
+import qualified Data.Array.IO as Arr
+import System.IO.Unsafe
 
 input = "135468729"
 
@@ -19,81 +27,44 @@ readL = map (read.pure)
    (or 1 when they're equal to maxC)
 -}
 
--- A cycle is described by the number of elements (fixed),
---   the current element, and the array of next elements
-type Cycle = (Int, IORef Int, IOArray Int Int)
-
--- Current element in the cycle (head)
-current :: Cycle -> IO Int
-current (_,curr,_) = readIORef curr
-
-setCurrent :: Cycle -> Int -> IO ()
-setCurrent (_,curr,_) = writeIORef curr
-
--- Maximum element = size of the cycle, the elements are 1,..,mx
-maxC :: Cycle -> IO Int
-maxC (mx,_,_) = return mx
-
--- Element following i in the cycle
-next :: Cycle -> Int -> IO Int
-next (_,_,a) i = readArray a i
-
--- Changing the element following i
-link :: Cycle -> Int -> Int -> IO ()
-link (_,_,a) i j = writeArray a i j
-
--- Default cycle with n elements, starting at 1, going through n, then back at 1
-defaultC :: Int -> IO Cycle
-defaultC n = do
-  curr <- newIORef 1
-  a <- newListArray (1,n) ([ i+1 | i <- [1..n-1]] ++ [1])
-  return (n,curr,a)
-
-printC :: Cycle -> IO ()
-printC cycle = do
-  l <- elemsC cycle
-  putStrLn (show l)
-
-elemsC :: Cycle -> IO [Int]
-elemsC cycle = current cycle >>= fromC cycle 
-
-fromC :: Cycle -> Int -> IO [Int]
-fromC cycle i = do
-  j <- next cycle i
-  let fC j = if j==i then return []
-                     else do k <- next cycle j
-                             l <- fC k
-                             return (j : l)
-  l <- fC j
-  return (i:l)
-
+class Cycle c where
+  currentC :: c -> Int   -- current element in the cycle (head)
+  setCurrentC :: Int -> c -> c
+  maxC     :: c -> Int   -- maximum element in the cycle
+  nextC    :: Int -> c -> Int  -- following element in the cycle
+  mapC     :: Int -> Int -> c -> c  -- inserting/changing a value
+  defaultC :: Int -> c -- cycle with given maximum, default values (successors)
 
 -- move the current element one step clockwise
-rightC :: Cycle -> IO ()
-rightC cycle = do
-  c <- current cycle
-  cn <- next cycle c
-  setCurrent cycle cn
+rightC :: Cycle c => c -> c
+rightC c = setCurrentC (nextC (currentC c) c) c
 
+-- Printing a cycle, starting with the current element
+showC :: Cycle c => c -> String
+showC c = show $ take (maxC c) $  fromC c (currentC c)
+
+fromC :: Cycle c => c -> Int -> [Int]
+fromC c i = i : fC (nextC i c)
+  where fC j = if j==i then [] else j : fC (nextC j c)
 
 -- Cycle given by a list of integers
-listC :: [Int] -> IO Cycle
-listC xs = listMaxC (length xs) xs
+listC :: Cycle c => [Int] -> c
+listC xs = listMaxC (maximum xs) xs
 
 -- Cycle from list and given maximum (elements not in list default)
-listMaxC :: Int -> [Int] -> IO Cycle
-listMaxC n [] = defaultC n
-listMaxC n (x:xs) = do
-  cycle <- defaultC n
-  setCurrent cycle x
-  last <- lMAdd cycle x xs
-  link cycle last (maximum (x:xs) + 1)
-  link cycle n x
-  return cycle
+listMaxC :: Cycle c => Int -> [Int] -> c
+listMaxC mx (x:xs) = setCurrentC x $ lC x xs $ defaultC mx  -- setMaxC (maximum (x:xs)) (singleC x)
+  where lC y [] = mapC mx x . mapC y (maximum (x:xs) + 1)
+        lC y (z:zs) = lC z zs . mapC y z
 
-lMAdd :: Cycle -> Int -> [Int] -> IO Int
-lMAdd cycle y [] = return y
-lMAdd cycle y (z:zs) = link cycle y z >> lMAdd cycle z zs
+-- For part 2: completing a given list with increasing steps up to a maximum
+--  we leave undefined the elements that point to the successor
+
+cups :: Cycle c => [Int] -> Int -> c
+cups xs mx = setCurrentC x $ mapC z zn $ mapC mx x $ listMaxC mx xs
+  where x = head xs
+        z = last xs
+        zn = maximum xs + 1
 
 
 
@@ -101,40 +72,25 @@ lMAdd cycle y (z:zs) = link cycle y z >> lMAdd cycle z zs
 
 -- Taking out the n elements clockwise from the current
 --  The elements are left hanging in the cycle (will be replaced later)
-takeC :: Cycle -> Int -> IO [Int]
-takeC cycle 0 = return []
-takeC cycle n = do
-  c <- current cycle
-  x <- next cycle c
-  l <- takeL cycle x n
-  y <- next cycle (last l)
-  link cycle c y
-  return l
+takeC :: Cycle c => c -> Int -> ([Int],c)
+takeC c n = let x0 = currentC c
+                x = nextC x0 c
+                l = takeL x n c
+                y = nextC (last l) c
+            in (l, mapC x0 y c)
 
 -- take the list of n elements starting from x clockwise
-takeL :: Cycle -> Int -> Int -> IO [Int]
-takeL cycle x 0 = return []
-takeL cycle x n = do
-  y <- next cycle x
-  xs <- takeL cycle y (n-1)
-  return (x:xs)
+takeL :: Cycle c => Int -> Int -> c -> [Int]
+takeL x 0 c = []
+takeL x n c = x : takeL (nextC x c) (n-1) c
 
 -- destination: current - 1, avoiding the elements in the list
-destination :: Cycle -> [Int] -> IO Int
-destination cycle ys = do
-  n <- maxC cycle
-  x <- current cycle
-  return (destFrom ys n x)
-
-
-destFrom :: [Int] -> Int -> Int -> Int
-destFrom ys n x =
-  let x' = if x==1 then n else x-1
-  in if x' `elem` ys then destFrom ys n x' else x'
-
-
-{-
-
+destinationC :: Cycle c => [Int] -> c -> Int
+destinationC ys c = dest (currentC c)
+  where mx = maxC c
+        dest x =
+          let x' = if x-1==0 then mx else x-1
+          in if x' `elem` ys then dest x' else x' 
 
 -- insert the elements ys after x in the cycle
 insertC :: Cycle c => Int -> [Int] -> c -> c
@@ -143,8 +99,8 @@ insertC x ys c = insBetween x ys (nextC x c) c
 -- insert ys between x and z:
 -- x will point at the first of ys, the last of ys will point at z
 insBetween :: Cycle c => Int -> [Int] -> Int -> c -> c
-insBetween x [] z = linkC x z
-insBetween x (y:ys) z = insBetween y ys z . linkC x y
+insBetween x [] z = mapC x z
+insBetween x (y:ys) z = insBetween y ys z . mapC x y
 
 -- One move: pick up three cups, insert them after the destination,
 --           move the current cup one place clockwise
@@ -212,7 +168,7 @@ instance Cycle MapCycle where
   setCurrentC x c = c {currentMC = x}
   maxC     = maxMC
   nextC    = flip nxt
-  linkC i j c = c { nextMC = M.insert i j (nextMC c) }
+  mapC i j c = c { nextMC = M.insert i j (nextMC c) }
   defaultC mx = MapCycle { nextMC = M.insert mx 1 M.empty, currentMC = 1, maxMC = mx }
 
 instance Show MapCycle where
@@ -231,7 +187,7 @@ instance Cycle ACycle where
   setCurrentC x (AC y a) = (AC x a)
   maxC (AC y a) = snd (A.bounds a)
   nextC x (AC _ a) = a A.! x
-  linkC i j (AC x a) = AC x (a A.// [(i,j)])
+  mapC i j (AC x a) = AC x (a A.// [(i,j)])
   defaultC mx = AC 1 (A.array (1,mx) ([(i,i+1) | i <- [1..mx-1]] ++ [(mx,1)]))
 
 -- Instantiation as mutable arrays (with unsafe operations)
@@ -244,11 +200,6 @@ instance Cycle ArrCycle where
   setCurrentC x (ArrC y a) = (ArrC x a)
   maxC (ArrC y a) = snd (unsafePerformIO $ Arr.getBounds a)
   nextC x (ArrC _ a) = unsafePerformIO $ Arr.readArray a x
-  linkC i j (ArrC x a) = ArrC x $ unsafePerformIO (Arr.writeArray a i j >> return a)
+  mapC i j (ArrC x a) = ArrC x $ unsafePerformIO (Arr.writeArray a i j >> return a)
   defaultC mx = ArrC 1 (unsafePerformIO $ Arr.newListArray (1,mx) ([2..mx]++[1]))
 
--}
-
-
-
-main = putStrLn "Hello World!"
