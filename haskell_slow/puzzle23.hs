@@ -33,7 +33,7 @@ setCurrent (_,curr,_) = writeIORef curr
 
 -- Maximum element = size of the cycle, the elements are 1,..,mx
 maxC :: Cycle -> IO Int
-maxC (mx,_,_) = return mx
+maxC (n,_,_) = return n
 
 -- Element following i in the cycle
 next :: Cycle -> Int -> IO Int
@@ -68,7 +68,6 @@ fromC cycle i = do
   l <- fC j
   return (i:l)
 
-
 -- move the current element one step clockwise
 rightC :: Cycle -> IO ()
 rightC cycle = do
@@ -100,8 +99,6 @@ lMAdd :: Cycle -> Int -> [Int] -> IO Int
 lMAdd cycle y [] = return y
 lMAdd cycle y (z:zs) = link cycle y z >> lMAdd cycle z zs
 
-
-
 -- Implementation of the moves
 
 -- Taking out the n elements clockwise from the current
@@ -131,13 +128,10 @@ destination cycle ys = do
   x <- current cycle
   return (destFrom ys n x)
 
-
 destFrom :: [Int] -> Int -> Int -> Int
 destFrom ys n x =
   let x' = if x==1 then n else x-1
   in if x' `elem` ys then destFrom ys n x' else x'
-
-
 
 -- insert the elements ys after x in the cycle
 insertC :: Cycle -> Int -> [Int] -> IO ()
