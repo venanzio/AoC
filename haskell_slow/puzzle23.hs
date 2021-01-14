@@ -177,88 +177,24 @@ final cycle = do
   l <- fromC cycle 1
   return (concat $ map show (tail l))
 
-{-
-
 -- Part 2
 
--- Unfortunately this works less well than the quick version
---   (Overhead due to abstraction?)
+puzzle2 :: String -> IO ()
+puzzle2 s = do
+  cycle <- listMaxC 1000000 (readL s)
+  movesC cycle 10000000
+  (x1,x2) <- resultC cycle
+  let x = x1*x2
+  putStrLn ("first = " ++ show x1 ++", second = " ++ show x2 ++
+            "; product = " ++ show x)
 
-puzzle2 :: String -> (Int,Int)
-puzzle2 s = let c = cups (readL s) 1000000 :: ArrCycle
-                c' = movesC 10000000 c
-            in resultC c'
-
-resultC :: Cycle c => c -> (Int,Int)
-resultC c = let x1 = nextC 1 c
-                x2 = nextC x1 c
-            in (x1,x2)
+resultC :: Cycle -> IO (Int,Int)
+resultC cycle = do
+  x1 <- next cycle 1
+  x2 <- next cycle x1
+  return (x1,x2)
 
 main :: IO ()
 main = do
   args <- getArgs
-  let (x,y) = puzzle2 (head args)
-  putStrLn ("first = " ++ show x ++", second = " ++ show y ++
-            "; product = " ++ show (x*y))
-  return ()
-
-
--- Instantiation as finite maps
-
-data MapCycle = MapCycle {
-                     nextMC :: M.Map Int Int,
-                     currentMC :: Int,
-                     maxMC :: Int
-                   }
-
--- The next element in a cycle, if not present default to successor
-nxt :: MapCycle -> Int -> Int
-nxt c n = case M.lookup n (nextMC c) of
-  Nothing -> n+1
-  Just m  -> m
-
-instance Cycle MapCycle where
-  currentC = currentMC
-  setCurrentC x c = c {currentMC = x}
-  maxC     = maxMC
-  nextC    = flip nxt
-  linkC i j c = c { nextMC = M.insert i j (nextMC c) }
-  defaultC mx = MapCycle { nextMC = M.insert mx 1 M.empty, currentMC = 1, maxMC = mx }
-
-instance Show MapCycle where
-  show = showC
-
-instance Read MapCycle where
-  readsPrec d src = [(listC (readL src), "")]
-
-
--- Instantiation as arrays
-
-data ACycle = AC Int (A.Array Int Int)
-
-instance Cycle ACycle where
-  currentC (AC x _) = x
-  setCurrentC x (AC y a) = (AC x a)
-  maxC (AC y a) = snd (A.bounds a)
-  nextC x (AC _ a) = a A.! x
-  linkC i j (AC x a) = AC x (a A.// [(i,j)])
-  defaultC mx = AC 1 (A.array (1,mx) ([(i,i+1) | i <- [1..mx-1]] ++ [(mx,1)]))
-
--- Instantiation as mutable arrays (with unsafe operations)
---  DOESN'T WORK : needs to be done propertly without unsafe tricks
-
-data ArrCycle = ArrC Int (Arr.IOArray Int Int)
-
-instance Cycle ArrCycle where
-  currentC (ArrC x _) = x
-  setCurrentC x (ArrC y a) = (ArrC x a)
-  maxC (ArrC y a) = snd (unsafePerformIO $ Arr.getBounds a)
-  nextC x (ArrC _ a) = unsafePerformIO $ Arr.readArray a x
-  linkC i j (ArrC x a) = ArrC x $ unsafePerformIO (Arr.writeArray a i j >> return a)
-  defaultC mx = ArrC 1 (unsafePerformIO $ Arr.newListArray (1,mx) ([2..mx]++[1]))
-
--}
-
-
-
-main = putStrLn "Hello World!"
+  puzzle2 (head args)
