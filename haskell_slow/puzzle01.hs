@@ -1,3 +1,14 @@
+{- Day 1
+   The solution is essentially the same as the "quick" one
+   I avoided sorting the list many times in part 2
+   by sorting it just once at the beginning
+
+   CHALLENGE:
+   Generalize it to:
+     find k elements out of a list that add up to a given value
+     (Part 1 has k=2, Part 2 has k=3)
+-}
+
 module Main where
 
 import System.Environment

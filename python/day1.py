@@ -1,3 +1,9 @@
+#   CHALLENGE:
+#   Generalize it to:
+#     find k elements out of a list that add up to a given value
+#     (Part 1 has k=2, Part 2 has k=3)
+
+
 with open('../input01','r') as infile:
      input = infile.read()
 
