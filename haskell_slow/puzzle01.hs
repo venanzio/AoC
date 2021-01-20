@@ -49,6 +49,7 @@ puzzle2 l = let l' = sort l
 search3 :: [Int] -> Int -> (Int,Int,Int)
 search3 xs = search3ord (sort xs)
 
+-- Assuming the list is ordered
 search3ord :: [Int] -> Int -> (Int,Int,Int)
 search3ord (x:xs) sum =
   let (y,z) = searchSum xs (reverse xs) (sum - x)
