@@ -5,7 +5,8 @@ module Main where
 
 import System.Environment
 
-import qualified Data.Map as M
+import qualified Data.Map.Strict as M
+import qualified Data.IntMap.Strict as IM
 
 -- import qualified Data.Array as A
 import qualified GHC.Arr as A
@@ -49,13 +50,22 @@ fromC c i = i : fC (nextC i c)
 
 -- Cycle given by a list of integers
 listC :: Cycle c => [Int] -> c
-listC xs = listMaxC (maximum xs) xs
+listC xs = listMaxC (length xs) xs
 
 -- Cycle from list and given maximum (elements not in list default)
 listMaxC :: Cycle c => Int -> [Int] -> c
-listMaxC mx (x:xs) = setCurrentC x $ lC x xs $ defaultC mx  -- setMaxC (maximum (x:xs)) (singleC x)
-  where lC y [] = mapC mx x . mapC y (maximum (x:xs) + 1)
-        lC y (z:zs) = lC z zs . mapC y z
+listMaxC n [] = defaultC n
+listMaxC n (x:xs) =
+  let c0 = setCurrentC x (defaultC n)
+      (last,c1) = lMAdd x xs c0
+      nxt = maximum (x:xs) + 1
+  in if nxt <= n
+       then mapC n x (mapC last nxt c1)
+       else mapC last x c1
+
+lMAdd :: Cycle c => Int -> [Int] -> c -> (Int,c)
+lMAdd y [] c = (y,c)
+lMAdd y (z:zs) c = lMAdd z zs (mapC y z c)
 
 -- For part 2: completing a given list with increasing steps up to a maximum
 --  we leave undefined the elements that point to the successor
@@ -118,7 +128,7 @@ movesC n = movesC (n-1) . moveC
 -- Part 1
 
 puzzle1 :: String -> String
-puzzle1 s = let c = listC $ readL s :: ArrCycle -- change to any instance of Cycle
+puzzle1 s = let c = listC $ readL s :: IMapCycle -- change to any instance of Cycle
                 c' = movesC 100 c
             in final c'
 
@@ -131,7 +141,7 @@ final c = concat $ map show $ (tail $ fromC c 1)
 --   (Overhead due to abstraction?)
 
 puzzle2 :: String -> (Int,Int)
-puzzle2 s = let c = cups (readL s) 1000000 :: ArrCycle
+puzzle2 s = let c = cups (readL s) 1000000 :: IMapCycle
                 c' = movesC 10000000 c
             in resultC c'
 
@@ -177,8 +187,37 @@ instance Show MapCycle where
 instance Read MapCycle where
   readsPrec d src = [(listC (readL src), "")]
 
+-- Instantiation as finite maps with Int keys
+
+data IMapCycle = IMapCycle {
+                     nextIMC :: IM.IntMap Int,
+                     currentIMC :: Int,
+                     maxIMC :: Int
+                   }
+
+-- The next element in a cycle, if not present default to successor
+nxtI :: IMapCycle -> Int -> Int
+nxtI c n = case IM.lookup n (nextIMC c) of
+  Nothing -> n+1
+  Just m  -> m
+
+instance Cycle IMapCycle where
+  currentC = currentIMC
+  setCurrentC x c = c {currentIMC = x}
+  maxC     = maxIMC
+  nextC    = flip nxtI
+  mapC i j c = c { nextIMC = IM.insert i j (nextIMC c) }
+  defaultC mx = IMapCycle { nextIMC = IM.insert mx 1 IM.empty, currentIMC = 1, maxIMC = mx }
+
+instance Show IMapCycle where
+   show = showC
+
+instance Read IMapCycle where
+  readsPrec d src = [(listC (readL src), "")]
+
 
 -- Instantiation as arrays
+--  Less efficient than maps, but see the solution with mutable arrays
 
 data ACycle = AC Int (A.Array Int Int)
 
@@ -189,17 +228,4 @@ instance Cycle ACycle where
   nextC x (AC _ a) = a A.! x
   mapC i j (AC x a) = AC x (a A.// [(i,j)])
   defaultC mx = AC 1 (A.array (1,mx) ([(i,i+1) | i <- [1..mx-1]] ++ [(mx,1)]))
-
--- Instantiation as mutable arrays (with unsafe operations)
---  DOESN'T WORK : needs to be done propertly without unsafe tricks
-
-data ArrCycle = ArrC Int (Arr.IOArray Int Int)
-
-instance Cycle ArrCycle where
-  currentC (ArrC x _) = x
-  setCurrentC x (ArrC y a) = (ArrC x a)
-  maxC (ArrC y a) = snd (unsafePerformIO $ Arr.getBounds a)
-  nextC x (ArrC _ a) = unsafePerformIO $ Arr.readArray a x
-  mapC i j (ArrC x a) = ArrC x $ unsafePerformIO (Arr.writeArray a i j >> return a)
-  defaultC mx = ArrC 1 (unsafePerformIO $ Arr.newListArray (1,mx) ([2..mx]++[1]))
 
