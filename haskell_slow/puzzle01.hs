@@ -106,3 +106,7 @@ subsetSum (x:xs) s
   | otherwise = case subsetSum xs (s-x) of
       Just ys -> Just (x:ys)
       Nothing -> subsetSum xs s
+
+{- Idea for improvement:
+   check that the sum of the list is at least the sum
+-}
