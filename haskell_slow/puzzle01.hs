@@ -94,7 +94,10 @@ part2 xs = case searchSum 3 xs 2020 of
    (we assume all entries are positive)
    NP-complete
 -}
-  
+
+subSum :: [Int] -> Int -> Maybe [Int]
+subSum xs = subsetSum (reverse $ sort xs)
+
 subsetSum :: [Int] -> Int -> Maybe [Int]
 subsetSum _ 0 = Just []
 subsetSum [] s = Nothing
