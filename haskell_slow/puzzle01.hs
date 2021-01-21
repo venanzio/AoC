@@ -108,5 +108,5 @@ subsetSum (x:xs) s
       Nothing -> subsetSum xs s
 
 {- Idea for improvement:
-   check that the sum of the list is at least the sum
+   check that the list-sum is at least the target sum
 -}
