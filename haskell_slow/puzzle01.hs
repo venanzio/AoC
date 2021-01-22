@@ -91,22 +91,9 @@ part2 xs = case searchSum 3 xs 2020 of
    NP-complete
 -}
 
+-- We sort the list in decreasing order before searching
 subSum :: [Int] -> Int -> Maybe [Int]
-subSum xs = subsetSum (reverse $ sort xs)
-
-
-
-subsetSum :: [Int] -> Int -> Maybe [Int]
-subsetSum _ 0 = Just []
-subsetSum [] s = Nothing
-subsetSum (x:xs) s
-  | s < 0  = Nothing
-  | otherwise = case subsetSum xs (s-x) of
-      Just ys -> Just (x:ys)
-      Nothing -> subsetSum xs s
-
-subSumB :: [Int] -> Int -> Maybe [Int]
-subSumB xs s = subSumBound (reverse $ sort xs) s (sum xs)
+subSum xs s = subSumBound (reverse $ sort xs) s (sum xs)
 
 -- Keeping track of the sum of the remaining list (upper bound of subset-sum)
 subSumBound :: [Int] -> Int -> Int -> Maybe [Int]
@@ -118,4 +105,11 @@ subSumBound (x:xs) s b
   | otherwise = case subSumBound xs (s-x) (b-x) of
       Just ys -> Just (x:ys)
       Nothing -> subSumBound xs s (b-x)
+
+-- Looking for counterexamples
+-- List of counterexample (excluding trivially low ones)
+
+counter :: [Int] -> [Int]
+counter l = [x | x <- [(minimum l)..(sum l)], subSum l x == Nothing]
+
 
