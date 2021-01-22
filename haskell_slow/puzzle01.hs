@@ -2,17 +2,14 @@
    The solution is essentially the same as the "quick" one
    I avoided sorting the list many times in part 2
    by sorting it just once at the beginning
-
-   CHALLENGE:
-   Generalize it to:
-     find k elements out of a list that add up to a given value
-     (Part 1 has k=2, Part 2 has k=3)
 -}
 
 module Main where
 
 import System.Environment
 import Data.List
+
+import RandomList
 
 main :: IO ()
 main = do
@@ -68,9 +65,8 @@ search3ord (x:xs) sum =
 search3ord _ _ = (-1,-1,-1)
 
 {- GENERALIZATION
-
-Find k elements that add up to the given value
-
+   Find k elements of a list that add up to the given value
+     (Part 1 has k=2, Part 2 has k=3)
 -}
 
 searchSum :: Int -> [Int] -> Int -> Maybe [Int]
@@ -98,6 +94,8 @@ part2 xs = case searchSum 3 xs 2020 of
 subSum :: [Int] -> Int -> Maybe [Int]
 subSum xs = subsetSum (reverse $ sort xs)
 
+
+
 subsetSum :: [Int] -> Int -> Maybe [Int]
 subsetSum _ 0 = Just []
 subsetSum [] s = Nothing
@@ -107,6 +105,17 @@ subsetSum (x:xs) s
       Just ys -> Just (x:ys)
       Nothing -> subsetSum xs s
 
-{- Idea for improvement:
-   check that the list-sum is at least the target sum
--}
+subSumB :: [Int] -> Int -> Maybe [Int]
+subSumB xs s = subSumBound (reverse $ sort xs) s (sum xs)
+
+-- Keeping track of the sum of the remaining list (upper bound of subset-sum)
+subSumBound :: [Int] -> Int -> Int -> Maybe [Int]
+subSumBound _  0 _ = Just []
+subSumBound [] s _ = Nothing
+subSumBound _  s b | b<s = Nothing  -- sum not achievable because higher than bound
+subSumBound (x:xs) s b
+  | s < 0  = Nothing
+  | otherwise = case subSumBound xs (s-x) (b-x) of
+      Just ys -> Just (x:ys)
+      Nothing -> subSumBound xs s (b-x)
+
