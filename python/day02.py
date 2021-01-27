@@ -50,5 +50,6 @@ for lin in linp:
             valid_2.append(lin)
     except:
         pass
-print(" Solution 1: {len(valid_1)}\nSolution 2:{len(valid_2)}")
+print("Solution 1: " + str(len(valid_1)))
+print("Solution 2: " + str(len(valid_2)))
 
