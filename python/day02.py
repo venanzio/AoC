@@ -27,45 +27,14 @@ def count(it,seq):
    if x==it: c+=1
   return c
 
-# Part 1
-valid = 0
+# Solutions
+
+valid1 = 0
+valid2 = 0
+
 for (mn,mx,c,w) in plist:
-  if mn <= count(c,w) <= mx: valid+=1
-print('Part 1: ' + str(valid))
+  if mn <= count(c,w) <= mx: valid1+=1
+  if (w[mn-1]==c) != (w[mx-1]==c): valid2+=1
 
-
-
-
-
-
-
-
-
-
-
-valid_2 = []
-valid_1 = []
-for lin in lines:
-    key, value = lin.split(": ")
-    char = key.split(" ")[1]
-    # print(char, key.split(" ")[0].split("-"))
-    n1, n2 = key.split(" ")[0].split("-")
-    n1, n2 = int(n1)-1, int(n2)-1
-
-    if n1+1<=value.count(char)<=n2+1:
-        valid_1.append(lin)
-
-    c = 0
-    try:
-
-        if value[int(n1)] == char:
-            c+=1
-        if value[int(n2)] == char:
-            c+=1
-        if c == 1:
-            valid_2.append(lin)
-    except:
-        pass
-print("Solution 1: " + str(len(valid_1)))
-print("Solution 2: " + str(len(valid_2)))
-
+print('Part 1: ' + str(valid1))
+print('Part 2: ' + str(valid2))
