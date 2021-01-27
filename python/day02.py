@@ -3,10 +3,10 @@
 with open("../input02", "r") as infile:
      input = infile.readlines()
 
-linp = [i.split("\n")[0] for i in input]
+# divide the input into lines
+lines = [i.split("\n")[0] for i in input]
 
-
-
+# parse a single line, return (min,max,ch,word)
 def parse_line(line):
   spl = line.split(' ')
   print(spl)
@@ -17,11 +17,27 @@ def parse_line(line):
   word = spl[2]
   return (min,max,ch,word)
 
+# list of password specifications
+plist = [parse_line(l) for l in lines]
 
-line = linp[0]
-print(line)
+# count how many times an item is in a sequence (char in str)
+def count(it,seq):
+  c = 0
+  for x in seq:
+   if x==it: c+=1
+  return c
 
-print(parse_line(line))
+# Part 1
+valid = 0
+for (mn,mx,c,w) in plist:
+  if mn <= count(c,w) <= mx: valid+=1
+print('Part 1: ' + str(valid))
+
+
+
+
+
+
 
 
 
@@ -29,7 +45,7 @@ print(parse_line(line))
 
 valid_2 = []
 valid_1 = []
-for lin in linp:
+for lin in lines:
     key, value = lin.split(": ")
     char = key.split(" ")[1]
     # print(char, key.split(" ")[0].split("-"))
