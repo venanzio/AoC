@@ -5,7 +5,21 @@ with open("../input02", "r") as infile:
 
 linp = [i.split("\n")[0] for i in input]
 
-print(linp)
+line = linp[0]
+print(line)
+
+spl = line.split(' ')
+print(spl)
+ns = spl[0].split('-')
+min = int(ns[0])
+max = int(ns[1])
+ch = spl[1].split(':')[0]
+word = spl[2]
+
+print(min,max,ch,word)
+
+
+
 
 valid_2 = []
 valid_1 = []
