@@ -5,18 +5,24 @@ with open("../input02", "r") as infile:
 
 linp = [i.split("\n")[0] for i in input]
 
+
+
+def parse_line(line):
+  spl = line.split(' ')
+  print(spl)
+  ns = spl[0].split('-')
+  min = int(ns[0])
+  max = int(ns[1])
+  ch = spl[1].split(':')[0]
+  word = spl[2]
+  return (min,max,ch,word)
+
+
 line = linp[0]
 print(line)
 
-spl = line.split(' ')
-print(spl)
-ns = spl[0].split('-')
-min = int(ns[0])
-max = int(ns[1])
-ch = spl[1].split(':')[0]
-word = spl[2]
+print(parse_line(line))
 
-print(min,max,ch,word)
 
 
 
