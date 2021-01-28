@@ -1,3 +1,5 @@
+-- Advent of Code 2020, day 3
+
 module Main where
 
 import System.Environment
@@ -5,10 +7,6 @@ import Data.List
 
 import FunParser
 import Control.Applicative
-
-
-
-
 
 main :: IO ()
 main = do
@@ -38,15 +36,18 @@ readL _ = error "unexpected character"
 --  Counting the number of trees along a slope from the top-left corner
 slopeTrees :: [[Bool]] -> (Int,Int) -> Int
 slopeTrees rs (dx,dy) =
-  coordS (length (head rs),length rs) (0,0) (dx,dy) 0 rs
+  treesFrom rs (length (head rs),length rs) (0,0) (dx,dy) 0
 
-coordS :: (Int,Int) -> (Int,Int) -> (Int,Int) -> Int -> [[Bool]] -> Int
-coordS (n,m) (x,y) (dx,dy) s rs =
+-- rs representation of the area, (n,m) dimentions of the area,
+-- (x,y) present position, (dx,dy) slope, trs number of trees so far 
+treesFrom :: [[Bool]] -> (Int,Int) -> (Int,Int) -> (Int,Int) -> Int -> Int
+treesFrom rs (n,m) (x,y) (dx,dy) trs =
   let y' = y + dy
       x' = if x+dx < n then x+dx else x+dx-n
   in if y' >= m
-       then s
-       else coordS (n,m) (x',y') (dx,dy) (s + if rs!!y'!!x' then 1 else 0) rs
+       then trs
+       else treesFrom rs (n,m) (x',y') (dx,dy)
+                      (trs + if rs!!y'!!x' then 1 else 0)
 
 
 
