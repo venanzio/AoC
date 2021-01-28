@@ -1,4 +1,4 @@
-# Advent of Code 2020, Day 2
+# Advent of Code 2020, Day 3
 
 with open("../input03", "r") as infile:
      input = infile.readlines()
@@ -9,6 +9,7 @@ lines = [i.split("\n")[0] for i in input]
 n = len(lines[0])
 m = len(lines)
 
+# count the trees along a slope, from the top-right corner
 def countTrees (dx,dy):
   x = 0
   y = 0
