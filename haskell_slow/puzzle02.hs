@@ -2,14 +2,17 @@
    For now just copied the quick solutions
 -}
 
-module PuzzleInput where
+module Main where
 
 import System.Environment
-import Data.List
-
 import FunParser
 import Control.Applicative
 
+main :: IO ()
+main = do
+  args <- getArgs
+  puzzle (head args)
+  
 puzzle :: String -> IO ()
 puzzle fileName = do
   input <- readFile fileName
