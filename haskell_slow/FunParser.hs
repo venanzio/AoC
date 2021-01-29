@@ -246,18 +246,43 @@ blocks = many . block
 -- parse a string until empty line(s) or eof
 
 chunk :: Parser String
-chunk = do s <- many (sat (/='\n'))
+chunk = do many emptyLn
+           ls <- many neLine
+           return (unlines ls)
+
+{-
+
+  do s <- many (sat (/='\n'))
            char '\n'
            if all isSpace s then empty else return s
+-}
 
+-- empty line
+emptyLine :: Parser ()
+emptyLine = (many (char ' ')) >> char '\n' >> return ()
 
+line :: Parser String
+line = (do c <- item
+           if c == '\n'
+             then return ""
+             else line >>= return . (c:))
+       <|> pAll
 
+-- non-empty line
+neLine :: Parser String
+neLine = satisfy line (not . all (isSpace))
+  
+  
+-- next line (skipping new-line characters)
+ln :: Parser String
+ln = do many (char '\n')
+        l <- some (sat (/='\n'))
+        (string "\n" <|> return "")
+        return l
 
-
-
-
-             
-
+-- empty line (may be all spaces)
+emptyLn :: Parser String
+emptyLn = string "\n" <|> satisfy ln (all isSpace)
 
 
 
@@ -275,23 +300,10 @@ afterNL = do
   if c=='\n' then (many emptyLine) >> return ""
              else beforeNL >>= return . (("\n" ++ blanks ++ [c]) ++)
 
--- empty line
-emptyLine :: Parser ()
-emptyLine = (many (char ' ')) >> char '\n' >> return ()
-
-line :: Parser String
-line = (do c <- item
-           if c == '\n'
-             then return ""
-             else line >>= return . (c:))
-       <|> pAll
-
-
-  
 
 -- any non-empty string
 pAll :: Parser String
-pAll = satisfy (many item) (not . (all isSpace))
+pAll = satisfy (some item) (not . (all isSpace))
 
   
 
