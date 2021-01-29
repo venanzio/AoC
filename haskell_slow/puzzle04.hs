@@ -18,8 +18,13 @@ puzzle :: String -> IO ()
 puzzle fileName = do
   input <- readFile fileName
   let ps = parseAll passports input
-  putStrLn ("Part 1: " ++ show (countValid1 ps))
-  putStrLn ("Part 2: " ++ show (countValid2 ps))
+      ps1 = filter valid1 ps
+      ps2 = filter valid2 ps1
+  putStrLn ("Number of entries: " ++ show (length ps))
+  putStrLn ("Part 1: " ++ show (length ps1))
+  putStrLn ("Part 2: " ++ show (length ps2))
+
+-- Representation of passports as a record type
 
 data Passport = Pass 
   { byrP :: Maybe String,
@@ -51,7 +56,7 @@ emptyPass = Pass {
   }
 
 
--- part 1
+-- Part 1
 
 valid1 :: Passport -> Bool
 valid1 p = byrP p /= Nothing &&
@@ -69,22 +74,34 @@ countValid1 = length . (filter valid1)
 
 -- part 2
 
+valid2 :: Passport -> Bool
+valid2 p = validByr p && validIyr p && validEyr p && validHgt p &&
+           validHcl p && validEcl p && validPid p
+
+
+
 maybeParse :: Parser a -> String -> Maybe a
 maybeParse pa s = case parse pa s of
   [(a,"")] -> Just a
   _        -> Nothing
 
-valid2 :: Passport -> Bool
-valid2 p = validByr p && validIyr p && validEyr p && validHgt p &&
-           validHcl p && validEcl p && validPid p
-
 countValid2 :: [Passport] -> Int
 countValid2 = length . (filter valid2)
 
+
+
+
+
+inRange :: Int -> (Int,Int) -> Bool
+inRange x (low,high) = low <= x && x <= high
+
 validYear :: Int -> Int -> String -> Bool
-validYear low high s = length s == 4 && checkYear (maybeParse natural s)
-  where checkYear Nothing = False
-        checkYear (Just n) = low <= n && n <= high
+validYear low high s =
+  length s == 4 && (all isDigit s) && inRange (read s) (low,high)
+
+
+
+
 
 isNum :: String -> Maybe Int
 isNum s = case (parse natural s) of
