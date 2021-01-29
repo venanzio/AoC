@@ -247,7 +247,7 @@ blocks = many . block
 
 chunk :: Parser String
 chunk = do many emptyLn
-           ls <- many neLine
+           ls <- some neLine
            return (unlines ls)
 
 {-
