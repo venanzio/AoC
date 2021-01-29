@@ -20,7 +20,6 @@ puzzle fileName = do
   let ps = parseAll passports input
       ps1 = filter valid1 ps
       ps2 = filter valid2 ps1
-  putStrLn ("Number of entries: " ++ show (length ps))
   putStrLn ("Part 1: " ++ show (length ps1))
   putStrLn ("Part 2: " ++ show (length ps2))
 
@@ -54,91 +53,6 @@ emptyPass = Pass {
   pidP = Nothing,
   cidP = Nothing
   }
-
-
--- Part 1
-
-valid1 :: Passport -> Bool
-valid1 p = byrP p /= Nothing &&
-           iyrP p /= Nothing &&
-           eyrP p /= Nothing &&
-           hgtP p /= Nothing &&
-           hclP p /= Nothing &&
-           eclP p /= Nothing &&
-           pidP p /= Nothing 
-  
-countValid1 :: [Passport] -> Int
-countValid1 = length . (filter valid1)
-
-
-
--- part 2
-
-valid2 :: Passport -> Bool
-valid2 p = validByr p && validIyr p && validEyr p && validHgt p &&
-           validHcl p && validEcl p && validPid p
-
-
-
-maybeParse :: Parser a -> String -> Maybe a
-maybeParse pa s = case parse pa s of
-  [(a,"")] -> Just a
-  _        -> Nothing
-
-countValid2 :: [Passport] -> Int
-countValid2 = length . (filter valid2)
-
-
-checkMaybe :: (a -> Bool) -> Maybe a -> Bool
-checkMaybe p Nothing = False
-checkMaybe p (Just x ) = p x
-
-inRange :: Int -> (Int,Int) -> Bool
-inRange x (low,high) = low <= x && x <= high
-
-validYear :: Int -> Int -> String -> Bool
-validYear low high s =
-  length s == 4 && (all isDigit s) && inRange (read s) (low,high)
-
--- checking year fields: all have type Passport -> Bool
-validByr p = checkMaybe (validYear 1920 2002) (byrP p)
-validIyr p = checkMaybe (validYear 2010 2020) (iyrP p)
-validEyr p = checkMaybe (validYear 2020 2030) (eyrP p)
-
-
-
-validHgt :: Passport -> Bool
-validHgt p = case (hgtP p >>= maybeParse parseHgt) of
-  Just (n,"cm") -> 150 <= n && n <= 293
-  Just (n,"in") -> 59 <= n && n <= 76
-  _ -> False
-  
-parseHgt :: Parser (Int,String)
-parseHgt = do
-  n <- natural
-  unit <- symbol "cm" <|> symbol "in"
-  return (n,unit)  
-
-
-validHcl :: Passport -> Bool
-validHcl p = case (hclP p >>= maybeParse parseHcl) of
-  Just s -> length s == 6
-  Nothing -> False
-
-parseHcl :: Parser String
-parseHcl = do
-  char '#'
-  many $ sat (`elem` "0123456789abcdef")
-
-validEcl :: Passport -> Bool
-validEcl p = (eclP p) `elem` (map Just ["amb","blu","brn","gry","grn","hzl","oth"])
-
-validPid :: Passport -> Bool
-validPid p = case pidP p of
-  Nothing -> False
-  Just s -> length s == 9 && (all isDigit s)
-
-
 
 -- Parsing the input
 
@@ -175,3 +89,61 @@ chHcl v pass = pass {hclP = Just v}
 chEcl v pass = pass {eclP = Just v}
 chPid v pass = pass {pidP = Just v}
 chCid v pass = pass {cidP = Just v}
+
+-- Part 1
+
+valid1 :: Passport -> Bool
+valid1 p = byrP p /= Nothing &&
+           iyrP p /= Nothing &&
+           eyrP p /= Nothing &&
+           hgtP p /= Nothing &&
+           hclP p /= Nothing &&
+           eclP p /= Nothing &&
+           pidP p /= Nothing 
+  
+-- Part 2
+
+valid2 :: Passport -> Bool
+valid2 p = checkByr p && checkIyr p && checkEyr p && checkHgt p &&
+           checkHcl p && checkEcl p && checkPid p
+
+-- checking fields: all have type Passport -> Bool
+checkByr = checkMaybe (validYear 1920 2002) . byrP
+checkIyr = checkMaybe (validYear 2010 2020) . iyrP
+checkEyr = checkMaybe (validYear 2020 2030) . eyrP
+checkHgt = checkMaybe validHgt . hgtP
+checkHcl = checkMaybe validHcl . hclP
+checkEcl = checkMaybe validEcl . eclP
+checkPid = checkMaybe validPid . pidP
+
+checkMaybe :: (a -> Bool) -> Maybe a -> Bool
+checkMaybe p Nothing = False
+checkMaybe p (Just x ) = p x
+
+inRange :: Int -> (Int,Int) -> Bool
+inRange x (low,high) = low <= x && x <= high
+
+validYear :: Int -> Int -> String -> Bool
+validYear low high s =
+  length s == 4 && (all isDigit s) && inRange (read s) (low,high)
+
+validHgt :: String -> Bool
+validHgt s = let (ds,u) = span isDigit s
+                 v = read ds 
+             in case u of
+                  "cm" -> 150 <= v && v <= 293
+                  "in" -> 59 <= v && v <= 76
+                  _    -> False
+                     
+validHcl :: String -> Bool
+validHcl s = length s == 7 &&
+             head s == '#' &&
+             all (`elem` "0123456789abcdef") (tail s)
+
+validEcl :: String -> Bool
+validEcl = (`elem` ["amb","blu","brn","gry","grn","hzl","oth"])
+
+validPid :: String -> Bool
+validPid s = length s == 9 && all isDigit s
+
+
