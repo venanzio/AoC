@@ -89,8 +89,9 @@ countValid2 :: [Passport] -> Int
 countValid2 = length . (filter valid2)
 
 
-
-
+checkMaybe :: (a -> Bool) -> Maybe a -> Bool
+checkMaybe p Nothing = False
+checkMaybe p (Just x ) = p x
 
 inRange :: Int -> (Int,Int) -> Bool
 inRange x (low,high) = low <= x && x <= high
@@ -99,29 +100,12 @@ validYear :: Int -> Int -> String -> Bool
 validYear low high s =
   length s == 4 && (all isDigit s) && inRange (read s) (low,high)
 
+-- checking year fields: all have type Passport -> Bool
+validByr p = checkMaybe (validYear 1920 2002) (byrP p)
+validIyr p = checkMaybe (validYear 2010 2020) (iyrP p)
+validEyr p = checkMaybe (validYear 2020 2030) (eyrP p)
 
 
-
-
-isNum :: String -> Maybe Int
-isNum s = case (parse natural s) of
-            [(n,"")] -> Just n
-            _ -> Nothing
-
-validByr :: Passport -> Bool
-validByr p = case (byrP p) of
-  Nothing -> False
-  Just s -> validYear 1920 2002 s
-
-validIyr :: Passport -> Bool
-validIyr p = case (iyrP p) of
-  Nothing -> False
-  Just s -> validYear 2010 2020 s
-
-validEyr :: Passport -> Bool
-validEyr p = case (eyrP p) of
-  Nothing -> False
-  Just s -> validYear 2020 2030 s
 
 validHgt :: Passport -> Bool
 validHgt p = case (hgtP p >>= maybeParse parseHgt) of
