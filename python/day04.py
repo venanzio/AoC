@@ -1,17 +1,31 @@
 # Advent of Code 2020, Day 3
 
-with open("../input03", "r") as infile:
+import re
+
+with open("../input04", "r") as infile:
      input = infile.readlines()
+
+print(input)
 
 # divide the input into lines
 lines = [i.split("\n")[0] for i in input]
-
 
 
 # implement passports as dictionaries on fields
 
 # required fields
 fields = ("byr","iyr","eyr","hgt","hcl","ecl","pid")
+
+# parsing a passport
+
+
+# split at empty lines:
+lines = re.split(" *\n","blah\nblih\n \nyff")
+print(lines)
+
+
+
+
 
 passport = {"ecl": "gry", "pid": "860033327", "eyr": "2020", 
             "hcl": "#fffffd", "byr": "1937", "iyr": "2017",
