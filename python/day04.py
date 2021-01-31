@@ -3,9 +3,7 @@
 import re
 
 with open("../input04", "r") as infile:
-     input = infile.readlines()
-
-print(input)
+     input = infile.read() # infile.readlines()
 
 # divide the input into lines
 lines = [i.split("\n")[0] for i in input]
@@ -20,7 +18,7 @@ fields = ("byr","iyr","eyr","hgt","hcl","ecl","pid")
 
 
 # split at empty lines:
-lines = re.split(" *\n","blah\nblih\n \nyff")
+lines = re.split("\n *\n",input)
 print(lines)
 
 
