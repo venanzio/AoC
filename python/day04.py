@@ -60,6 +60,7 @@ def check_year(mn,mx,s):
     b = mn <= int(s) <= mx
   return b
 
+# check for a correct height in centimeters or inches
 def check_hgt(s):
   b = False
   if len(s) > 3:
@@ -73,14 +74,26 @@ def check_hgt(s):
             b = 59 <= h <= 76
   return b
 
+def is_hex(s):
+  b = True
+  for c in s: b = b and c in "0123456789abcdef"
+  return b
+
+
+# check hair color
+def check_hcl(s):
+  b = False
+  if len(s) == 7:
+    b = s[0] == '#' and is_hex(s[1:])
+  return b
+
 def check_fields(pas):
   # check year ranges
-  b = check_year(1920,2002,pas["hgt"]) and \
+  b = check_year(1920,2002,pas["byr"]) and \
       check_year(2010,2020,pas["iyr"]) and \
-      check_year(2020,2030,pas["eyr"])
-  # check height
-  b = check_hgt(pas["hgt"])
-  # check hair color
+      check_year(2020,2030,pas["eyr"]) and \
+      check_hgt(pas["hgt"]) and \
+      check_hcl(pas["hcl"])
 
 
   return b
