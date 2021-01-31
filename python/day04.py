@@ -5,10 +5,6 @@ import re
 with open("../input04", "r") as infile:
      input = infile.read() # infile.readlines()
 
-# divide the input into lines
-lines = [i.split("\n")[0] for i in input]
-
-
 # implement passports as dictionaries on fields
 
 # required fields
@@ -18,16 +14,14 @@ fields = ("byr","iyr","eyr","hgt","hcl","ecl","pid")
 
 
 # split at empty lines:
-lines = re.split("\n *\n",input)
-print(lines)
+blocks = re.split("\n *\n",input)
 
-
-
-
-
-passport = {"ecl": "gry", "pid": "860033327", "eyr": "2020", 
-            "hcl": "#fffffd", "byr": "1937", "iyr": "2017",
-            "cid": "147", "hgt": "183cm"}
+def parse_passport(s):
+  pas = {}
+  for fs in re.split(" +|\n+",s):
+    fn,fv = re.split(":",fs)
+    pas[fn] = fv
+  return pas
 
 def check_passport(pas):
   b = True
@@ -35,6 +29,10 @@ def check_passport(pas):
   for f in fields: b = b and f in fs
   return b
 
+#passports = [parse_passport(b) for b in blocks]
+#print(passports[0])
+
+passport = parse_passport(blocks[0])
 
 for f in passport.keys(): print(f + ": " +  passport[f])
 
