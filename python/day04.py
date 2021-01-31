@@ -52,6 +52,14 @@ def is_num(s):
   for c in s: b = b and c in "0123456789"
   return b
 
+
+# check for a year between two values 
+def check_year(mn,mx,s):
+  b = False
+  if len(s)==4 and is_num(s):
+    b = mn <= int(s) <= mx
+  return b
+
 def check_hgt(s):
   b = False
   if len(s) > 3:
@@ -67,11 +75,10 @@ def check_hgt(s):
 
 def check_fields(pas):
   # check year ranges
-  b = 1920 <= int(pas["byr"]) <= 2002 \
-      and 2010 <= int(pas["iyr"]) <= 2020 \
-      and 2020 <= int(pas["eyr"]) <= 2030
+  b = check_year(1920,2002,pas["hgt"]) and \
+      check_year(2010,2020,pas["iyr"]) and \
+      check_year(2020,2030,pas["eyr"])
   # check height
-  print(pas["hgt"])
   b = check_hgt(pas["hgt"])
   # check hair color
 
