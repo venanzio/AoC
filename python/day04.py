@@ -30,6 +30,8 @@ def parse_passport(s):
     pas[fn] = fv
   return pas
 
+# Part 1
+
 def check_passport(pas):
   b = True
   fs = pas.keys()
@@ -37,10 +39,19 @@ def check_passport(pas):
   return b
 
 passports = [parse_passport(b) for b in blocks]
-
-# Part 1
 valid_passports = [p for p in passports if check_passport(p)]
+
 print("Part 1: " + str(len(valid_passports)))
 
+# Part 2
 
+print(passports[0])
 
+def check_fields(pas):
+  b = 1920 <= int(pas["byr"]) <= 2002 \
+      and 2010 <= int(pas["iyr"]) <= 2020 \
+      and 2020 <= int(pas["eyr"]) <= 2030
+  return b
+
+valid_passports = [p for p in valid_passports if check_fields(p)]
+print("Part 2: " + str(len(valid_passports)))
