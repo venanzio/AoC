@@ -1,4 +1,4 @@
-# Advent of Code 2020, Day 3
+# Advent of Code 2020, Day 4
 
 import re
 
@@ -45,8 +45,6 @@ print("Part 1: " + str(len(valid_passports)))
 
 # Part 2
 
-print(passports[0])
-
 def is_num(s):
   b = True
   for c in s: b = b and c in "0123456789"
@@ -79,7 +77,6 @@ def is_hex(s):
   for c in s: b = b and c in "0123456789abcdef"
   return b
 
-
 # check hair color
 def check_hcl(s):
   b = False
@@ -87,15 +84,22 @@ def check_hcl(s):
     b = s[0] == '#' and is_hex(s[1:])
   return b
 
+# check eye color
+def check_ecl(s):
+  return s in ["amb","blu","brn","gry","grn","hzl","oth"]
+
+# check passport ID
+def check_pid(s):
+  return len(s) == 9 and is_num(s)
+
 def check_fields(pas):
-  # check year ranges
   b = check_year(1920,2002,pas["byr"]) and \
       check_year(2010,2020,pas["iyr"]) and \
       check_year(2020,2030,pas["eyr"]) and \
       check_hgt(pas["hgt"]) and \
-      check_hcl(pas["hcl"])
-
-
+      check_hcl(pas["hcl"]) and \
+      check_ecl(pas["ecl"]) and \
+      check_pid(pas["pid"])
   return b
 
 valid_passports = [p for p in valid_passports if check_fields(p)]
