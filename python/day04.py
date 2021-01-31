@@ -16,10 +16,17 @@ fields = ("byr","iyr","eyr","hgt","hcl","ecl","pid")
 # split at empty lines:
 blocks = re.split("\n *\n",input)
 
+def blanks(s):
+  b = True
+  for c in s:
+    b = b and (c == ' ' or c == '\n')
+  return b
+
 def parse_passport(s):
   pas = {}
-  for fs in re.split(" +|\n+",s):
-    fn,fv = re.split(":",fs)
+  fs = [f for f in re.split(" |\n",s) if not blanks(f)]
+  for f in fs:
+    fn,fv = re.split(":",f)
     pas[fn] = fv
   return pas
 
@@ -29,10 +36,11 @@ def check_passport(pas):
   for f in fields: b = b and f in fs
   return b
 
-#passports = [parse_passport(b) for b in blocks]
-#print(passports[0])
+passports = [parse_passport(b) for b in blocks]
 
-passport = parse_passport(blocks[0])
+passport = passports[-1]
+
+print(passport)
 
 for f in passport.keys(): print(f + ": " +  passport[f])
 
