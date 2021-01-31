@@ -47,10 +47,35 @@ print("Part 1: " + str(len(valid_passports)))
 
 print(passports[0])
 
+def is_num(s):
+  b = True
+  for c in s: b = b and c in "0123456789"
+  return b
+
+def check_hgt(s):
+  b = False
+  if len(s) > 3:
+    u = s[-2:]
+    hs = s[0:-2]
+    if is_num(hs):
+      h = int(hs)
+      if u == "cm":
+            b = 150 <= h <= 193
+      elif u == "in":
+            b = 59 <= h <= 76
+  return b
+
 def check_fields(pas):
+  # check year ranges
   b = 1920 <= int(pas["byr"]) <= 2002 \
       and 2010 <= int(pas["iyr"]) <= 2020 \
       and 2020 <= int(pas["eyr"]) <= 2030
+  # check height
+  print(pas["hgt"])
+  b = check_hgt(pas["hgt"])
+  # check hair color
+
+
   return b
 
 valid_passports = [p for p in valid_passports if check_fields(p)]
