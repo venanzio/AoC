@@ -38,15 +38,9 @@ def check_passport(pas):
 
 passports = [parse_passport(b) for b in blocks]
 
-passport = passports[-1]
+# Part 1
+valid_passports = [p for p in passports if check_passport(p)]
+print("Part 1: " + str(len(valid_passports)))
 
-print(passport)
-
-for f in passport.keys(): print(f + ": " +  passport[f])
-
-if check_passport(passport): 
-  print('valid')
-else: 
-  print('invalid')
 
 
