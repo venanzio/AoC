@@ -15,3 +15,10 @@ def seat_id(seat):
 ids = [seat_id(s) for s in seats]
 
 print("Part 1: " + str(max(ids)))
+
+ids.sort()
+myseat = 0
+for i in range(0,len(ids)-1):
+  if ids[i+1] == ids[i] +2: myseat = ids[i]+1
+
+print("Part 2: " + str(myseat))
