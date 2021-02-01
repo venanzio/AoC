@@ -4,10 +4,6 @@ module Main where
 
 import System.Environment
 import Data.List
-import Data.Char
-
-import FunParser
-import Control.Applicative
 
 main :: IO ()
 main = do
