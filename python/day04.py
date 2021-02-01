@@ -3,7 +3,7 @@
 import re
 
 with open("../input04", "r") as infile:
-     input = infile.read() # infile.readlines()
+     input = infile.read()
 
 # implement passports as dictionaries on fields
 
