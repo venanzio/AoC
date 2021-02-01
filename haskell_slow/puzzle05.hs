@@ -22,6 +22,7 @@ puzzle fileName = do
   putStrLn ("Part 1: " ++ show (maximum ids))
   putStrLn ("Part 2: " ++ show (findMissing (map seatID bps)))
 
+-- value of a number in birary representation (most significant digit first)
 bin :: [Bool] -> Int
 bin = foldl (\r b -> 2*r + if b then 1 else 0) 0
 
@@ -43,7 +44,7 @@ seatID :: String -> Int
 seatID s = let (r,c) = seat s
            in 8*r+c
 
-
+-- Find the missing seat ID number
 findMissing :: [Int] -> Int
 findMissing seats = fmiss (head sts + 1) (tail sts) where
   sts = sort seats
