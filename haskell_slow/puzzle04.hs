@@ -3,11 +3,10 @@
 module Main where
 
 import System.Environment
-import Data.List
 import Data.Char
+import Control.Applicative
 
 import FunParser
-import Control.Applicative
 
 main :: IO ()
 main = do
