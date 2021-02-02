@@ -17,37 +17,25 @@ main = do
 puzzle :: String -> IO ()
 puzzle fileName = do
   input <- readFile fileName
-  let grps = parseAll groupsComm input
-  putStrLn ("Part 2: " ++ show (sum grps))
-
+  let grps = parseAll groups input
+      p1counts = map (length.anyAnswer) grps
+      p2counts = map (length.allAnswer) grps
+  putStrLn ("Part 1: " ++ show (sum p1counts)) 
+  putStrLn ("Part 2: " ++ show (sum p2counts)) 
+        
 -- Parsing
 
-grAns :: Parser [[String]]
-grAns = blocks (some line)
+groups :: Parser [[String]]
+groups = blocks (some line)
 
+-- Part 1
+-- questions to which any group member answered "yes"
 
--- part 1
+anyAnswer :: [String] -> String
+anyAnswer = nub . foldl union ""
 
-noDups :: Eq a => [a] -> [a]
-noDups = foldr (\x ys -> if x `elem` ys then ys else x:ys) []
+-- Part 2
+-- question to which all group members answered "yes"
 
-groupCount :: Parser Int
-groupCount = some (token item) >>= return . length . noDups
-                
-groups :: Parser [Int]
-groups = blocks groupCount
-
--- part 2
-
-common :: Eq a => [[a]] -> [a]
-common [] = []
-common (xs:xss) = noDups $ foldl intersect xs xss
-
-groupCommon :: Parser Int
-groupCommon = do ps <- (some line)
-                 return $ length (common ps)
-
-groupsComm :: Parser [Int]
-groupsComm = blocks groupCommon
-
-
+allAnswer :: [String] -> String
+allAnswer = nub . foldl intersect ['a'..'z']
