@@ -34,3 +34,16 @@ count = 0
 for g in groups: count += any_ans(g)
 
 print("Part 1: " + str(count))
+
+# Part 2
+
+def all_ans(g):
+  aa = set([chr(c) for c in range(ord('a'),ord('z')+1)])
+  for l in g:
+   aa = aa.intersection(set(l))
+  return len(aa)
+
+count = 0
+for g in groups: count += all_ans(g)
+
+print("Part s: " + str(count))
