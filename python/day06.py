@@ -1,7 +1,5 @@
 # Advent of Code 2020, Day 6
 
-import re
-
 with open("../input06", "r") as infile:
      lines = infile.readlines()
 
@@ -26,8 +24,7 @@ groups.append(group)
 
 def any_ans(g):
   aa = set()
-  for l in g:
-   aa = aa.union(set(l))
+  for l in g: aa.update(set(l))
   return len(aa)
 
 count = 0
@@ -39,11 +36,10 @@ print("Part 1: " + str(count))
 
 def all_ans(g):
   aa = set([chr(c) for c in range(ord('a'),ord('z')+1)])
-  for l in g:
-   aa = aa.intersection(set(l))
+  for l in g: aa.intersection_update(set(l))
   return len(aa)
 
 count = 0
 for g in groups: count += all_ans(g)
 
-print("Part s: " + str(count))
+print("Part 2: " + str(count))
