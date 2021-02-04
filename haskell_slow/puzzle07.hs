@@ -11,8 +11,6 @@ import Control.Applicative
 
 import qualified Data.Map as M
 
-
-
 main :: IO ()
 main = do
   args <- getArgs
@@ -22,11 +20,14 @@ puzzle :: String -> IO ()
 puzzle fileName = do
   input <- readFile fileName
   let rules = parseAll pBRules input
-      bc = bagContain rules
+      -- bc = bagContain rules
       mybag = Bag "shiny" "gold"
-      bs = bagSupRec bc mybag
-  putStrLn ("Part 1: " ++ show (length bs))
-  putStrLn ("Part 2: " ++ show (numBags rules mybag))
+      -- bs = bagSupRec bc mybag
+  putStrLn ("Part 1: " ++ show (M.lookup mybag rules))
+  putStrLn ("Part 2: ") -- ++ show (numBags rules mybag))
+
+
+-- Data Structures for Bags and Bag Rules
 
 data Bag = Bag String String   -- Adjective and color
   deriving (Show,Eq,Ord)
@@ -34,23 +35,27 @@ data Bag = Bag String String   -- Adjective and color
 data BagR = BagR Bag [(Int,Bag)]  -- Bag rule: container and contained
   deriving (Show,Eq)
 
+type BagRules = M.Map Bag [(Int,Bag)]
+
 data BagT = BagT Bag [BagT]  -- Bag Membership Tree (node contained in children)
   deriving (Show,Eq)
 
+-- Parse a bag name (adjective and color)
 pBag :: Parser Bag
 pBag = do adj <- word
           col <- word
+          (symbol "bags" <|> symbol "bag")
           return (Bag adj col)
 
+-- Parse number and bag name
 pNBag :: Parser (Int,Bag)
 pNBag = do n <- natural
            bag <-pBag
-           (symbol "bags" <|> symbol "bag")
            return (n,bag)
 
+-- Parse a bag rule
 pBRule :: Parser BagR
 pBRule = do cont <- pBag
-            symbol "bags"
             symbol "contain"
             bags <- (symbol "no" >> symbol "other" >> symbol "bags"
                      >> return [])
@@ -58,13 +63,29 @@ pBRule = do cont <- pBag
             symbol "."
             return (BagR cont bags)
             
-pBRules :: Parser [BagR]
-pBRules = some pBRule
+pBRules :: Parser BagRules
+pBRules = (do
+  BagR cont bags <- pBRule
+  rs <- pBRules
+  return (M.insert cont bags rs)
+  ) <|> return M.empty
 
 -- Part 1
 
-noDups :: Eq a => [a] -> [a]
-noDups = foldr (\x ys -> if x `elem` ys then ys else x:ys) []
+-- Test of a bag contains any of a set of bags
+-- contains :: [BagR] -> Bag -> Set Bag -> Bool
+
+
+
+{-
+
+
+
+-- set of bags that recursively contain a given bag
+containers :: [BagR] -> Bag -> Set Bag
+containers rs b = 
+
+
 
 
 -- list of pairs: first bag contains the second
@@ -77,19 +98,19 @@ bcBagR :: BagR -> BCont-> BCont
 bcBagR (BagR b nbs) bc = foldr (\b' bc' -> bcUpdate b b' bc') bc (map snd nbs)
   
 bagContain :: [BagR] -> BCont
-bagContain = noDups . foldr bcBagR []
+bagContain = nub . foldr bcBagR []
 
 
 bagSup :: BCont -> Bag -> [Bag]
 bagSup bc b = map fst $ filter (\(b1,b2) -> b2==b) bc
 
 eqBags :: [Bag] -> [Bag] -> Bool
-eqBags b1 b2 = sort (noDups b1) == sort (noDups b2)
+eqBags b1 b2 = sort (nub b1) == sort (nub b2)
 
 
 bagSupRec :: BCont -> Bag -> [Bag]
 bagSupRec bc b = bagSR (bagSup bc b) where
-  bagSR bs = let bs' = noDups $ bs ++ (concat $ map (bagSup bc) bs)
+  bagSR bs = let bs' = nub $ bs ++ (concat $ map (bagSup bc) bs)
              in if (bs' `eqBags` bs)
                 then bs
                 else bagSR bs'                   
@@ -107,3 +128,4 @@ numBags br b =
       m = sum (map (\(i,b') -> i*(numBags br b')) nbs)
   in (n+m)
   
+-}
