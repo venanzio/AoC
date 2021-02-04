@@ -6,10 +6,14 @@ import System.Environment
 import Data.List
 import Data.Char
 
-import FunParser
+
 import Control.Applicative
 
 import qualified Data.Map as M
+import qualified Data.Set as S
+
+
+import FunParser
 
 main :: IO ()
 main = do
@@ -19,11 +23,11 @@ main = do
 puzzle :: String -> IO ()
 puzzle fileName = do
   input <- readFile fileName
-  let rules = parseAll pBRules input
+  let rules = parseAll (some pBRule) input -- parseAll pBRules input
       -- bc = bagContain rules
       mybag = Bag "shiny" "gold"
-      -- bs = bagSupRec bc mybag
-  putStrLn ("Part 1: " ++ show (M.lookup mybag rules))
+      bs = containers rules mybag --bagSupRec bc mybag
+  putStrLn ("Part 1: " ++ show (S.size bs))
   putStrLn ("Part 2: ") -- ++ show (numBags rules mybag))
 
 
@@ -73,20 +77,21 @@ pBRules = (do
 -- Part 1
 
 -- Test of a bag contains any of a set of bags
--- contains :: [BagR] -> Bag -> Set Bag -> Bool
+contains :: BagR -> S.Set Bag -> Bool
+contains (BagR bag conts) bs =
+  any (\(_,b) -> S.member b bs) conts
 
+-- Add to a set the bags that contain some of those in the set
+conts :: S.Set Bag -> [BagR] -> S.Set Bag
+conts = foldr (\r@(BagR b _) bs -> if contains r bs then S.insert b bs else bs)
+                   
+
+-- set of bags that recursively contain a given bag
+containers :: [BagR] -> Bag -> S.Set Bag
+containers rs b = conts (S.insert b (containers rs b)) rs
 
 
 {-
-
-
-
--- set of bags that recursively contain a given bag
-containers :: [BagR] -> Bag -> Set Bag
-containers rs b = 
-
-
-
 
 -- list of pairs: first bag contains the second
 type BCont = [(Bag,Bag)]
