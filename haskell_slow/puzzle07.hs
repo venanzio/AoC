@@ -81,6 +81,11 @@ contains :: BagR -> S.Set Bag -> Bool
 contains (BagR bag conts) bs =
   any (\(_,b) -> S.member b bs) conts
 
+
+
+
+
+
 -- Add to a set the bags that contain some of those in the set
 conts :: S.Set Bag -> [BagR] -> S.Set Bag
 conts = foldr (\r@(BagR b _) bs -> if contains r bs then S.insert b bs else bs)
