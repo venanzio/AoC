@@ -28,7 +28,7 @@ puzzle fileName = do
       mybag = Bag "shiny" "gold"
       bs = image (trans rc) mybag  -- bags that may contain mybag
   putStrLn ("Part 1: " ++ show (length bs))
-  putStrLn ("Part 2: ") -- ++ show (numBags rules mybag))
+  putStrLn ("Part 2: " ++ show (numBags rules M.! mybag))
 
 
 -- Data Structures for Bags and Bag Rules
@@ -103,50 +103,12 @@ contains :: [BagR] -> Relation Bag
 contains = foldr (\(BagR b ibs) -> M.insert b (S.fromList (map snd ibs))) M.empty
 
 
-
-
-
-
--- list of pairs: first bag contains the second
-type BCont = [(Bag,Bag)]
-
-bcUpdate :: Bag -> Bag -> BCont -> BCont
-bcUpdate b1 b2 bc = (b1,b2):bc
-
-bcBagR :: BagR -> BCont-> BCont
-bcBagR (BagR b nbs) bc = foldr (\b' bc' -> bcUpdate b b' bc') bc (map snd nbs)
-  
-bagContain :: [BagR] -> BCont
-bagContain = nub . foldr bcBagR []
-
-
-bagSup :: BCont -> Bag -> [Bag]
-bagSup bc b = map fst $ filter (\(b1,b2) -> b2==b) bc
-
-eqBags :: [Bag] -> [Bag] -> Bool
-eqBags b1 b2 = sort (nub b1) == sort (nub b2)
-
-
-bagSupRec :: BCont -> Bag -> [Bag]
-bagSupRec bc b = bagSR (bagSup bc b) where
-  bagSR bs = let bs' = nub $ bs ++ (concat $ map (bagSup bc) bs)
-             in if (bs' `eqBags` bs)
-                then bs
-                else bagSR bs'                   
-
-{-
-
 -- Part 2
 
-contents :: [BagR] -> Bag -> [(Int,Bag)]
-contents [] _ = []
-contents (BagR b nbs : brs) b' = if b==b' then  nbs else contents brs b'
+-- Finite map from bags to the number of recursive bags they contained
+-- Solved using dynamic programming and lazy evaluation
 
-numBags :: [BagR] -> Bag -> Int
-numBags br b =
-  let nbs = contents br b
-      n = sum (map fst nbs)
-      m = sum (map (\(i,b') -> i*(numBags br b')) nbs)
-  in (n+m)
-  
--}
+numBags :: [BagR] -> M.Map Bag Int
+numBags rs = nb where
+  nb = M.fromList [(b, sum [i*(1 + nb M.! b') | (i,b')<-ibs])
+                  | (BagR b ibs) <- rs]
