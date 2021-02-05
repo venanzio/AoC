@@ -23,9 +23,10 @@ puzzle :: String -> IO ()
 puzzle fileName = do
   input <- readFile fileName
   let rules = parseAll pBRules input
-      bc = bagContain rules
+      cr = contains rules  -- contain relation
+      rc = inverse cr      -- "is contained" relation
       mybag = Bag "shiny" "gold"
-      bs = bagSupRec bc mybag
+      bs = image (trans rc) mybag  -- bags that may contain mybag
   putStrLn ("Part 1: " ++ show (length bs))
   putStrLn ("Part 2: ") -- ++ show (numBags rules mybag))
 
@@ -83,13 +84,23 @@ image r a = case M.lookup a r of
   Nothing -> S.empty
   Just s  -> s
 
+-- inverse relation
+inverse :: Ord a => Relation a -> Relation a
+inverse = M.foldrWithKey
+            (\b s r ->
+               S.foldl (\r' b' -> M.insertWith S.union b' (S.singleton b) r')
+                       r s)
+            M.empty
+
 -- transitive closure
 trans :: Ord a => Relation a -> Relation a
 trans r = tr where
   tr = M.map images r
   images as = S.union as (S.unions (S.map (image tr) as))
 
-
+-- Relation container-content for bags
+contains :: [BagR] -> Relation Bag
+contains = foldr (\(BagR b ibs) -> M.insert b (S.fromList (map snd ibs))) M.empty
 
 
 
