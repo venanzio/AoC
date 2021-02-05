@@ -76,15 +76,29 @@ pBRules = (do
 
 -- Part 1
 
--- Test of a bag contains any of a set of bags
+-- all the bags recursively contained in one bag
+contents :: BagRules -> M.Map Bag (S.Set Bag)
+contents rs = conts where
+  conts = M.map hconts rs
+  hconts :: [(Int,Bag)] -> S.Set Bag
+  hconts ibs = foldl (\s (i,b) -> S.union s (conts M.! b))
+                     (S.fromList $ map snd ibs) ibs
+
+-- whether a bag is contained recursively
+contains :: BagRules -> Bag -> M.Map Bag Bool
+contains rs b = cont where
+  cont = M.map hcont rs
+  hcont :: [(Int,Bag)] -> Bool
+  hcont ibs = b `elem` (map snd ibs) || any (\(i,b') -> cont M.! b') ibs
+
+
+{-
+
+
+-- Test if a bag contains any of a set of bags
 contains :: BagR -> S.Set Bag -> Bool
 contains (BagR bag conts) bs =
   any (\(_,b) -> S.member b bs) conts
-
-
-
-
-
 
 -- Add to a set the bags that contain some of those in the set
 conts :: S.Set Bag -> [BagR] -> S.Set Bag
@@ -94,6 +108,7 @@ conts = foldr (\r@(BagR b _) bs -> if contains r bs then S.insert b bs else bs)
 -- set of bags that recursively contain a given bag
 containers :: [BagR] -> Bag -> S.Set Bag
 containers rs b = conts (S.insert b (containers rs b)) rs
+-}
 
 
 {-
