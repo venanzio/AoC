@@ -12,7 +12,6 @@ import Control.Applicative
 import qualified Data.Map as M
 import qualified Data.Set as S
 
-
 import FunParser
 
 main :: IO ()
@@ -23,11 +22,11 @@ main = do
 puzzle :: String -> IO ()
 puzzle fileName = do
   input <- readFile fileName
-  let rules = parseAll (some pBRule) input -- parseAll pBRules input
-      -- bc = bagContain rules
+  let rules = parseAll pBRules input
+      bc = bagContain rules
       mybag = Bag "shiny" "gold"
-      bs = containers rules mybag --bagSupRec bc mybag
-  putStrLn ("Part 1: " ++ show (S.size bs))
+      bs = bagSupRec bc mybag
+  putStrLn ("Part 1: " ++ show (length bs))
   putStrLn ("Part 2: ") -- ++ show (numBags rules mybag))
 
 
@@ -38,8 +37,6 @@ data Bag = Bag String String   -- Adjective and color
 
 data BagR = BagR Bag [(Int,Bag)]  -- Bag rule: container and contained
   deriving (Show,Eq)
-
-type BagRules = M.Map Bag [(Int,Bag)]
 
 data BagT = BagT Bag [BagT]  -- Bag Membership Tree (node contained in children)
   deriving (Show,Eq)
@@ -66,52 +63,38 @@ pBRule = do cont <- pBag
                     <|> (seqSep pNBag ",")
             symbol "."
             return (BagR cont bags)
-            
-pBRules :: Parser BagRules
-pBRules = (do
-  BagR cont bags <- pBRule
-  rs <- pBRules
-  return (M.insert cont bags rs)
-  ) <|> return M.empty
+
+pBRules :: Parser [BagR]
+pBRules = some pBRule
 
 -- Part 1
 
--- all the bags recursively contained in one bag
-contents :: BagRules -> M.Map Bag (S.Set Bag)
-contents rs = conts where
-  conts = M.map hconts rs
-  hconts :: [(Int,Bag)] -> S.Set Bag
-  hconts ibs = foldl (\s (i,b) -> S.union s (conts M.! b))
-                     (S.fromList $ map snd ibs) ibs
+-- Represent a relation on type a as a map from a to subsets of a
+--  (May want to check Data.Relation)
+type Relation a = M.Map a (S.Set a)
 
--- whether a bag is contained recursively
-contains :: BagRules -> Bag -> M.Map Bag Bool
-contains rs b = cont where
-  cont = M.map hcont rs
-  hcont :: [(Int,Bag)] -> Bool
-  hcont ibs = b `elem` (map snd ibs) || any (\(i,b') -> cont M.! b') ibs
+-- Relation from a list of pairs
+listR :: Ord a => [(a,a)] -> Relation a
+listR = foldr (\(x,y) -> M.insertWith S.union x (S.singleton y)) M.empty
 
+-- Image of an element
+image :: Ord a => Relation a -> a -> S.Set a
+image r a = case M.lookup a r of
+  Nothing -> S.empty
+  Just s  -> s
 
-{-
-
-
--- Test if a bag contains any of a set of bags
-contains :: BagR -> S.Set Bag -> Bool
-contains (BagR bag conts) bs =
-  any (\(_,b) -> S.member b bs) conts
-
--- Add to a set the bags that contain some of those in the set
-conts :: S.Set Bag -> [BagR] -> S.Set Bag
-conts = foldr (\r@(BagR b _) bs -> if contains r bs then S.insert b bs else bs)
-                   
-
--- set of bags that recursively contain a given bag
-containers :: [BagR] -> Bag -> S.Set Bag
-containers rs b = conts (S.insert b (containers rs b)) rs
--}
+-- transitive closure
+trans :: Ord a => Relation a -> Relation a
+trans r = tr where
+  tr = M.map images r
+  images as = S.union as (S.unions (S.map (image tr) as))
 
 
-{-
+
+
+
+
+
 
 -- list of pairs: first bag contains the second
 type BCont = [(Bag,Bag)]
@@ -139,6 +122,8 @@ bagSupRec bc b = bagSR (bagSup bc b) where
              in if (bs' `eqBags` bs)
                 then bs
                 else bagSR bs'                   
+
+{-
 
 -- Part 2
 
