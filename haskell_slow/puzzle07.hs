@@ -3,16 +3,12 @@
 module Main where
 
 import System.Environment
-import Data.List
-import Data.Char
 
-
+import FunParser
 import Control.Applicative
 
 import qualified Data.Map as M
 import qualified Data.Set as S
-
-import FunParser
 
 main :: IO ()
 main = do
@@ -23,7 +19,7 @@ puzzle :: String -> IO ()
 puzzle fileName = do
   input <- readFile fileName
   let rules = parseAll pBRules input
-      cr = contains rules  -- contain relation
+      cr = contains rules  -- "contains" relation
       rc = inverse cr      -- "is contained" relation
       mybag = Bag "shiny" "gold"
       bs = image (trans rc) mybag  -- bags that may contain mybag
@@ -105,7 +101,7 @@ contains = foldr (\(BagR b ibs) -> M.insert b (S.fromList (map snd ibs))) M.empt
 
 -- Part 2
 
--- Finite map from bags to the number of recursive bags they contained
+-- Finite map from bags to the number of recursive bags they contain
 -- Solved using dynamic programming and lazy evaluation
 
 numBags :: [BagR] -> M.Map Bag Int
