@@ -50,3 +50,11 @@ while more:
   newbs = nextbs
 
 print("Part 1: " + str(len(sbags)))
+
+# Part 2
+
+# Recursively count how many bags are contained in bag
+def rec_cont(bag):
+  return(sum([n * (1 + rec_cont(b))  for (n,b) in bags[bag]]))
+
+print("Part 2: " + str(rec_cont("shiny gold")))
