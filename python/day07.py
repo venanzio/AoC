@@ -12,8 +12,14 @@ def parse_num_bag(s):
 # Parse a bag content specification
 def bag_parse(line):
   (bag,spec) = line.split(" bags contain ")
+  if spec.startswith("no"): return(bag,[])
   nbs = spec.split(", ")
   conts = [parse_num_bag(nb) for nb in nbs]
   return(bag,conts)
 
-print(bag_parse(lines[0]))
+bags = {}
+for line in lines:
+  (bag,conts) = bag_parse(line)
+  bags.update({bag : conts})
+
+
