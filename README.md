@@ -41,5 +41,10 @@ Instead, every sequence of related elements will eventually *bottom out* by reac
 This fact allows us to compute the transitive closure by using a *lazy dynamic programming* approach.
 
 One possible representation of a relation is as a function that maps every element to the set of elements it is related to.
-For example the function of **C** could map **F_C: my -> {sg,fb}** to represent the relations expressed by *muted yellow bags contain 2 shiny gold bags, 9 faded blue bags*.
-Then the two rules 
+For example **C** could be represented by a map **fC** so that, for example, **fC: my -> {sg,fb}** expressing *muted yellow bags contain 2 shiny gold bags, 9 faded blue bags*.
+Then the two rules of transitive closure are summarized by:
+**fC\* x = union of (fC x) and (fC\* y) for all ys in  (fC x)**.
+This is a circular definition (using **fC\*** in its own definition).
+But there are no cycles, which means that an evaluation of this definition will always terminate.
+
+Using finite maps in Haskell, we can direcly define the transitive closure function as above and the relation will automatically be computed lazily.
