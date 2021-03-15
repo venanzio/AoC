@@ -43,7 +43,7 @@ This fact allows us to compute the transitive closure by using a *lazy dynamic p
 One possible representation of a relation is as a function that maps every element to the set of elements it is related to.
 For example **C** could be represented by a map **fC** so that, for example, **fC: my -> {sg,fb}** expressing *muted yellow bags contain 2 shiny gold bags, 9 faded blue bags*.
 Then the two rules of transitive closure are summarized by:
-**fC\* x = union of (fC x) and (fC\* y) for all ys in  (fC x)**.
+**fC\* x = union of (fC x) and all (fC\* y)s for all y in  (fC x)**.
 This is a circular definition (using **fC\*** in its own definition).
 But there are no cycles, which means that an evaluation of this definition will always terminate.
 
