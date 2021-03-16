@@ -23,7 +23,8 @@ puzzle fileName = do
       (Just a) = findLoop $ initSt prog 
   putStrLn ("Part 1: " ++ show a)
   let prog' = fixProg prog
-  putStrLn ("Part 2: " ++ show (exec (initSt prog')))
+      a' = exec (initSt prog')
+  putStrLn ("Part 2: " ++ show a')
   
 data Instr = Acc Int | Jmp Int | Nop Int
   deriving (Eq,Show)
@@ -37,7 +38,8 @@ pInst = (symbol "acc" >> signed >>= return.Acc) <|>
 
 pProg :: Parser Prog
 pProg = some pInst
-        
+
+-- Replace element i in list xs with y
 replace :: [a] -> Int -> a -> [a]
 replace xs i y = let (xs1,xs2) = splitAt i xs
                      xs2' = if length xs2 == 0 then [y] else y:(tail xs2)
@@ -58,12 +60,21 @@ initSt pr = State {prog = pr, size = length pr,
                    acc = 0, inst = 0}
 
 
+-- Check if the present instructuion has been executed before
+--   if yes, returns the present value of the accumulator
 loopCheck :: State -> Maybe Int
 loopCheck st =
   case terminate st of
     Nothing -> if (visited st)!!(inst st) then Just (acc st) else Nothing
     _ -> Nothing
-    
+
+-- Check if execution has terminated (present instruction beyond end of program)
+--   if yes, returns the present value of the accumulator
+terminate :: State -> Maybe Int
+terminate st = if inst st >= size st
+               then Just (acc st)
+               else Nothing
+
 check :: State -> State
 check st = st {visited = replace (visited st) (inst st) True}
 
@@ -93,11 +104,6 @@ findLoop st = case loopCheck st of
 
 -- Part 2
 
-terminate :: State -> Maybe Int
-terminate st = if inst st >= size st --  (length $ prog st)
-               then Just (acc st)
-               else Nothing
-
 exec :: State -> Int
 exec st = case terminate st of
   Just a -> a
@@ -114,6 +120,9 @@ changeInst pr n = replace pr n (chInst (pr!!n))
 fixProg :: Prog -> Prog
 fixProg pr = fixP pr 0
 
+-- Brute force solution:
+--  Try changing the instructions of the programs one by one
+--   until we find one for which the program doesn't loop
 fixP :: Prog -> Int -> Prog
 fixP pr n =
   let pr' = changeInst pr n
