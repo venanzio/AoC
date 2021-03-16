@@ -47,18 +47,19 @@ replace xs i y = let (xs1,xs2) = splitAt i xs
 
 -- Part 1
 
+-- State of program during execution
 data State = State {
-  prog :: Prog,
-  size :: Int,
-  visited :: [Bool],
-  acc  :: Int,
-  inst :: Int}
+  prog :: Prog,       -- the program code
+  size :: Int,        -- length of the program
+  visited :: [Bool],  -- flags instructions that have been already executed
+  acc  :: Int,        -- accumulator
+  inst :: Int}        -- number of next instruction to be executed
 
+-- Initialize the state
 initSt :: Prog -> State
 initSt pr = State {prog = pr, size = length pr,
                    visited = replicate (length pr) False,
                    acc = 0, inst = 0}
-
 
 -- Check if the present instructuion has been executed before
 --   if yes, returns the present value of the accumulator
@@ -75,6 +76,7 @@ terminate st = if inst st >= size st
                then Just (acc st)
                else Nothing
 
+-- Mark an instruction as already executed
 check :: State -> State
 check st = st {visited = replace (visited st) (inst st) True}
 
@@ -95,6 +97,9 @@ instr (Acc d) = next . incr d . check
 instr (Jmp n) = jump n . check
 instr (Nop x) = next . check
 
+-- Find if there is a loop
+--  if yes, return the value of the accumulator before the repeated instruction
+--  if not (execution terminates normally) return Nothing
 findLoop :: State -> Maybe Int
 findLoop st = case loopCheck st of
   Just a -> Just a
@@ -104,6 +109,7 @@ findLoop st = case loopCheck st of
 
 -- Part 2
 
+-- execute an return the accumulator after normal termination
 exec :: State -> Int
 exec st = case terminate st of
   Just a -> a
