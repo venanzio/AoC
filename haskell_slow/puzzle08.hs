@@ -76,7 +76,7 @@ terminate st = if inst st >= size st
                then Just (acc st)
                else Nothing
 
--- Mark an instruction as already executed
+-- Mark the present instruction as already executed
 check :: State -> State
 check st = st {visited = replace (visited st) (inst st) True}
 
@@ -89,13 +89,19 @@ jump d st = goto (inst st + d) st
 next :: State -> State
 next = jump 1
 
+-- Increment the accumulator by x
 incr :: Int -> State -> State
 incr x st = st {acc = acc st + x}
 
+-- Interpretation of the instructions
 instr :: Instr -> State -> State
 instr (Acc d) = next . incr d . check
 instr (Jmp n) = jump n . check
 instr (Nop x) = next . check
+
+-- Execute a single instruction
+step :: State -> State
+step st = instr (prog st !! inst st) st
 
 -- Find if there is a loop
 --  if yes, return the value of the accumulator before the repeated instruction
@@ -105,16 +111,17 @@ findLoop st = case loopCheck st of
   Just a -> Just a
   Nothing -> case terminate st of
     Just _ -> Nothing
-    Nothing -> findLoop $ instr (prog st !! inst st) st
+    Nothing -> findLoop $ step st
 
 -- Part 2
 
--- execute an return the accumulator after normal termination
+-- execute and return the accumulator after normal termination
 exec :: State -> Int
 exec st = case terminate st of
   Just a -> a
-  Nothing -> exec $ instr (prog st !! inst st) st
+  Nothing -> exec $ step st
 
+-- Change jump to nop or vice versa
 chInst :: Instr -> Instr
 chInst (Jmp d) = Nop d
 chInst (Nop d) = Jmp d
@@ -131,8 +138,10 @@ fixProg pr = fixP pr 0
 --   until we find one for which the program doesn't loop
 fixP :: Prog -> Int -> Prog
 fixP pr n =
-  let pr' = changeInst pr n
-  in case findLoop (initSt pr') of
-       Nothing -> pr'
-       Just _  -> fixP pr (n+1)
+  case pr!!n of
+    Acc _ -> fixP pr (n+1)
+    _ -> let pr' = changeInst pr n
+         in case findLoop (initSt pr') of
+              Nothing -> pr'
+              Just _  -> fixP pr (n+1)
 
