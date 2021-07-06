@@ -23,10 +23,9 @@ for line in lines:
   (bag,conts) = bag_parse(line)
   bags.update({bag : conts})
 
-
 # Part 1
 
-# dictionary of contents (as sets withouth quantity)
+# dictionary of contents (as sets without quantity)
 
 bcont = { }
 for bag in bags:
