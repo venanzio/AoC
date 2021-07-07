@@ -3,11 +3,26 @@
 with open("../input08", "r") as infile:
      lines = infile.readlines()
 
-# Parses the program into a list of instructions
+# Parse the program into a list of instructions
+
 prog = []
 
 for l in lines:
   (inst,val) = l.split(" ")
   prog.append((inst,int(val)))
 
-print(prog)
+# program length
+size = len(prog)
+
+# accumulator
+acc = 0
+
+# next instruction to be executed
+inst = 0
+
+
+
+
+
+print(size)
+
