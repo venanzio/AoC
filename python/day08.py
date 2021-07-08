@@ -30,9 +30,8 @@ def printstate():
   print("Instruction: " + str(inst) + " -> " + str(prog[inst]))
   return ()
 
-def execute((i,x)):
-  global acc
-  global inst
+# executes an instruction
+def execute((i,x),acc,inst):
   if i == 'acc':
     acc += x
     inst +=1
@@ -40,15 +39,41 @@ def execute((i,x)):
     inst += x
   else:
     inst += 1
-  return ()
+  return (acc,inst)
 
-while inst not in visited:
-  visited.append(inst)
-  print("visited list: " + str(visited))  
-  execute(prog[inst])
-  printstate()
+# check if a program terminates, returns final accumulator
+def terminate(prog):
+  size = len(prog)
+  acc = 0
+  inst = 0
+  visited = []
+  while (inst < size) and (inst not in visited):
+    visited.append(inst)
+    (acc,inst) = execute(prog[inst],acc,inst)
+  return (inst >= size, acc, visited)
 
+#while inst not in visited:
+#  visited.append(inst)
+#  execute(prog[inst],acc,inst)
 
+(t,acc,visited) = terminate(prog)
 
-print(acc)
+print("Part 1: " + str(acc))
+
+# Part 2
+
+def chinstr((i,x)):
+  if i == "jmp":
+    return (("nop",x))
+  elif i == "nop":
+    return (("jmp",x))
+  else:
+    return ((i,x))
+
+for i in visited:
+  prog[i] = chinstr(prog[i])
+  (t,a,v) = terminate(prog)
+  if t: print("Part 2: " + str(a))
+  prog[i] = chinstr(prog[i]) # changing back
+  
 
