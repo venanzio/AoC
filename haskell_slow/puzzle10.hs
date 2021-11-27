@@ -1,10 +1,9 @@
--- Advent of Code 2020, day 9
+-- Advent of Code 2020, day 10
 
 module PuzzleInput where
 
 import System.Environment
 import Data.List
-import Data.Char
 
 import FunParser
 import Control.Applicative
@@ -43,18 +42,27 @@ part1 nums = let ns = 0:sort nums
 
 -- Part 2
 
-indices :: [Int] -> [Int]
-indices xs = [i | i <- [0..length xs -1]]
+-- Association list with indices as keys
+index :: [a] -> [(Int,a)]
+index = zip [0..]
 
-reach :: [Int] -> Int -> [Int]
-reach xs y = [i | i <- indices xs, xs!!i-y `elem` [1..3]]
-             
-counts :: [Int] -> [Int]
-counts xs = cs where
-  cs = [if i == length xs-1 then 1 else sum (map (cs!!) (reach xs (xs!!i)))
-       | i <- indices xs]
+-- finite map with indices as keys
+indexMap :: [a] -> M.Map Int a
+indexMap = M.fromList . index
 
+-- indices of elements with differences <=3 from the given one (we assume xm sorted)
+steps :: Int -> Int -> M.Map Int Int -> [Int]
+steps i x xm = takeWhile (\k -> (xm M.! k - x) <= 3) [i+1 .. n]
+               where (n,_) = M.findMax xm
 
+-- for every index, count the arrangements starting at that element
+--  use a dynamic programming approach
+arrangements :: [Int] -> M.Map Int Int
+arrangements xs = arrs where
+  n = length xs -1
+  xm = indexMap xs
+  arrs = M.mapWithKey (\i x -> if i == n then 1 else sum (map (arrs M.!) (steps i x xm))) xm
 
 part2 :: [Int] -> Int
-part2 nums = (counts (0:nums ++ [last nums + 3])) !! 0
+part2 nums = (arrangements (0:nums ++ [last nums + 3])) M.! 0
+
