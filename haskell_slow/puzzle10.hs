@@ -19,9 +19,9 @@ main = do
 puzzle :: String -> IO ()
 puzzle fileName = do
   input <- readFile fileName
-  let nums = parseAll (some natural) input
+  let nums = sort $ parseAll (some natural) input
   putStrLn ("Part 1: " ++ show (part1 nums))
-  putStrLn ("Part 2: " ++ show (counts ns!!0))
+  putStrLn ("Part 2: " ++ show (part2 nums))
 
 -- Part 1
 
@@ -56,3 +56,5 @@ counts xs = cs where
 
 
 
+part2 :: [Int] -> Int
+part2 nums = (counts (nums ++ [last nums + 3])) !! 0
