@@ -19,26 +19,27 @@ main = do
 puzzle :: String -> IO ()
 puzzle fileName = do
   input <- readFile fileName
-  let nums = parseAll numbers input
-      ns' = sort nums
-      ns = 0:ns' ++ [last ns' + 3]
-      ds = differences ns
-      ones = count ds 1
-      threes = count ds 3
-  putStrLn ("Part 1: " ++ show (ones * threes))
+  let nums = parseAll (some natural) input
+  putStrLn ("Part 1: " ++ show (part1 nums))
   putStrLn ("Part 2: " ++ show (counts ns!!0))
-
-numbers :: Parser [Int]
-numbers = many natural
 
 -- Part 1
 
+-- list of differences
 differences :: [Int] -> [Int]
-differences (x1:x2:xs) = (x2-x1) : differences (x2:xs)
+differences (x1:xs@(x2:_)) = (x2-x1) : differences xs
 differences _ = []
 
+-- count the occurrences of a number in a list
 count :: [Int] -> Int -> Int
 count xs y = length (filter (==y) xs)
+
+part1 :: [Int] -> Int
+part1 nums = let ns = 0:sort nums
+                 ds = differences ns
+                 ones = count ds 1
+                 threes = count ds 3 + 1
+             in ones * threes
 
 -- Part 2
 
