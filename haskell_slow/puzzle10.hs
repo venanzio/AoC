@@ -57,4 +57,4 @@ counts xs = cs where
 
 
 part2 :: [Int] -> Int
-part2 nums = (counts (nums ++ [last nums + 3])) !! 0
+part2 nums = (counts (0:nums ++ [last nums + 3])) !! 0
