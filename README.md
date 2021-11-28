@@ -48,3 +48,17 @@ This is a circular definition (using **fC\*** in its own definition).
 But there are no cycles, which means that an evaluation of this definition will always terminate.
 
 Using finite maps in Haskell, we can direcly define the transitive closure function as above and the relation will automatically be computed lazily.
+
+### Day 10 - Dynamic Programming
+
+Part 2 of the puzzle asks us to determine the total number of possible arrangements of the adapters.
+Each adapter can connect to up to 3 other adapters, causing an exponential increase of the number of arrangements as we make them longer. It is impossible to compute each arrangement individually.
+
+Instead we use a *dynamic programming* approach: we compute an array mapping each adapter to the number of arrangements starting from that adapter and going up to the device. (The array will contain also a 0 entry for the outlet and one for the device with value equal to the highest adapter plus 3.)
+The value we want is the array entry for 0 (the outlet).
+
+We need to compute each entry in the array only once, so it can be reused every time the corresponding adapter is part of an arrangement.
+In dynamic programming we compute each entry the first time it is needed and reuse it subsequently.
+Lazy evaluation means that we can just define the computation of each entry in terms of the others and they will compute only once when they are first called.
+
+A further optimization is to sort the initial list of adapter rating, so for each of them we only need to check at most the 3 following ones to find those who can connect.
