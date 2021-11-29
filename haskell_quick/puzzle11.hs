@@ -13,9 +13,8 @@ puzzle :: String -> IO Int
 puzzle fileName = do
   input <- readFile fileName
   let area = parseAll pSeats input
-      a1 = nextR area
-  putStrLn (show $ head a1)
-  return (countOccupied $ finalV area)
+  return (countOccupied $ final area)  -- Part 1
+  -- return (countOccupied $ finalV area)  -- Part 2
 
 
 data Seat = Floor | Occupied | Empty

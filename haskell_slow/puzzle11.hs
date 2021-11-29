@@ -111,24 +111,26 @@ rule Empty 0 = Occupied
 rule Occupied n | n>=4 = Empty
 rule s _ = s
 
--- next generation
--- Q: should be a maybe to remember if anything has been changed
-nextR :: Area -> Area
-nextR a = (aWidth a, aLength a, M.mapWithKey (\ij x -> rule x (nCount a ij)) (area a))
-
+-- next round
+--  returns Nothing if the area hasn't changed
+nextA :: Area -> Maybe Area
+nextA a =
+  let ruleChanged ch x n = let x' = rule x n in (ch || x/=x',x')
+      (changed, a') = M.mapAccumWithKey (\ch ij x -> ruleChanged ch x (nCount a ij)) False (area a)
+  in if changed then Just (aWidth a, aLength a, a')
+                else Nothing
+                     
 -- final state, after it stabilize
 final :: Area -> Area
-final a = let a' = nextR a
-          in if a'==a then a
-                      else final a'
+final a = case nextA a of
+            Nothing -> a
+            Just a' -> final a'
 
 countOccupied :: Area -> Int
-countOccupied = M.size . M.filter (==Occupied) . area -- length . filter (==Occupied) . concat 
+countOccupied = M.size . M.filter (==Occupied) . area
 
 part1 :: Area -> Int
 part1 a = countOccupied (final a)
-
-
 
 {-
 
