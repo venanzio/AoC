@@ -18,11 +18,13 @@ main = do
 
 puzzle :: String -> IO ()
 puzzle fileName = do
+  {-
   input <- readFile fileName
   let area = parseAll pSeats input
       a1 = nextR area
-  putStrLn ("Part 1: " ++ show (part1 area))
-  putStrLn ("Part 2: " ++ show (countOccupied $ finalV area))
+  -}
+  putStrLn ("Part 1: ") -- ++ show (part1 area))
+  putStrLn ("Part 2: ") -- ++ show (countOccupied $ finalV area))
 
 -- Data Structures
 
@@ -30,7 +32,7 @@ data Seat = Floor | Occupied | Empty
   deriving (Eq,Show)
 
 -- We could use a finite map or array for efficiency
-type Area = [[Seat]]
+type Area = M.Map (Int,Int) Seat
 
 -- Parsers for the input
 
@@ -38,17 +40,36 @@ pSeat :: Parser Seat
 pSeat = (char '.' >> return Floor) <|>
         (char 'L' >> return Empty) <|>
         (char '#' >> return Occupied)
-
+        
 pSLine :: Parser [Seat]
 pSLine = some pSeat
 
-pSeats :: Parser Area
+pSeats :: Parser [[Seat]]
 pSeats = some (token pSLine)
+
+-- Indexed maps: to be moved into a separate module
+
+-- list to index map, with initial index
+listMap :: Int -> [a] -> M.Map Int a
+listMap i = M.fromAscList . (zip [i..])
+
+-- 2-dimentional matrix to index map, with initial coordinates
+matrixMap :: (Int,Int) -> [[a]] -> M.Map (Int,Int) a
+matrixMap (row,col) xss = M.fromAscList [((r,c), xss!!r!!c) |
+                                         r <- [0 .. length xss - 1],
+                                         c <- [0 .. length (xss!!r) -1]]
+
+mMap :: [[a]] -> M.Map (Int,Int) a
+mMap = matrixMap (0,0)
+
+pArea :: Parser Area
+pArea = fmap mMap pSeats
 
 -- Part 1
 
+-- not really needed
 seat :: Area -> (Int,Int) -> Seat
-seat a (i,j) = a!!i!!j
+seat a (i,j) = a M.! (i,j)
 
 -- coordinates of neighbours
 nCoords :: Int -> Int -> (Int,Int) -> [(Int,Int)]
@@ -58,6 +79,9 @@ nCoords rows cols (i,j)=
                 i+u>=0 && i+u<rows &&
                 j+v>=0 && j+v<cols)]
                 
+{-
+
+
 -- count the occupied places in the neighbourhood
 nCount :: Area -> (Int,Int) -> Int
 nCount a (i,j) = length $
@@ -139,3 +163,4 @@ finalV a = let a' = nextV a
            in if a'==a then a
                        else finalV a'
 
+-}
