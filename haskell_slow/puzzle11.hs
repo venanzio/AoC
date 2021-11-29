@@ -31,8 +31,18 @@ puzzle fileName = do
 data Seat = Floor | Occupied | Empty
   deriving (Eq,Show)
 
--- We could use a finite map or array for efficiency
-type Area = M.Map (Int,Int) Seat
+-- Seating area by coordinates
+type Area = (Int, Int, M.Map (Int,Int) Seat)
+
+aWidth :: Area -> Int
+aWidth (w,_,_) = w
+
+aLength :: Area -> Int
+aLength (_,l,_) = l
+
+seat :: Area -> (Int,Int) -> Seat
+seat (w,l,a) (i,j) = if i<w && l<l then a M.! (i,j) else error "coordinates out of bound"
+
 
 -- Parsers for the input
 
@@ -63,13 +73,9 @@ mMap :: [[a]] -> M.Map (Int,Int) a
 mMap = matrixMap (0,0)
 
 pArea :: Parser Area
-pArea = fmap mMap pSeats
+pArea = pSeats >>= \ss -> return (length (head ss), length ss, mMap ss)
 
 -- Part 1
-
--- not really needed
-seat :: Area -> (Int,Int) -> Seat
-seat a (i,j) = a M.! (i,j)
 
 -- coordinates of neighbours
 nCoords :: Int -> Int -> (Int,Int) -> [(Int,Int)]
@@ -79,15 +85,17 @@ nCoords rows cols (i,j)=
                 i+u>=0 && i+u<rows &&
                 j+v>=0 && j+v<cols)]
                 
-{-
-
-
 -- count the occupied places in the neighbourhood
 nCount :: Area -> (Int,Int) -> Int
 nCount a (i,j) = length $
   filter (==Occupied) $
   map (seat a) $
-  nCoords (length a) (length (head a)) (i,j)
+  nCoords (aLength a) (aWidth a) (i,j)
+
+
+{-
+
+
 
 -- applied the rule to a seat with a given number of neighbours
 rule :: Seat -> Int -> Seat
@@ -99,8 +107,8 @@ rule s _ = s
 -- Q: should be a maybe to remember if anything has been changed
 nextR :: Area -> Area
 nextR a = [[rule (seat a (i,j)) (nCount a (i,j))
-           | j <- [0..length (head a)-1]]
-          | i <- [0..length a-1]]
+           | j <- [0..aWidth a-1]]
+          | i <- [0..aLength a-1]]
 
 -- final state, after it stabilize
 final :: Area -> Area
@@ -141,8 +149,8 @@ aView a rows cols p d = aListView a rows cols (dirList p d)
 
 vCount :: Area -> (Int,Int) -> Int
 vCount a (i,j) =
-  let rows = length a
-      cols = length (head a)
+  let rows = aLength a
+      cols = aWidth a
       dirs = [(u,v) | u<-[-1,0,1], v<-[-1,0,1], (u,v) /= (0,0)]
       ns = map (aView a rows cols (i,j)) dirs
   in length $ filter (==Occupied) ns
@@ -155,8 +163,8 @@ ruleV s _ = s
 
 nextV :: Area -> Area
 nextV a = [[ruleV (seat a (i,j)) (vCount a (i,j))
-           | j <- [0..length (head a)-1]]
-          | i <- [0..length a-1]]
+           | j <- [0..aWidth a-1]]
+          | i <- [0..aLength a-1]]
 
 finalV :: Area -> Area
 finalV a = let a' = nextV a
