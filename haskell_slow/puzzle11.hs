@@ -18,13 +18,18 @@ main = do
 
 puzzle :: String -> IO ()
 puzzle fileName = do
-  {-
   input <- readFile fileName
-  let area = parseAll pSeats input
-      a1 = nextR area
-  -}
-  putStrLn ("Part 1: ") -- ++ show (part1 area))
-  putStrLn ("Part 2: ") -- ++ show (countOccupied $ finalV area))
+  let area = parseAll pArea input
+  putStrLn ("Part 1: " ++ show (part1 area))
+  -- putStrLn ("Part 2: " ++ show (countOccupied $ finalV area))
+
+
+nIter :: (a->a) -> Int -> a->a
+nIter f 0 x = x
+nIter f n x = nIter f (n-1) (f x)
+
+
+
 
 -- Data Structures
 
@@ -40,8 +45,13 @@ aWidth (w,_,_) = w
 aLength :: Area -> Int
 aLength (_,l,_) = l
 
+area :: Area -> M.Map (Int,Int) Seat
+area (_,_,a) = a
+
 seat :: Area -> (Int,Int) -> Seat
-seat (w,l,a) (i,j) = if i<w && l<l then a M.! (i,j) else error "coordinates out of bound"
+seat (w,l,a) (i,j) = if 0<=i && i<w && 0<=j && j<l then a M.! (i,j)
+  else error ("coordinates out of bound: width = " ++ show w ++ ", length = " ++ show l ++
+              ", coordinates = " ++ show (i,j))
 
 
 -- Parsers for the input
@@ -65,37 +75,35 @@ listMap i = M.fromAscList . (zip [i..])
 
 -- 2-dimentional matrix to index map, with initial coordinates
 matrixMap :: (Int,Int) -> [[a]] -> M.Map (Int,Int) a
-matrixMap (row,col) xss = M.fromAscList [((r,c), xss!!r!!c) |
-                                         r <- [0 .. length xss - 1],
-                                         c <- [0 .. length (xss!!r) -1]]
+matrixMap (i0,j0) xss = M.fromList [((i0+i,j0+j), xss!!j!!i) |
+                                    j <- [0 .. length xss - 1],
+                                    i <- [0 .. length (xss!!j) - 1]]
 
 mMap :: [[a]] -> M.Map (Int,Int) a
 mMap = matrixMap (0,0)
 
+mArea :: [[Seat]] -> Area
+mArea xss = (length (head xss), length xss, mMap xss)
+
 pArea :: Parser Area
-pArea = pSeats >>= \ss -> return (length (head ss), length ss, mMap ss)
+pArea = pSeats >>= return.mArea
 
 -- Part 1
 
 -- coordinates of neighbours
 nCoords :: Int -> Int -> (Int,Int) -> [(Int,Int)]
-nCoords rows cols (i,j)=
+nCoords w l (i,j)=
   [(i+u,j+v) | u<-[-1,0,1], v<-[-1,0,1],
                ((u,v) /= (0,0) &&
-                i+u>=0 && i+u<rows &&
-                j+v>=0 && j+v<cols)]
+                i+u>=0 && i+u<w &&
+                j+v>=0 && j+v<l)]
                 
 -- count the occupied places in the neighbourhood
 nCount :: Area -> (Int,Int) -> Int
 nCount a (i,j) = length $
   filter (==Occupied) $
   map (seat a) $
-  nCoords (aLength a) (aWidth a) (i,j)
-
-
-{-
-
-
+  nCoords (aWidth a) (aLength a) (i,j)
 
 -- applied the rule to a seat with a given number of neighbours
 rule :: Seat -> Int -> Seat
@@ -106,9 +114,7 @@ rule s _ = s
 -- next generation
 -- Q: should be a maybe to remember if anything has been changed
 nextR :: Area -> Area
-nextR a = [[rule (seat a (i,j)) (nCount a (i,j))
-           | j <- [0..aWidth a-1]]
-          | i <- [0..aLength a-1]]
+nextR a = (aWidth a, aLength a, M.mapWithKey (\ij x -> rule x (nCount a ij)) (area a))
 
 -- final state, after it stabilize
 final :: Area -> Area
@@ -117,10 +123,16 @@ final a = let a' = nextR a
                       else final a'
 
 countOccupied :: Area -> Int
-countOccupied = length . filter (==Occupied) . concat 
+countOccupied = M.size . M.filter (==Occupied) . area -- length . filter (==Occupied) . concat 
 
 part1 :: Area -> Int
 part1 a = countOccupied (final a)
+
+
+
+{-
+
+
 
 -- Part 2
 
