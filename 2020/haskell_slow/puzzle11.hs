@@ -5,11 +5,11 @@ module Main where
 import System.Environment
 import Data.List
 import Data.Char
+import Control.Applicative
+import qualified Data.Map as M
 
 import FunParser
-import Control.Applicative
-
-import qualified Data.Map as M
+import AoCTools
 
 main :: IO ()
 main = do
@@ -22,14 +22,6 @@ puzzle fileName = do
   let area = parseAll pArea input
   putStrLn ("Part 1: " ++ show (part1 area))
   -- putStrLn ("Part 2: " ++ show (countOccupied $ finalV area))
-
-
-nIter :: (a->a) -> Int -> a->a
-nIter f 0 x = x
-nIter f n x = nIter f (n-1) (f x)
-
-
-
 
 -- Data Structures
 
@@ -67,20 +59,6 @@ pSLine = some pSeat
 pSeats :: Parser [[Seat]]
 pSeats = some (token pSLine)
 
--- Indexed maps: to be moved into a separate module
-
--- list to index map, with initial index
-listMap :: Int -> [a] -> M.Map Int a
-listMap i = M.fromAscList . (zip [i..])
-
--- 2-dimentional matrix to index map, with initial coordinates
-matrixMap :: (Int,Int) -> [[a]] -> M.Map (Int,Int) a
-matrixMap (i0,j0) xss = M.fromList [((i0+i,j0+j), xss!!j!!i) |
-                                    j <- [0 .. length xss - 1],
-                                    i <- [0 .. length (xss!!j) - 1]]
-
-mMap :: [[a]] -> M.Map (Int,Int) a
-mMap = matrixMap (0,0)
 
 mArea :: [[Seat]] -> Area
 mArea xss = (length (head xss), length xss, mMap xss)
