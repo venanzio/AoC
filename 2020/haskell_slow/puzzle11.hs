@@ -21,7 +21,7 @@ puzzle fileName = do
   input <- readFile fileName
   let area = parseAll pArea input
   putStrLn ("Part 1: " ++ show (part1 area))
-  -- putStrLn ("Part 2: " ++ show (countOccupied $ finalV area))
+  putStrLn ("Part 2: " ++ show (part2 area))
 
 -- Data Structures
 
@@ -135,31 +135,34 @@ aListView a (p:ps)
       Floor -> aListView a ps
 aListView a _ = Empty
 
-
-{-
-
+-- count occupied seats visible from a position
 vCount :: Area -> (Int,Int) -> Int
 vCount a (i,j) =
-  let rows = aLength a
-      cols = aWidth a
-      dirs = [(u,v) | u<-[-1,0,1], v<-[-1,0,1], (u,v) /= (0,0)]
-      ns = map (aView a rows cols (i,j)) dirs
+  let dirs = [(u,v) | u<-[-1,0,1], v<-[-1,0,1], (u,v) /= (0,0)]
+      ns = map (aView a (i,j)) dirs
   in length $ filter (==Occupied) ns
 
+-- apply the rule with n the number of visible seats
 ruleV :: Seat -> Int -> Seat
 ruleV Empty 0 = Occupied
 ruleV Occupied n | n>=5 = Empty
 ruleV s _ = s
 
 
-nextV :: Area -> Area
-nextV a = [[ruleV (seat a (i,j)) (vCount a (i,j))
-           | j <- [0..aWidth a-1]]
-          | i <- [0..aLength a-1]]
-
+-- next round (same as nextA but using ruleV)
+nextV :: Area -> Maybe Area
+nextV a =
+  let ruleChanged ch x n = let x' = ruleV x n in (ch || x/=x',x')
+      (changed, a') = M.mapAccumWithKey (\ch ij x -> ruleChanged ch x (vCount a ij)) False (area a)
+  in if changed then Just (aWidth a, aLength a, a')
+                else Nothing
+                     
+-- final state, after it stabilize
 finalV :: Area -> Area
-finalV a = let a' = nextV a
-           in if a'==a then a
-                       else finalV a'
+finalV a = case nextV a of
+             Nothing -> a
+             Just a' -> finalV a'
 
--}
+part2 :: Area -> Int
+part2 a = countOccupied (finalV a)
+
