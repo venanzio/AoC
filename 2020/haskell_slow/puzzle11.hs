@@ -59,7 +59,6 @@ pSLine = some pSeat
 pSeats :: Parser [[Seat]]
 pSeats = some (token pSLine)
 
-
 mArea :: [[Seat]] -> Area
 mArea xss = (length (head xss), length xss, mMap xss)
 
@@ -110,34 +109,34 @@ countOccupied = M.size . M.filter (==Occupied) . area
 part1 :: Area -> Int
 part1 a = countOccupied (final a)
 
-{-
-
-
-
 -- Part 2
 
--- List of coordinates in one direction
+-- List of coordinates in one direction (going on forever)
 dirList :: (Int,Int) -> (Int,Int) -> [(Int,Int)]
 dirList (i,j) (u,v) =
   let (i',j') = (i+u,j+v)
   in (i',j') : dirList (i',j') (u,v)
 
+-- Check if coordinates are within the area with given width and length
 valid :: Int -> Int -> (Int,Int) -> Bool;
-valid rows cols (i,j) = i>=0 && i<rows &&
-                        j>=0 && j<cols
-  
+valid width length (i,j) = i>=0 && i<width &&
+                           j>=0 && j<length
 
-aListView :: Area -> Int -> Int -> [(Int,Int)] -> Seat
-aListView a rows cols (p:ps)
-  | valid rows cols p = case seat a p of
+-- first seat (empty or occupied) in a given direction
+aView :: Area -> (Int,Int) -> (Int,Int) -> Seat
+aView a p d = aListView a (dirList p d)
+
+-- first seat from a list of coordinates
+aListView :: Area -> [(Int,Int)] -> Seat
+aListView a (p:ps)
+  | valid (aWidth a) (aLength a) p = case seat a p of
       Occupied -> Occupied
       Empty -> Empty
-      Floor -> aListView a rows cols ps
-aListView a rows cols _ = Empty
+      Floor -> aListView a ps
+aListView a _ = Empty
 
-aView :: Area -> Int -> Int -> (Int,Int) -> (Int,Int) -> Seat
-aView a rows cols p d = aListView a rows cols (dirList p d)
 
+{-
 
 vCount :: Area -> (Int,Int) -> Int
 vCount a (i,j) =
