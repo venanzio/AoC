@@ -9,13 +9,12 @@ import Control.Applicative
 
 import qualified Data.Map as M
 
-puzzle :: String -> IO Int
+puzzle :: String -> IO ()
 puzzle fileName = do
   input <- readFile fileName
   let area = parseAll pSeats input
-  return (countOccupied $ final area)  -- Part 1
-  -- return (countOccupied $ finalV area)  -- Part 2
-
+  putStrLn ("Part 1: " ++ show (countOccupied $ final area))
+  putStrLn ("Part 2: " ++ show (countOccupied $ finalV area))
 
 data Seat = Floor | Occupied | Empty
   deriving (Eq,Show)
