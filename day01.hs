@@ -25,15 +25,24 @@ puzzle fileName = do
 
 -- Parsing the input
 
-pInput :: Parser ()
-pInput = return ()
+pInput :: Parser [Int]
+pInput = some natural
 
 -- Part 1
 
-part1 :: () -> Int
-part1 _ = 1
+differences :: [Int] -> [Int]
+differences (x0:x1:xs) = (x1-x0): differences (x1:xs)
+differences _ = []
+
+part1 :: [Int] -> Int
+part1 xs = length (filter (>0) (differences xs))
 
 -- Part 2
 
-part2 :: () -> Int
-part2 _ = 2
+windows :: [Int] -> [Int]
+windows (x0:x1:x2:xs) = (x0+x1+x2) : windows (x1:x2:xs)
+windows _ = []
+
+part2 :: [Int] -> Int
+part2 xs = length (filter (>0) (differences (windows xs)))
+
