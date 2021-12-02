@@ -25,15 +25,29 @@ puzzle fileName = do
 
 -- Parsing the input
 
-pInput :: Parser ()
-pInput = return ()
+pInput :: Parser [(String,Int)]
+pInput = some (do w <- word
+                  x <- integer
+                  return (w,x))
 
 -- Part 1
 
-part1 :: () -> Int
-part1 _ = 1
+move :: (Int,Int) -> (String,Int) -> (Int,Int)
+move (pos,dep) ("forward",x) = (pos+x,dep)
+move (pos,dep) ("down",x) = (pos,dep+x)
+move (pos,dep) ("up",x) = (pos,dep-x)
+
+part1 :: [(String,Int)] -> Int
+part1 mvs = let (p,d) = foldl move (0,0) mvs in p*d
 
 -- Part 2
 
-part2 :: () -> Int
-part2 _ = 2
+move2 :: (Int,Int,Int) -> (String,Int) -> (Int,Int,Int)
+move2 (pos,dep,aim) ("forward",x) = (pos+x,dep+aim*x,aim)
+move2 (pos,dep,aim) ("down",x) = (pos,dep,aim+x)
+move2 (pos,dep,aim) ("up",x) = (pos,dep,aim-x)
+
+
+part2 ::  [(String,Int)] -> Int
+part2 mvs =  let (p,d,a) = foldl move2 (0,0,0) mvs in p*d
+
