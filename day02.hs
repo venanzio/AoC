@@ -26,9 +26,7 @@ puzzle fileName = do
 -- Parsing the input
 
 pInput :: Parser [(String,Int)]
-pInput = some (do w <- word
-                  x <- integer
-                  return (w,x))
+pInput = some (pPair word integer)
 
 -- Part 1
 

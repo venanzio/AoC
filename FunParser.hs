@@ -94,6 +94,19 @@ someP p = do x <- p
 manyP :: Parser a -> Parser [a]
 manyP p = someP p <||> return []
 
+-- Parsing a pair
+pPair :: Parser a -> Parser b -> Parser (a,b)
+pPair p1 p2 = do x1 <- p1
+                 x2 <- p2
+                 return (x1,x2)
+
+-- Parsing a triple
+pTriple :: Parser a -> Parser b -> Parser c -> Parser (a,b,c)
+pTriple p1 p2 p3 = do x1 <- p1
+                      x2 <- p2
+                      x3 <- p3
+                      return (x1,x2,x3)
+
 -- Derived primitives
 
 -- verify that the parsed object satisfy a condition
