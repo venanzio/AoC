@@ -33,15 +33,6 @@ parseAll pa src = case (parse pa src) of
 allSpace :: String -> Bool
 allSpace = and . map isSpace
 
-{-
-
-  [(a,"")] -> a
-  [(a,src')] -> error ("Incomplete parsing: "++src')
-  _ -> error ("Parse error")
-
--}
-
-
 parseFull :: Parser a -> Parser a
 parseFull p = P (\inp -> case parse p inp of
                     [(a,"")] -> [(a,"")]
@@ -170,6 +161,22 @@ int = do char '-'
          n <- nat
          return (-n)
       <|> nat
+
+-- a sequence of digits, parsed separately
+digits :: (Num int, Read int) => Parser [int]
+digits = do xs <- some digit
+            return (map (\x -> read [x]) xs)
+
+
+
+
+
+
+
+
+
+
+
 
 sigNum :: (Num int, Read int) => Parser int
 sigNum = (do char '+'

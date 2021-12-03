@@ -19,30 +19,14 @@ main = do
 puzzle :: String -> IO ()
 puzzle fileName = do
   input <- readFile fileName
-  let ws = parseAll (some word) input
-      xs = map toBin ws
-  putStrLn ("input : " ++ show (take 5 xs))
+  let xs = parseAll pInput input
   putStrLn ("Part 1: " ++ show (part1 xs))
   putStrLn ("Part 2: " ++ show (part2 xs))
 
 -- Parsing the input
 
-pLine :: Parser [Int]
-pLine = many (do d <- digit
-                 return (read [d]))
-
-
-toBin :: String -> [Int]
-toBin [] = []
-toBin ('0':xs) = 0:toBin xs
-toBin ('1':xs) = 1:toBin xs
-
-binLine :: Parser [Int]
-binLine = do w <- word
-             return (toBin w)
-
 pInput :: Parser [[Int]]
-pInput = someP binLine
+pInput = pLines digits  -- someP binLine
 
 -- Part 1
 
