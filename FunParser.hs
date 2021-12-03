@@ -27,9 +27,20 @@ item = P (\inp -> case inp of
 -- Returning the result of a deterministic parser that consume all the input
 parseAll :: Parser a -> String -> a
 parseAll pa src = case (parse pa src) of
+ [(a,src')] -> if (allSpace src') then a else error ("Incomplete parsing: "++ src')
+ _ -> error ("Parse error")
+
+allSpace :: String -> Bool
+allSpace = and . map isSpace
+
+{-
+
   [(a,"")] -> a
   [(a,src')] -> error ("Incomplete parsing: "++src')
   _ -> error ("Parse error")
+
+-}
+
 
 parseFull :: Parser a -> Parser a
 parseFull p = P (\inp -> case parse p inp of
@@ -171,6 +182,7 @@ sigNum = (do char '+'
 
 -- Handling spacing
 
+-- parsing empty space
 space :: Parser ()
 space = do many (sat isSpace)
            return ()
@@ -242,9 +254,21 @@ repN n p = do x <- p
 
 -- parsing lines
 
+-- parse a single line
+line :: Parser String
+line = (do c <- item
+           if c == '\n'
+             then return ""
+             else line >>= return . (c:))
+       <|> pAll
 
+-- parse a line with a given parser
+pLine :: Parser a -> Parser a
+pLine p = do l <- line
+             return (parseAll p l)
 
-
+pLines :: Parser a -> Parser [a]
+pLines p = many (pLine p)
 
 
 -- Parsing blocks of data separated by empty lines
@@ -279,12 +303,7 @@ chunk = do many emptyLn
 emptyLine :: Parser ()
 emptyLine = (many (char ' ')) >> char '\n' >> return ()
 
-line :: Parser String
-line = (do c <- item
-           if c == '\n'
-             then return ""
-             else line >>= return . (c:))
-       <|> pAll
+
 
 -- non-empty line
 neLine :: Parser String
