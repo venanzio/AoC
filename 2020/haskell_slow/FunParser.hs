@@ -73,6 +73,10 @@ instance Alternative Parser where
 choice :: Alternative f => [f a] -> f a
 choice = foldl (<|>) empty
 
+-- any non-empty string
+pAll :: Parser String
+pAll = satisfy (some item) (not . (all isSpace))
+
 {-
 Parallel parsing: getting the results of both parsers
   for ambiguous grammars
@@ -83,6 +87,7 @@ infixl 3 <||>
 (<||>) :: Parser a -> Parser a -> Parser a
 p1 <||> p2 = P (\inp -> (parse p1 inp) ++ (parse p2 inp))
 
+-- many parallel parsers
 parallel :: [Parser a] -> Parser a
 parallel = foldl (<||>) empty
 
@@ -162,6 +167,7 @@ space :: Parser ()
 space = do many (sat isSpace)
            return ()
 
+-- ignoring spaces before and after
 token :: Parser a -> Parser a
 token p = do space
              v <- p
@@ -183,7 +189,6 @@ integer = token int
 signed :: (Num int, Read int) => Parser int
 signed = token sigNum
 
-
 symbol :: String -> Parser String
 symbol xs = token (string xs)
 
@@ -195,18 +200,13 @@ delim left pa right = do
   symbol right
   return x
 
+-- parsing inside parentheses
 parens :: Parser a -> Parser a
 parens pa = delim "(" pa ")"
 
 -- parse a sequence of pas separated by ps
 seqSep :: Parser a -> String -> Parser [a]
 seqSep pa sep = seqSep1 pa sep <|> return []
-{-
-where seqSep' = do
-          x <- pa
-          xs <- many (symbol sep >> pa)
-          return (x:xs)
--}
 
 -- at least one
 seqSep1 :: Parser a -> String -> Parser [a]
@@ -227,6 +227,44 @@ repN n p = do x <- p
               xs <- repN (n-1) p
               return (x:xs)
 
+
+-- parsing lines
+----------------
+
+-- empty line
+emptyLine :: Parser ()
+emptyLine = (many (char ' ')) >> char '\n' >> return ()
+
+-- parse a single line
+line :: Parser String
+line = (do c <- item
+           if c == '\n'
+             then return ""
+             else line >>= return . (c:))
+       <|> pAll
+
+-- non-empty line
+neLine :: Parser String
+neLine = satisfy line (not . all (isSpace))
+
+-- parse a line with a given parser
+pLine :: Parser a -> Parser a
+pLine p = do l <- line
+             return (parseAll p l)
+
+-- parsing 
+pLines :: Parser a -> Parser [a]
+pLines p = many (pLine p)
+
+
+
+
+
+
+
+
+
+{-
 
 
 -- Parsing blocks of data separated by empty lines
@@ -257,22 +295,8 @@ chunk = do many emptyLn
            if all isSpace s then empty else return s
 -}
 
--- empty line
-emptyLine :: Parser ()
-emptyLine = (many (char ' ')) >> char '\n' >> return ()
 
-line :: Parser String
-line = (do c <- item
-           if c == '\n'
-             then return ""
-             else line >>= return . (c:))
-       <|> pAll
 
--- non-empty line
-neLine :: Parser String
-neLine = satisfy line (not . all (isSpace))
-  
-  
 -- next line (skipping new-line characters)
 ln :: Parser String
 ln = do many (char '\n')
@@ -301,13 +325,8 @@ afterNL = do
              else beforeNL >>= return . (("\n" ++ blanks ++ [c]) ++)
 
 
--- any non-empty string
-pAll :: Parser String
-pAll = satisfy (some item) (not . (all isSpace))
-
-  
-
 sepDNL :: Parser [String]
 sepDNL = (beforeNL >>= \s -> sepDNL >>= \ss -> return (s:ss))
          <|> (pAll >>= \s -> return [s])
 
+-}
