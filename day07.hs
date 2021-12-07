@@ -25,9 +25,6 @@ puzzle fileName = do
 
 -- Parsing the input
 
-pData :: Parser ()
-pData = return ()
-
 pInput :: Parser [Int]
 pInput = seqSep natural ","
 
