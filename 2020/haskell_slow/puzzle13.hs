@@ -21,6 +21,7 @@ puzzle :: String -> IO ()
 puzzle fileName = do
   input <- readFile fileName
   let (t,bs) = parseAll pInput input
+  putStrLn (show (map (busTime t) bs))
   putStrLn ("Part 1: " ++ show (part1 t bs))
   putStrLn ("Part 2: " ++ show (part2 t bs))
 
@@ -45,13 +46,10 @@ busTime t b = head $ filter (>=t) $ map (b*) [0..]
 
 -- first bus to depart and time of departure
 firstBus :: Int -> [Int] -> (Int,Int)
-firstBus t bs = foldl (\(t0,b0) b1 -> let t1 = busTime t b1 in
-                                      if t1 < t0 then (t1,b1) else (t0,b0))
-                      (busTime t (head bs),head bs) (tail bs)
-
+firstBus t bs = let (_,b,tb) = minimumF (busTime t) bs in (b,tb)
 
 part1 :: Int -> [Int] -> Int
-part1 t bs = let (t',b) = (firstBus t bs) in b * (t'-t)
+part1 t bs = let (b,t') = (firstBus t bs) in b * (t'-t)
 
 -- Part 2
 

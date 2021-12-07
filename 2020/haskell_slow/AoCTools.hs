@@ -2,7 +2,7 @@
 
 module AoCTools where
 
-import Data.Map as M
+import qualified Data.Map as M
 
 -- Iterating a function n times
 nIter :: (a->a) -> Int -> a->a
@@ -12,6 +12,15 @@ nIter f n x = nIter f (n-1) (f x)
 -- Keeping the Just values from a list of Maybe
 filterJust :: [Maybe a] -> [a]
 filterJust l = [x | Just x <- l]
+
+
+
+-- Minimize a function over a list and return: index, element, function value
+minimumF :: Ord b => (a->b) -> [a] -> (Int,a,b)
+minimumF f (x:xs) =
+  foldl (\(i,y,v) (j,z) -> let w = f z in
+                           if w<v then (j,z,w) else (i,y,v))
+        (0,x,f x) (zip [1..] xs)
 
 -- Indexed maps
 
