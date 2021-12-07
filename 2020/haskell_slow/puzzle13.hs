@@ -6,10 +6,11 @@ import System.Environment
 import Data.List
 import Data.Char
 
-import FunParser
 import Control.Applicative
-
 import qualified Data.Map as M
+
+import FunParser
+import AoCTools
 
 main :: IO ()
 main = do
@@ -19,24 +20,29 @@ main = do
 puzzle :: String -> IO ()
 puzzle fileName = do
   input <- readFile fileName
-  let xs = parseAll pInput input
-  putStrLn ("Part 1: " ++ show (part1 xs))
-  putStrLn ("Part 2: " ++ show (part2 xs))
+  let (t,bs) = parseAll pInput input
+  putStrLn ("Part 1: " ++ show (part1 t bs))
+  putStrLn ("Part 2: " ++ show (part2 t bs))
 
 -- Parsing the input
 
-pData :: Parser ()
-pData = return ()
+pBus :: Parser (Maybe Int)
+pBus = (natural >>= return.Just) <|> (symbol "x" >> return Nothing)
 
-pInput :: Parser [()]
-pInput = pLines pData
+pBusses :: Parser [Int]
+pBusses = (seqSep pBus ",") >>= return.filterJust
+
+pInput :: Parser (Int,[Int])
+pInput = do time <- natural
+            busses <- pBusses
+            return (time,busses)
 
 -- Part 1
 
-part1 :: [()] -> Int
-part1 _ = 1
+part1 :: Int -> [Int] -> Int
+part1 t bs = t
 
 -- Part 2
 
-part2 :: [()] -> Int
-part2 _ = 2
+part2 :: Int -> [Int] -> Int
+part2 _ _ = 2

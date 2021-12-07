@@ -9,6 +9,9 @@ nIter :: (a->a) -> Int -> a->a
 nIter f 0 x = x
 nIter f n x = nIter f (n-1) (f x)
 
+-- Keeping the Just values from a list of Maybe
+filterJust :: [Maybe a] -> [a]
+filterJust l = [x | Just x <- l]
 
 -- Indexed maps
 
