@@ -1,5 +1,8 @@
 -- Advent of Code 2021, day 8
 
+
+-- IDEA for slow solution: generalize to solve systems of equations between characters
+
 module Main where
 
 import System.Environment
