@@ -1,5 +1,7 @@
 -- Advent of Code 2021, day 9
 
+-- IDEA: use Dijkstra's algorithm for part 2
+
 module Main where
 
 import System.Environment
