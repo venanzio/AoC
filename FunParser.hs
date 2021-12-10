@@ -24,6 +24,11 @@ item = P (\inp -> case inp of
                      []     -> []
                      (x:xs) -> [(x,xs)])
 
+noItem :: Parser Bool
+noItem = P (\inp -> case inp of
+               [] -> [(True,[])]
+               xs -> [(False,xs)])
+
 -- Returning the result of a deterministic parser that consume all the input
 parseAll :: Parser a -> String -> a
 parseAll pa src = case (parse pa src) of
