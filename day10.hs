@@ -39,11 +39,11 @@ data Error = Complete | Incomplete String | Corrupted Char
 
 matches = [('(',')'),('[',']'),('{','}'),('<','>')]
 
+match :: Char -> Char
 match c = let Just c' = lookup c matches in c'
 
 ops = map fst matches
 cls = map snd matches
-
 
 parMatch :: String -> String -> Error
 parMatch [] [] = Complete
@@ -66,7 +66,6 @@ score cs = case parMatch cs [] of
 part1 :: [String] -> Int
 part1 = sum . map score
 
-
 -- Part 2
 
 scoreC :: String -> Int
@@ -82,4 +81,5 @@ scoreLine xs = case parMatch xs [] of
   _ -> Nothing
 
 part2 :: [String] -> Int
-part2 cs = undefined
+part2 xs = let scores = sort $ filterJust (map scoreLine xs)
+           in scores!!(length scores `div` 2)
