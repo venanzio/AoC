@@ -71,5 +71,24 @@ part1 edges = length (filter ((=="end").last) (paths edges))
 
 -- Part 2
 
+dropLast l = take (length l -1) l
+
+duplicates l = nub [s | s <- l, length (filter (==s) l) > 1]
+
+vPath :: [(String,String)] -> [String] -> Bool
+vPath edges p =
+  let small = filter (isLower.head) p
+      dups = duplicates small -- [s | s <- small, length (filter (==s) small) > 1]
+  in (length dups <= 1) && (not ("end" `elem` dropLast p))
+
+pNext :: [(String,String)] -> [String] -> [[String]]
+pNext edges p = [p++[t] | t <- connected edges (last p), vPath edges (p++[t])]
+
+pExtend :: [(String,String)] -> [String] -> [[String]]
+pExtend edges p = [p] ++ (pNext edges p >>= pExtend edges)
+
+paths2 :: [(String,String)] -> [[String]]
+paths2 edges = pExtend edges ["start"]
+
 part2 :: [(String,String)] -> Int
-part2 _ = 2
+part2 edges = length (filter ((=="end").last) (paths2 edges))
