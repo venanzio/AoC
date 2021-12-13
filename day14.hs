@@ -1,4 +1,4 @@
--- Advent of Code 2021, day ?
+-- Advent of Code 2021, day 14
 
 module Main where
 
