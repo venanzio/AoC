@@ -20,6 +20,13 @@ minimumF f (x:xs) =
                            if w<v then (j,z,w) else (i,y,v))
         (0,x,f x) (zip [1..] xs)
 
+-- Maximize a function over a list and return: index, element, function value
+maximumF :: Ord b => (a->b) -> [a] -> (Int,a,b)
+maximumF f (x:xs) =
+  foldl (\(i,y,v) (j,z) -> let w = f z in
+                           if w>v then (j,z,w) else (i,y,v))
+        (0,x,f x) (zip [1..] xs)
+
 -- Indexed maps
 
 -- list to index map with indices as keys, starting at index i0
