@@ -1,5 +1,7 @@
 -- Advent of Code 2021, day 15
 
+-- IDEA: part 2 still runs very slow, it needs a more efficient implementation of Dijkstra
+
 
 module Main where
 
