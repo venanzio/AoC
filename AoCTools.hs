@@ -4,6 +4,11 @@ module AoCTools where
 
 import qualified Data.Map as M
 
+-- Remove Just from a Maybe valus
+unJust :: Maybe a -> a
+unJust (Just x) = x
+unJust y = error "can't unJust Nothing"
+
 -- Iterating a function n times
 nIter :: (a->a) -> Int -> a->a
 nIter f 0 x = x
