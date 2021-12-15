@@ -52,15 +52,6 @@ neighbours size (x,y) =
       [(x',y) | x' <- [x-1,x+1], x'>=0 && x'<size] ++
       [(x,y') | y' <- [y-1,y+1], y'>=0 && y'<size]
 
-{-
--- Adjacency list of the cave
-caveAL :: Cave -> WAdjList
-caveAL cave = let size = length cave
-                  ps = allPos size
-                  edges p = map (\p -> (posIndex size p, risk cave p)) (neighbours size p)
-              in  [ edges p | p <- ps]
--}
-
 type Paths = M.Map Pos Int
 
 dist :: Paths -> Pos -> Int
@@ -94,7 +85,7 @@ shortest cave p0 p1 =
 
 part1 :: Cave -> Int
 part1 cave = let size = length cave in shortest cave (0,0) (size-1,size-1)
-             -- unJust $ last $ dijkstra (caveAL cave) 0 
+
 
 -- Part 2
 
@@ -117,14 +108,13 @@ expand cave = let row = expandLeft cave
 mapPathLeft :: Cave
 mapPathLeft = undefined
 
-
-
 part2 :: Cave -> Int
 part2 cave = let bigCave = expand cave
                  size = length bigCave
              in shortest bigCave (0,0) (size-1,size-1)
 
 
+-- displaying the cave
 
 showCave :: Cave -> String
 showCave = concat . map (\row -> concat (map show row) ++ "\n")
