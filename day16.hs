@@ -22,7 +22,7 @@ puzzle fileName = do
   input <- readFile fileName
   let p = parseAll pInput input
   putStrLn ("Part 1: " ++ show (part1 p))
-  -- putStrLn ("Part 2: " ++ show (part2 xs))
+  putStrLn ("Part 2: " ++ show (part2 p))
 
 -- Parsing the input
 
@@ -160,5 +160,16 @@ part1 = sumVersion
 
 -- Part 2
 
+eval :: Packet -> Int
+eval (Literal _ x) = x
+eval (Operator _ 0 ps) = sum (map eval ps)
+eval (Operator _ 1 ps) = product (map eval ps)
+eval (Operator _ 2 ps) = minimum (map eval ps)
+eval (Operator _ 3 ps) = maximum (map eval ps)
+eval (Operator _ 5 ps) = if (eval (ps!!0) > eval (ps!!1)) then 1 else 0
+eval (Operator _ 6 ps) = if (eval (ps!!0) < eval (ps!!1)) then 1 else 0
+eval (Operator _ 7 ps) = if (eval (ps!!0) == eval (ps!!1)) then 1 else 0
+
+
 part2 :: Packet -> Int
-part2 _ = 2
+part2 = eval
