@@ -32,19 +32,22 @@ pData = return ()
 pInput :: Parser [()]
 pInput = pLines pData
 
-{-
 x0 = 195
 x1 = 238
 y0 = -93
 y1 = -67
--}
 
+{- example
 x0 = 20
 x1 = 30
 y0 = -10
 y1 = -5
+-}
 
 -- Part 1
+
+data Check = Under | Inside | Over
+  deriving (Eq,Show)
 
 type Position = (Int,Int)
 type Velocity = (Int,Int)
@@ -74,6 +77,70 @@ xHit xs = xHitIndex 1 xs
                            | x>x1 = []
                            | otherwise = xHitIndex (n+1) xs
 
+
+
+maxH :: Velocity -> Int
+maxH v = maxY (trajectory (0,0) v)
+
+
+
+
+checkX :: Int -> Check
+checkX x = if x<x0 then Under
+            else if x>x1 then Over else Inside
+
+checkY :: Int -> Check
+checkY y = if y<y0 then Under
+            else if y>y1 then Over else Inside
+
+stepX :: (Int,Int,Int) -> (Int,Int,Int)
+stepX (vx0,x,vx) = (vx0,x + vx, vx - signum vx)
+
+stepY :: (Int,Int,Int) -> (Int,Int,Int)
+stepY (vy0,y,vy) = (vy0,y + vy, vy - 1)
+
+pVel0 (v0,_,_) = v0
+pVel (_,_,v) = v
+pPos (_,p,_) = p
+
+xFilter (_,x,vx) = case checkX x of
+  Under -> vx>0
+  Inside -> True
+  Over -> False
+
+yFilter (_,y,vy) = checkY y /= Under
+
+-- xvps: list of (vx0,x,vx) initial velocity and present position and velocity
+-- result: for every index i, list of initial x velocities with a hit at i
+hitsX :: [(Int,Int,Int)] -> [[Int]]
+hitsX [] = []
+hitsX xvps = map pVel0 (filter (\xvp -> checkX (pPos xvp) == Inside) xvps) :
+             hitsX (filter xFilter (map stepX xvps))
+
+
+hitsY :: [(Int,Int,Int)] -> [[Int]]
+hitsY [] = []
+hitsY yvps = map pVel0 (filter (\yvp -> checkY (pPos yvp) == Inside) yvps) :
+             hitsY (filter yFilter (map stepY yvps))
+
+
+xInit :: [(Int,Int,Int)]
+xInit = map (\vx0 -> (vx0,0,vx0)) [1..x1+1]
+
+yInit :: [(Int,Int,Int)]
+yInit = map (\vy0 -> (vy0,0,vy0)) [y0-1..2*x1+1]
+
+
+combine (vxs,vys) = [(vx,vy) | vx <- vxs, vy <- vys]
+
+hitV :: [Velocity]
+hitV = concat $ (map combine) (zip (hitsX xInit) (hitsY yInit))
+
+
+
+
+
+
 {-
 xVels :: [Int]
 xVels = filter (xHit . xTraj 0) [1..x1+1]
@@ -100,7 +167,7 @@ maxHeight =
 -}
 
 part1 :: Int
-part1 = 1
+part1 = maximum (map maxH hitV)
 
 -- Part 2
 
