@@ -37,7 +37,8 @@ x1 = 238
 y0 = -93
 y1 = -67
 
-{- example
+{-
+-- example
 x0 = 20
 x1 = 30
 y0 = -10
@@ -134,7 +135,7 @@ yInit = map (\vy0 -> (vy0,0,vy0)) [y0-1..2*x1+1]
 combine (vxs,vys) = [(vx,vy) | vx <- vxs, vy <- vys]
 
 hitV :: [Velocity]
-hitV = concat $ (map combine) (zip (hitsX xInit) (hitsY yInit))
+hitV = nub $ concat $ (map combine) (zip (hitsX xInit) (hitsY yInit))
 
 
 
@@ -172,4 +173,4 @@ part1 = maximum (map maxH hitV)
 -- Part 2
 
 part2 :: Int
-part2 = 2
+part2 = length hitV
