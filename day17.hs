@@ -1,5 +1,8 @@
 -- Advent of Code 2021, day 17
 
+-- IDEA: maybe there is a more elegant solution using linear programming
+-- TO IMPROVE: parsing of the input instead of writing it in constants
+
 module Main where
 
 import System.Environment
@@ -19,31 +22,16 @@ main = do
 
 puzzle :: String -> IO ()
 puzzle fileName = do
-  -- input <- readFile fileName
-  -- let xs = parseAll pInput input
   putStrLn ("Part 1: " ++ show part1)
   putStrLn ("Part 2: " ++ show part2)
 
 -- Parsing the input
 
-pData :: Parser ()
-pData = return ()
-
-pInput :: Parser [()]
-pInput = pLines pData
-
+-- Target area
 x0 = 195
 x1 = 238
 y0 = -93
 y1 = -67
-
-{-
--- example
-x0 = 20
-x1 = 30
-y0 = -10
-y1 = -5
--}
 
 -- Part 1
 
@@ -68,23 +56,8 @@ maxY :: [Position] -> Int
 maxY ((_,y1):ps@((_,y2):_)) =
   if y1>y2 then y1 else maxY ps
 
-
-xTraj :: Int -> Int -> [Int]
-xTraj x vx = let x' = x+vx in x' : xTraj x' (vx - signum vx)
-
-xHit :: [Int] -> [Int]
-xHit xs = xHitIndex 1 xs
-  where xHitIndex n (x:xs) | x>=x0 && x<=x1 = n : xHitIndex (n+1) xs
-                           | x>x1 = []
-                           | otherwise = xHitIndex (n+1) xs
-
-
-
 maxH :: Velocity -> Int
 maxH v = maxY (trajectory (0,0) v)
-
-
-
 
 checkX :: Int -> Check
 checkX x = if x<x0 then Under
@@ -124,48 +97,16 @@ hitsY [] = []
 hitsY yvps = map pVel0 (filter (\yvp -> checkY (pPos yvp) == Inside) yvps) :
              hitsY (filter yFilter (map stepY yvps))
 
-
 xInit :: [(Int,Int,Int)]
 xInit = map (\vx0 -> (vx0,0,vx0)) [1..x1+1]
 
 yInit :: [(Int,Int,Int)]
 yInit = map (\vy0 -> (vy0,0,vy0)) [y0-1..2*x1+1]
 
-
 combine (vxs,vys) = [(vx,vy) | vx <- vxs, vy <- vys]
 
 hitV :: [Velocity]
 hitV = nub $ concat $ (map combine) (zip (hitsX xInit) (hitsY yInit))
-
-
-
-
-
-
-{-
-xVels :: [Int]
-xVels = filter (xHit . xTraj 0) [1..x1+1]
-
-
-yTraj :: Int -> Int -> [Int]
-yTraj y vy = let y' = y+vy in y' : yTraj y' (vy - 1)
-
-yHit :: [Int] -> Bool
-yHit (y:ys) = if y>=y0 then y<=y1 else yHit ys
-
-yVels :: [Int]
-yVels = filter (yHit . yTraj 0) [y0-1..x1+1]
-
-
-
-maxHeight :: Int
-maxHeight =
-  foldl (\my v -> if (maxYHit v) > my then (maxYHit v) else my) 0 [(vx,vy) | vx <- xVels, vy <- yVels]
-    where maxYHit v = let t = trajectory (0,0) v
-                      in case hit t of
-                           Just _ -> maxY t
-                           Nothing -> 0
--}
 
 part1 :: Int
 part1 = maximum (map maxH hitV)
