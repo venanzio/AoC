@@ -115,4 +115,4 @@ part1 = magnitude . foldl1 addSN
 -- Part 2
 
 part2 :: [SNum] -> Int
-part2 _ = 2
+part2 xs = maximum [magnitude (addSN x y) | x <- xs, y <- xs]
