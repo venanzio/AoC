@@ -21,7 +21,6 @@ puzzle :: String -> IO ()
 puzzle fileName = do
   input <- readFile fileName
   let xs = parseAll pInput input
-  -- putStrLn (show $ foldl1 addSN xs)
   putStrLn ("Part 1: " ++ show (part1 xs))
   putStrLn ("Part 2: " ++ show (part2 xs))
 
@@ -71,24 +70,24 @@ redExplode n (Pair x y) =
                  NoA -> (NoA, Pair x' y')
 redExplode n x = (NoA,x)
 
-redSplit :: Int -> SNum -> (Action,SNum)
-redSplit n (Reg x) | x>=10 = (Split, split x)
-redSplit n (Pair x y) =
-  let (ax,x') = redSplit (n+1) x in
+redSplit :: SNum -> (Action,SNum)
+redSplit (Reg x) | x>=10 = (Split, split x)
+redSplit (Pair x y) =
+  let (ax,x') = redSplit x in
     case ax of
       Split -> (Split, Pair x' y)
-      NoA -> let (ay,y') = redSplit (n+1) y in
+      NoA -> let (ay,y') = redSplit y in
                case ay of
                  Split -> (Split, Pair x' y')
                  NoA -> (NoA, Pair x' y')
-redSplit n x = (NoA,x)
+redSplit x = (NoA,x)
 
 reduceStep :: Int -> SNum -> (Action,SNum)
 reduceStep n x =
   let (a,x') = redExplode n x in
     case a of
       Explode _ _ -> (a,x')
-      NoA -> redSplit n x
+      NoA -> redSplit x
 
 addL :: Int -> SNum -> SNum
 addL v (Reg x) = Reg (v+x)
