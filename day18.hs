@@ -21,23 +21,77 @@ puzzle :: String -> IO ()
 puzzle fileName = do
   input <- readFile fileName
   let xs = parseAll pInput input
+  putStrLn (show $ foldl1 addSN xs)
   putStrLn ("Part 1: " ++ show (part1 xs))
   putStrLn ("Part 2: " ++ show (part2 xs))
 
 -- Parsing the input
 
-pData :: Parser ()
-pData = return ()
+data SNum = Reg Int | Pair SNum SNum
+  deriving (Eq,Show)
 
-pInput :: Parser [()]
-pInput = pLines pData
+data Action = Explode (Maybe Int) (Maybe Int) | Split | NoA
+
+pSNum :: Parser SNum
+pSNum = (natural >>= return.Reg) <|>
+        delim "["
+               (do x <- pSNum
+                   symbol ","
+                   y <- pSNum
+                   return (Pair x y))
+               "]"
+               
+pInput :: Parser [SNum]
+pInput = pLines pSNum
 
 -- Part 1
 
-part1 :: [()] -> Int
-part1 _ = 1
+reduce :: SNum -> SNum
+reduce x = let (a,x') = reduceDepth 0 x in
+  case a of
+    NoA -> x'
+    _   -> reduce x'
+  
+reduceDepth :: Int -> SNum -> (Action,SNum)
+reduceDepth n (Reg x) | x>=10 = (Split, split x)
+reduceDepth 4 (Pair (Reg x) (Reg y)) = (Explode (Just x) (Just y), (Reg 0))
+reduceDepth n (Pair x y) =
+  let (ax,x') = reduceDepth (n+1) x in
+    case ax of
+      Explode u (Just v) -> (Explode u Nothing, Pair x' (addL v y))
+      Explode u Nothing -> (Explode u Nothing, Pair x' y)
+      Split -> (Split, Pair x' y)
+      NoA -> let (ay,y') = reduceDepth (n+1) y in
+               case ay of
+                 Explode (Just u) v -> (Explode Nothing v, Pair (addR u x') y')
+                 Explode Nothing v -> (Explode Nothing v, Pair x' y')
+                 Split -> (Split, Pair x' y')
+                 NoA -> (NoA, Pair x' y')
+reduceDepth n x = (NoA,x)
+
+addL :: Int -> SNum -> SNum
+addL v (Reg x) = Reg (v+x)
+addL v (Pair x y) = Pair (addL v x) y
+
+addR :: Int -> SNum -> SNum
+addR u (Reg x) = Reg (u+x)
+addR u (Pair x y) = Pair x (addR u y)
+
+split :: Int -> SNum
+split x = Pair (Reg (x `div` 2)) (Reg (x `div` 2 + x `mod` 2))
+
+
+addSN :: SNum -> SNum -> SNum
+addSN x y = reduce (Pair x y)
+
+magnitude :: SNum -> Int
+magnitude (Reg x) = x
+magnitude (Pair x y) = 3*(magnitude x) + 2*(magnitude y)
+
+part1 :: [SNum] -> Int
+part1 = magnitude . foldl1 addSN
 
 -- Part 2
 
-part2 :: [()] -> Int
+part2 :: [SNum] -> Int
 part2 _ = 2
