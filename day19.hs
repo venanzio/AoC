@@ -20,14 +20,13 @@ main = do
 puzzle :: String -> IO ()
 puzzle fileName = do
   input <- readFile fileName
+  ebs <- readFile "beacons" >>= return . parseAll (many pBeacon)
   let xs = parseAll pInput input
-      s1 = xs!!0
-      s2 = xs!!1
-      (r,t) = head (sMatch s1 s2)
-      s2' = sTrans t $ sRot r s2
-  putStrLn (show (intersect s1 s2'))
-  putStrLn ("Part 1: " ++ show (part1 xs))
-  putStrLn ("Part 2: " ++ show (part2 xs))
+      sbs = nub $ matchAll [] xs
+      scanners = map fst sbs
+      beacons = concat $ map snd sbs
+  putStrLn ("Part 1: " ++ show (length beacons))
+  putStrLn ("Part 2: " ++ show (maxDist scanners))
 
 -- Parsing the input
 
@@ -100,24 +99,32 @@ sMatch :: Scanner -> Scanner -> [(Rotation,Coordinates)]
 sMatch s1 s2 = concat [ map (\t -> (r,t)) $ sMatchTrans s1 (sRot r s2) |
                         r <- allRots ]
 
-matchSplit :: Scanner -> [Scanner] -> ([Scanner],[Scanner])
+matchSplit :: Scanner -> [Scanner] -> ([(Coordinates,Scanner)],[Scanner])
 matchSplit s1 [] = ([],[])
 matchSplit s1 (s2:s2s) = let (ys,ns) = matchSplit s1 s2s in
   case sMatch s1 s2 of
     [] -> (ys,s2:ns)
-    (r,t):_ -> ((sTrans t $ sRot r s2):ys,ns)
+    (r,t):_ -> ((t,sTrans t $ sRot r s2):ys,ns)
 
-matchAll :: [Scanner] -> [Scanner] -> [Scanner]
+matchAll :: [(Coordinates,Scanner)] -> [Scanner] -> [(Coordinates,Scanner)]
 matchAll [] [] = []
-matchAll [] (s2:s2s) = matchAll [s2] s2s
-matchAll (s1:s1s) s2s = let (ys,ns) = matchSplit s1 s2s in
-  s1 : matchAll (s1s++ys) ns
+matchAll [] (s2:s2s) = matchAll [((0,0,0),s2)] s2s
+matchAll ((t1,s1):s1s) s2s = let (ys,ns) = matchSplit s1 s2s in
+  (t1,s1) : matchAll (s1s++ys) ns
 
-
-part1 :: [Scanner] -> Int
-part1 ss = length $ matchAll [] ss
+{-
+beacons :: [Scanner] -> [Coordinates]
+beacons = nub . concat . matchAll []
+-}
 
 -- Part 2
+
+-- Manhattan distance
+mDist :: Coordinates -> Coordinates -> Int
+mDist (x1,y1,z1) (x2,y2,z2) = abs (x1-x2) + abs (y1-y2) + abs (z1-z2)
+
+maxDist :: [Coordinates] -> Int
+maxDist cs = maximum [ mDist p1 p2 | p1 <- cs, p2 <- cs]
 
 part2 :: [Scanner] -> Int
 part2 _ = 2
