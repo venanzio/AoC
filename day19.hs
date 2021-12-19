@@ -1,5 +1,11 @@
 -- Advent of Code 2021, day 19
 
+-- IMPROVEMENTS:
+-- Still very inefficient: it considers 4^3 rotations, but only 24 are different
+--  compute only the rotation-translation for each scanner, instead of transforming
+--  all its beacons, make the transformation only at the end with respect to the
+--  first scanner
+
 module Main where
 
 import System.Environment
@@ -22,9 +28,9 @@ puzzle fileName = do
   input <- readFile fileName
   ebs <- readFile "beacons" >>= return . parseAll (many pBeacon)
   let xs = parseAll pInput input
-      sbs = nub $ matchAll [] xs
-      scanners = map fst sbs
-      beacons = concat $ map snd sbs
+      sbs = matchAll [] xs
+      scanners = nub $ map fst sbs
+      beacons = nub $ concat $ map snd sbs
   putStrLn ("Part 1: " ++ show (length beacons))
   putStrLn ("Part 2: " ++ show (maxDist scanners))
 
