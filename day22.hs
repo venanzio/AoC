@@ -135,11 +135,14 @@ cuboidStep cs (b,cub) =
   in if b then cub:newcs else newcs
 
 sizeR :: Range -> Int
-sizeR (x0,x1) = if x0 <= x1 then x1-x0 else 0
+sizeR (x0,x1) = if x0 <= x1 then x1-x0+1 else 0
 
 sizeC :: Cuboid -> Int
 sizeC (rx,ry,rz) = sizeR rx * sizeR ry * sizeR rz
 
+sizeCs :: [Cuboid] -> Int
+sizeCs = sum . map sizeC
+
 part2 :: [(Bool,Cuboid)] -> Int
-part2 ((b0,c0):cs) = sum (map sizeC (foldl cuboidStep [] cs))
+part2 cs = sizeCs (foldl cuboidStep [] cs)
 
