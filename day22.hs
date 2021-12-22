@@ -77,13 +77,69 @@ setCuboid cuboid b reactor =
 stepC :: Range -> (Bool,Cuboid) -> Reactor -> Reactor
 stepC r (b,cuboid) = setCuboid (shrinkCuboid r cuboid) b
 
+shrinkInput :: [(Bool,Cuboid)] -> [(Bool,Cuboid)]
+shrinkInput [] = []
+shrinkInput ((b,c):rest) =
+  let c' = shrinkCuboid (-50,50) c
+  in if isEmptyC c' then shrinkInput rest
+                    else (b,c'):shrinkInput rest
+
 part1 :: [(Bool,Cuboid)] -> Int
-part1 = M.size . M.filter id . foldl (flip (stepC (-50,50))) (initR (-50,50))
+-- part1 = M.size . M.filter id . foldl (flip (stepC (-50,50))) (initR (-50,50))
+part1 = part2 . shrinkInput
+
+
 
 -- Part 2
 
--- IDEA : instead of computing each cube, match cuboid two by two as you add them
--- keeping track of how many cubes you add or remove
+inRange :: Int -> Range -> Bool
+inRange x (x0,x1) = x0 <= x && x <= x1
+
+inCuboid :: Coordinates -> Cuboid -> Bool
+inCuboid (x,y,z) (rx,ry,rz) = inRange x rx && inRange y ry && inRange z rz
+
+emptyR :: Range
+emptyR = (1,-1)
+
+rangeDiff :: Range -> Range -> [Range]
+rangeDiff (x0,x1) (u0,u1)
+  | x1 < x0 = [emptyR, emptyR, emptyR]
+  | u1 < u0 || u1 < x0 || x1 < u0 = [(x0,x1), emptyR, emptyR]
+  | u0 <= x0 = if u1<=x1 then [emptyR, (x0,u1), (u1+1,x1)]
+                         else [emptyR, (x0,x1), emptyR]
+  | otherwise = if u1<=x1 then [(x0,u0-1),(u0,u1),(u1+1,x1)]
+                          else [(x0,u0-1),(u0,x1),emptyR]
+
+isEmptyR :: Range -> Bool
+isEmptyR (x0,x1) = x1 < x0
+
+isEmptyC :: Cuboid -> Bool
+isEmptyC (rx,ry,rz) = isEmptyR rx || isEmptyR ry || isEmptyR rz
+
+cuboidDiff :: Cuboid -> Cuboid -> [Cuboid]
+cuboidDiff (rx,ry,rz) (ru,rv,rw) = filter (not . isEmptyC) $
+  let rdx = rangeDiff rx ru
+      rdy = rangeDiff ry rv
+      rdz = rangeDiff rz rw
+  in [ (rdx!!0, ry, rz),
+       (rdx!!1, rdy!!0, rz),
+       (rdx!!1, rdy!!1, rdz!!0),
+       (rdx!!1, rdy!!1, rdz!!2),
+       (rdx!!1, rdy!!2, rz),
+       (rdx!!2, ry, rz)
+     ]
+
+cuboidStep :: [Cuboid] -> (Bool,Cuboid) -> [Cuboid]
+cuboidStep cs (b,cub) =
+  let newcs = concat (map (\c -> cuboidDiff c cub) cs)
+  in if b then cub:newcs else newcs
+
+sizeR :: Range -> Int
+sizeR (x0,x1) = if x0 <= x1 then x1-x0 else 0
+
+sizeC :: Cuboid -> Int
+sizeC (rx,ry,rz) = sizeR rx * sizeR ry * sizeR rz
 
 part2 :: [(Bool,Cuboid)] -> Int
-part2 = undefined
+part2 ((b0,c0):cs) = sum (map sizeC (foldl cuboidStep [] cs))
+
