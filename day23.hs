@@ -49,6 +49,37 @@ pInput = pRooms  [[],[],[],[]] >>= return . (take 11 (repeat E) :)
 
 -- Part 1
 
+-- first int is room number, second room position, third Hall position
+data Move = ToHall Int Int Int | FromHall Int Int Int
+
+mDist :: Move -> Int
+mDist (ToHall r p h) = p+1 + abs (2*r-h)
+mDist (FromHall r p h) = p+1 + abs (2*r-h)
+
+energy :: Antiphod -> Move -> Int
+energy a m = aEn a * mDist m
+  where aEn A = 1
+        aEn B = 10
+        aEn C = 100
+        aEn D = 1000
+
+-- top inhabited position in a room
+inRoom :: [Antiphod] -> Maybe Int
+inRoom [E,E] = Nothing
+inRoom [E,_] = Just 1
+inRoom _     = Just 0
+
+-- free places in the Hall around a position
+freeHall :: [Antiphod] -> Int -> [Int]
+freeHall h i = if h!!i /= E then [] else fBefore (i-1) ++ fAfter (i+1)
+  where fBefore j = if j<0 || j>=length h || h!!j /= E then [] else j:fBefore (j-1)
+        fAfter j = if j<0 || j>=length h || h!!j /= E then [] else j:fAfter (j+1)
+
+-- possible movements from a room
+fromRoom :: Int -> [Move]
+fromRoom = undefined
+
+
 part1 :: Burrow -> Int
 part1 _ = 1
 
