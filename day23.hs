@@ -11,6 +11,7 @@ import qualified Data.Map as M
 
 import FunParser
 import AoCTools
+import Dijkstra
 
 main :: IO ()
 main = do
@@ -147,10 +148,10 @@ minEnergy :: Burrow -> Int
 minEnergy b =
   if b == finalB
   then 0
-  else minimum $ map (\m -> mEnergy b m + minEnergy (move b m)) (moves b)
+  else minimumBound (10^10) $ map (\m -> mEnergy b m + minEnergy (move b m)) (moves b)
 
 part1 :: Burrow -> Int
-part1 = minEnergy
+part1 = undefined
 
 -- Part 2
 
