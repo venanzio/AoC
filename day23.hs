@@ -30,6 +30,12 @@ data Antiphod = A | B | C | D | E
   deriving (Eq,Show)
 type Burrow = [[Antiphod]]
 
+hall :: Burrow -> [Antiphod]
+hall b = b!!0
+
+room :: Burrow -> Int -> [Antiphod]
+room b i = b!!i
+
 pSkip :: Parser ()
 pSkip = many (sat (\c -> c`elem` ".#" || isSpace c)) >> return ()
 
@@ -51,6 +57,19 @@ pInput = pRooms  [[],[],[],[]] >>= return . (take 11 (repeat E) :)
 
 -- first int is room number, second room position, third Hall position
 data Move = ToHall Int Int Int | FromHall Int Int Int
+  deriving (Eq,Show)
+
+move :: Burrow -> Move -> Burrow
+move b m@(ToHall r i h) =
+  let a = mAnti b m
+      newRoom = replace i E (room b r)
+      newHall = replace h a (hall b)
+      in replace 0 newHall (replace r newRoom b)
+move b m@(FromHall r i h) =
+  let a = mAnti b m
+      newHall = replace h E (hall b)
+      newRoom = replace i a (room b r)
+      in replace 0 newHall (replace r newRoom b)
 
 mDist :: Move -> Int
 mDist (ToHall r p h) = p+1 + abs (2*r-h)
@@ -63,6 +82,13 @@ energy a m = aEn a * mDist m
         aEn C = 100
         aEn D = 1000
 
+mAnti :: Burrow -> Move -> Antiphod
+mAnti b (ToHall i p h) = head (filter (/= E) (b!!i))
+mAnti b (FromHall i p h) = (hall b)!!h
+
+mEnergy :: Burrow -> Move -> Int
+mEnergy b m = energy (mAnti b m) m
+
 -- top inhabited position in a room
 inRoom :: [Antiphod] -> Maybe Int
 inRoom [E,E] = Nothing
@@ -71,17 +97,50 @@ inRoom _     = Just 0
 
 -- free places in the Hall around a position
 freeHall :: [Antiphod] -> Int -> [Int]
-freeHall h i = if h!!i /= E then [] else fBefore (i-1) ++ fAfter (i+1)
+freeHall h i = if h!!i /= E then [] else (fBefore (i-1) ++ fAfter (i+1)) \\ [2,4,6,8]
   where fBefore j = if j<0 || j>=length h || h!!j /= E then [] else j:fBefore (j-1)
         fAfter j = if j<0 || j>=length h || h!!j /= E then [] else j:fAfter (j+1)
 
 -- possible movements from a room
-fromRoom :: Int -> [Move]
-fromRoom = undefined
+fromRoom :: Burrow -> Int -> [Move]
+fromRoom b i = case room b i of
+  [E,E] -> []
+  [E,_] -> map (ToHall i 1) (freeHall (hall b) (2*i))
+  _     -> map (ToHall i 0) (freeHall (hall b) (2*i))
 
+freePlace :: [Antiphod] -> [Int]
+freePlace [E,E] = [1]
+freePlace [E,_] = [0]
+freePlace _     = []
+
+fromHall :: Burrow -> Int -> Int -> [Move]
+fromHall b h i =
+       if 2*i `elem` (freeHall (hall b) h)
+       then map (\i -> FromHall 1 i h) (freePlace (room b 1))
+       else []
+
+toRoom :: Burrow -> Int -> [Move]
+toRoom b h = case (hall b)!!h of
+  E -> []
+  A -> fromHall b h 1
+  B -> fromHall b h 2
+  C -> fromHall b h 3
+  D -> fromHall b h 4
+  
+moves :: Burrow -> [Move]
+moves b = concat $ (map (fromRoom b) [1,2,3,4]) ++ (map (toRoom b) [0..10])
+
+finalB :: Burrow
+finalB = [ take 11 (repeat E), [A,A], [B,B], [C,C], [D,D] ]
+
+minEnergy :: Burrow -> Int
+minEnergy b =
+  if b == finalB
+  then 0
+  else minNum $ map (\m -> mEnergy b m + minEnergy (move b m)) (moves b)
 
 part1 :: Burrow -> Int
-part1 _ = 1
+part1 = minEnergy
 
 -- Part 2
 

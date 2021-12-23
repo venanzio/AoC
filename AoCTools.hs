@@ -4,6 +4,17 @@ module AoCTools where
 
 import qualified Data.Map as M
 
+-- Minimum of numbers (with 0 for empty list)
+minNum :: (Num a,Ord a) => [a] -> a
+minNum [] = 0
+minNum xs = minimum xs
+
+-- Replace an element of a list (at given index]
+replace :: Int -> a -> [a] -> [a]
+replace i x l =
+  let (front,back) = splitAt i l
+  in front ++ x:(tail back)
+
 -- Remove Just from a Maybe valus
 unJust :: Maybe a -> a
 unJust (Just x) = x
