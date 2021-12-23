@@ -10,6 +10,16 @@ import AoCTools
 -- Graphs as adjacency lists (with integer weights)
 type Graph a = M.Map a [(a,Int)]
 
+type GraphF a = a -> [(a,Int)]
+
+graph :: Ord a => GraphF a -> [a] -> Graph a
+graph gf xs = graphAux xs M.empty
+  where graphAux [] g = g
+        graphAux (x:xs) g = let gfx = gf x
+                                g' = M.insert x gfx g
+                                ys = map fst gfx
+                            in graphAux ((ys \\ M.keys g') ++ xs) g'
+
 delIndex :: [a] -> Int -> [a]
 delIndex xs i = let (front,back) = splitAt i xs
                 in front ++ tail back
@@ -36,5 +46,5 @@ dijkstraW g visited seen lengths =
       lengths' = reviseL (x,lengths M.! x) links lengths
   in dijkstraW g (x:visited) (nub $ map fst links ++ seen') lengths'
 
-dijkstra :: Ord a => Graph a -> a -> M.Map a Int
-dijkstra g x = dijkstraW g [] [x] M.empty
+dijkstra :: Ord a => GraphF a -> a -> M.Map a Int
+dijkstra gf x = dijkstraW (graph gf [x]) [] [x] M.empty

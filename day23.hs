@@ -28,7 +28,7 @@ puzzle fileName = do
 
 -- Parsing the input
 data Antiphod = A | B | C | D | E
-  deriving (Eq,Show)
+  deriving (Eq,Show,Ord)
 type Burrow = [[Antiphod]]
 
 hall :: Burrow -> [Antiphod]
@@ -150,8 +150,11 @@ minEnergy b =
   then 0
   else minimumBound (10^10) $ map (\m -> mEnergy b m + minEnergy (move b m)) (moves b)
 
+burrowGraph :: GraphF Burrow
+burrowGraph b = map (\m -> (move b m, mEnergy b m)) (moves b)
+
 part1 :: Burrow -> Int
-part1 = undefined
+part1 b = dijkstra burrowGraph b M.! finalB
 
 -- Part 2
 
