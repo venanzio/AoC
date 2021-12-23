@@ -97,16 +97,24 @@ inRoom _     = Just 0
 
 -- free places in the Hall around a position
 freeHall :: [Antiphod] -> Int -> [Int]
-freeHall h i = if h!!i /= E then [] else (fBefore (i-1) ++ fAfter (i+1))
+freeHall h i = (fBefore (i-1) ++ fAfter (i+1))
   where fBefore j = if j<0 || j>=length h || h!!j /= E then [] else j:fBefore (j-1)
         fAfter j = if j<0 || j>=length h || h!!j /= E then [] else j:fAfter (j+1)
+
+roomAnti :: Int -> Antiphod
+roomAnti 1 = A
+roomAnti 2 = B
+roomAnti 3 = C
+roomAnti 4 = D
 
 -- possible movements from a room
 fromRoom :: Burrow -> Int -> [Move]
 fromRoom b i = case room b i of
   [E,E] -> []
-  [E,_] -> map (ToHall i 1) (freeHall (hall b) (2*i) \\ [2,4,6,8])
-  _     -> map (ToHall i 0) (freeHall (hall b) (2*i) \\ [2,4,6,8])
+  [E,a] -> if a == roomAnti i then [] 
+           else map (ToHall i 1) (freeHall (hall b) (2*i) \\ [2,4,6,8])
+  as -> if all (== roomAnti i) as then []
+        else map (ToHall i 0) (freeHall (hall b) (2*i) \\ [2,4,6,8])
 
 freePlace :: [Antiphod] -> [Int]
 freePlace [E,E] = [1]
@@ -116,7 +124,7 @@ freePlace _     = []
 fromHall :: Burrow -> Int -> Int -> [Move]
 fromHall b h i =
        if 2*i `elem` (freeHall (hall b) h)
-       then map (\i -> FromHall 1 i h) (freePlace (room b 1))
+       then map (\j -> FromHall i j h) (freePlace (room b i))
        else []
 
 toRoom :: Burrow -> Int -> [Move]
@@ -128,7 +136,9 @@ toRoom b h = case (hall b)!!h of
   D -> fromHall b h 4
   
 moves :: Burrow -> [Move]
-moves b = concat $ (map (fromRoom b) [1,2,3,4]) ++ (map (toRoom b) [0..10])
+moves b = case concat (map (toRoom b) [0..10]) of
+  (m:_) -> [m]
+  _ -> concat $ map (fromRoom b) [1,2,3,4]
 
 finalB :: Burrow
 finalB = [ take 11 (repeat E), [A,A], [B,B], [C,C], [D,D] ]
@@ -137,7 +147,7 @@ minEnergy :: Burrow -> Int
 minEnergy b =
   if b == finalB
   then 0
-  else minimumBound 100 $ map (\m -> mEnergy b m + minEnergy (move b m)) (moves b)
+  else minimum $ map (\m -> mEnergy b m + minEnergy (move b m)) (moves b)
 
 part1 :: Burrow -> Int
 part1 = minEnergy
