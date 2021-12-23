@@ -4,10 +4,9 @@ module AoCTools where
 
 import qualified Data.Map as M
 
--- Minimum of numbers (with 0 for empty list)
-minNum :: (Num a,Ord a) => [a] -> a
-minNum [] = 0
-minNum xs = minimum xs
+-- Minimum with a highest bound (for empty list)
+minimumBound :: Ord a => a -> [a] -> a
+minimumBound x = minimum . (x:)
 
 -- Replace an element of a list (at given index]
 replace :: Int -> a -> [a] -> [a]

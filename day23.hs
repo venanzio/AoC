@@ -97,7 +97,7 @@ inRoom _     = Just 0
 
 -- free places in the Hall around a position
 freeHall :: [Antiphod] -> Int -> [Int]
-freeHall h i = if h!!i /= E then [] else (fBefore (i-1) ++ fAfter (i+1)) \\ [2,4,6,8]
+freeHall h i = if h!!i /= E then [] else (fBefore (i-1) ++ fAfter (i+1))
   where fBefore j = if j<0 || j>=length h || h!!j /= E then [] else j:fBefore (j-1)
         fAfter j = if j<0 || j>=length h || h!!j /= E then [] else j:fAfter (j+1)
 
@@ -105,8 +105,8 @@ freeHall h i = if h!!i /= E then [] else (fBefore (i-1) ++ fAfter (i+1)) \\ [2,4
 fromRoom :: Burrow -> Int -> [Move]
 fromRoom b i = case room b i of
   [E,E] -> []
-  [E,_] -> map (ToHall i 1) (freeHall (hall b) (2*i))
-  _     -> map (ToHall i 0) (freeHall (hall b) (2*i))
+  [E,_] -> map (ToHall i 1) (freeHall (hall b) (2*i) \\ [2,4,6,8])
+  _     -> map (ToHall i 0) (freeHall (hall b) (2*i) \\ [2,4,6,8])
 
 freePlace :: [Antiphod] -> [Int]
 freePlace [E,E] = [1]
@@ -137,7 +137,7 @@ minEnergy :: Burrow -> Int
 minEnergy b =
   if b == finalB
   then 0
-  else minNum $ map (\m -> mEnergy b m + minEnergy (move b m)) (moves b)
+  else minimumBound 100 $ map (\m -> mEnergy b m + minEnergy (move b m)) (moves b)
 
 part1 :: Burrow -> Int
 part1 = minEnergy
