@@ -137,7 +137,7 @@ fromRoom b i =
       j = firstA r
       a = r!!j
   in if all (`elem` [E,ra]) r then []
-     else map (ToHall i j) (freeHall (hall b) (2*i) \\ [2*i,2*(antiRoom a)])
+     else map (ToHall i j) (freeHall (hall b) (2*i) \\ [2,4,6,8])    -- [2*i,2*(antiRoom a)])
 
 {-
   case room b i of
