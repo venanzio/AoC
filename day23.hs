@@ -22,8 +22,7 @@ puzzle :: String -> IO ()
 puzzle fileName = do
   input <- readFile fileName
   let xs = parseAll pInput input
-  putStrLn (show xs)
-  putStrLn ("Part 1: " ++ show (part1 xs))
+  -- putStrLn ("Part 1: " ++ show (part1 xs))
   putStrLn ("Part 2: " ++ show (part2 xs))
 
 -- Parsing the input
@@ -90,11 +89,12 @@ mAnti b (FromHall i p h) = (hall b)!!h
 mEnergy :: Burrow -> Move -> Int
 mEnergy b m = energy (mAnti b m) m
 
+{-
 -- top inhabited position in a room
 inRoom :: [Antiphod] -> Maybe Int
-inRoom [E,E] = Nothing
-inRoom [E,_] = Just 1
-inRoom _     = Just 0
+inRoom r = let n = length (takeWhile (==E) r)
+           in if n < length r then Just n else Nothing 
+-}
 
 -- free places in the Hall around a position
 freeHall :: [Antiphod] -> Int -> [Int]
@@ -108,26 +108,45 @@ roomAnti 2 = B
 roomAnti 3 = C
 roomAnti 4 = D
 
+firstA :: [Antiphod] -> Int
+firstA = length . takeWhile (==E)
+
+freePlace :: [Antiphod] -> Int -> [Int]
+freePlace r i = let (es,as) = span (==E) r
+                in if all (==roomAnti i) as && length es > 0
+                   then [length es -1]
+                   else []
+{-
+freePlace [E,E] _ = [1]
+freePlace [E,a] i = if a == roomAnti i then [0] else []
+freePlace _     _ = []
+-}
+
 -- possible movements from a room
 fromRoom :: Burrow -> Int -> [Move]
-fromRoom b i = case room b i of
+fromRoom b i = if all (`elem` [E,roomAnti i]) (b!!i) then []
+               else map (ToHall i (firstA (b!!i))) (freeHall (hall b) (2*i))
+
+{-
+  case room b i of
   [E,E] -> []
   [E,a] -> if a == roomAnti i then [] 
            else map (ToHall i 1) (freeHall (hall b) (2*i) \\ [2,4,6,8])
   as -> if all (== roomAnti i) as then []
         else map (ToHall i 0) (freeHall (hall b) (2*i) \\ [2,4,6,8])
+-}
+  
+goodRoom :: [Antiphod] -> Int -> Bool
+goodRoom r i = all (== roomAnti i) r
 
-freePlace :: [Antiphod] -> [Int]
-freePlace [E,E] = [1]
-freePlace [E,_] = [0]
-freePlace _     = []
 
 fromHall :: Burrow -> Int -> Int -> [Move]
 fromHall b h i =
        if 2*i `elem` (freeHall (hall b) h)
-       then map (\j -> FromHall i j h) (freePlace (room b i))
+       then map (\j -> FromHall i j h) (freePlace (room b i) i)
        else []
 
+-- possible movements from the hall to a room
 toRoom :: Burrow -> Int -> [Move]
 toRoom b h = case (hall b)!!h of
   E -> []
@@ -154,9 +173,20 @@ burrowGraph :: GraphF Burrow
 burrowGraph b = map (\m -> (move b m, mEnergy b m)) (moves b)
 
 part1 :: Burrow -> Int
-part1 b = dijkstra burrowGraph b M.! finalB
+part1 b = dijkstra burrowGraph b finalB
 
 -- Part 2
 
+fullB :: Burrow -> Burrow
+fullB b = [b!!0, ins (b!!1) [D,D],
+                 ins (b!!2) [C,B],
+                 ins (b!!3) [B,A],
+                 ins (b!!4) [A,C] ]
+  where ins [x0,x1] [y0,y1] = [x0,y0,y1,x1]
+
+fullFinalB :: Burrow
+fullFinalB = [ take 11 (repeat E), [A,A,A,A], [B,B,B,B], [C,C,C,C], [D,D,D,D] ]
+
+
 part2 :: Burrow -> Int
-part2 _ = 2
+part2 b = dijkstra burrowGraph (fullB b) fullFinalB
