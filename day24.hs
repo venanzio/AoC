@@ -104,11 +104,23 @@ exec (i:is) vs m = exec is vs (execOp i m)
 initMem :: Memory
 initMem = (0,0,0,0)
 
+allModels :: [[Int]]
+allModels = amAux 14
 
+amAux :: Int -> [[Int]]
+amAux 1 = [[9],[8],[7],[6],[5],[4],[3],[2],[1]]
+amAux n = [(d:ds) | d <- [9,8,7,6,5,4,3,2,1], ds <- amAux (n-1)]
 
+search :: [Instruction] -> [[Int]] -> [Int]
+search prog (mod:mods) =
+  let m = exec prog mod initMem
+  in if (getVar Z m) == 0
+     then mod
+     else search prog mods                     
 
-part1 :: [Instruction] -> Int
-part1 _ = 1
+part1 :: [Instruction] -> [Int]
+part1 prog = search prog allModels
+  
 
 -- Part 2
 
