@@ -67,6 +67,46 @@ pInput = pLines pInst
 
 -- Part 1
 
+type Memory = (Int,Int,Int,Int)
+
+getVar :: Var -> Memory -> Int
+getVar W (w,x,y,z) = w
+getVar X (w,x,y,z) = x
+getVar Y (w,x,y,z) = y
+getVar Z (w,x,y,z) = z
+
+writeVar :: Var -> Int -> Memory -> Memory
+writeVar W v (w,x,y,z) = (v,x,y,z) 
+writeVar X v (w,x,y,z) = (w,v,y,z) 
+writeVar Y v (w,x,y,z) = (w,x,v,z) 
+writeVar Z v (w,x,y,z) = (w,x,y,v) 
+
+eql x y = if x==y then 1 else 0
+
+execOp :: Instruction -> Memory -> Memory
+execOp (Add a (Left b)) m = writeVar a (getVar a m + getVar b m) m
+execOp (Mul a (Left b)) m = writeVar a (getVar a m * getVar b m) m
+execOp (Div a (Left b)) m = writeVar a (getVar a m `div` getVar b m) m
+execOp (Mod a (Left b)) m = writeVar a (getVar a m `mod` getVar b m) m
+execOp (Eql a (Left b)) m = writeVar a (getVar a m `eql` getVar b m) m
+execOp (Add a (Right v)) m = writeVar a (getVar a m + v) m
+execOp (Mul a (Right v)) m = writeVar a (getVar a m * v) m
+execOp (Div a (Right v)) m = writeVar a (getVar a m `div` v) m
+execOp (Mod a (Right v)) m = writeVar a (getVar a m `mod` v) m
+execOp (Eql a (Right v)) m = writeVar a (getVar a m `eql` v) m
+execOp i _ = error ("Can't execute instruction " ++ show i)
+
+exec :: [Instruction] -> [Int] -> Memory -> Memory
+exec [] _ m = m
+exec (Inp a:is) (v:vs) m = exec is vs (writeVar a v m)
+exec (i:is) vs m = exec is vs (execOp i m)
+
+initMem :: Memory
+initMem = (0,0,0,0)
+
+
+
+
 part1 :: [Instruction] -> Int
 part1 _ = 1
 
