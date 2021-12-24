@@ -108,6 +108,13 @@ roomAnti 2 = B
 roomAnti 3 = C
 roomAnti 4 = D
 
+antiRoom :: Antiphod -> Int
+antiRoom A = 1
+antiRoom B = 2
+antiRoom C = 3
+antiRoom D = 4
+
+
 firstA :: [Antiphod] -> Int
 firstA = length . takeWhile (==E)
 
@@ -124,8 +131,13 @@ freePlace _     _ = []
 
 -- possible movements from a room
 fromRoom :: Burrow -> Int -> [Move]
-fromRoom b i = if all (`elem` [E,roomAnti i]) (b!!i) then []
-               else map (ToHall i (firstA (b!!i))) (freeHall (hall b) (2*i))
+fromRoom b i =
+  let r = b!!i
+      ra = roomAnti i
+      j = firstA r
+      a = r!!j
+  in if all (`elem` [E,ra]) r then []
+     else map (ToHall i j) (freeHall (hall b) (2*i) \\ [2*i,2*(antiRoom a)])
 
 {-
   case room b i of
