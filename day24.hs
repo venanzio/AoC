@@ -130,8 +130,32 @@ splitProg [] = []
 splitProg prog = let (p,prog') = spanInput prog
                  in p: splitProg prog'
 
+
+nubMax :: (Ord a, Eq b) => [(a,b)] -> [(a,b)]
+nubMax []= []
+nubMax ((a,b):abs) =
+  let (xs,ys) = spanBy (\ab -> snd ab == b) abs
+      amax = maximum (a : map fst xs)
+  in (amax,b):nubMax ys
+
+
+execChunk :: [Instruction] -> Memory -> [(Int,Memory)]
+execChunk prog m = map (\inp -> (inp, exec prog [inp] m)) [1..9]
+
+execsChunk :: [Instruction] -> [([Int],Memory)] -> [([Int],Memory)]
+execsChunk prog inpMems =
+  nubMax $ concat $
+    map (\(inp,m) -> map (\(v,m') -> (inp++[v],m'))
+                         (execChunk prog m))
+        inpMems
+
+execAll :: [Instruction] -> [([Int],Memory)]
+execAll prog = foldl (\inpMems p -> execsChunk p inpMems) [([],initMem)] (splitProg prog)
+
 part1 :: [Instruction] -> [Int]
-part1 prog = search prog allModels
+part1 prog = fst $ head $ filter (\(_,m) -> getVar Z m == 0) (execAll prog)
+
+
   
 
 -- Part 2
