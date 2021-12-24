@@ -69,6 +69,9 @@ pInput = pLines pInst
 
 type Memory = (Int,Int,Int,Int)
 
+memNorm :: Memory -> Memory
+memNorm (w,x,y,z) = (w `mod` 2, x `mod` 2, y `mod` 2, z `mod` 2) 
+
 getVar :: Var -> Memory -> Int
 getVar W (w,x,y,z) = w
 getVar X (w,x,y,z) = x
@@ -96,10 +99,14 @@ execOp (Mod a (Right v)) m = writeVar a (getVar a m `mod` v) m
 execOp (Eql a (Right v)) m = writeVar a (getVar a m `eql` v) m
 execOp i _ = error ("Can't execute instruction " ++ show i)
 
+execOpN :: Instruction -> Memory -> Memory
+execOpN i m = memNorm (execOpN i m)
+
+
 exec :: [Instruction] -> [Int] -> Memory -> Memory
 exec [] _ m = m
 exec (Inp a:is) (v:vs) m = exec is vs (writeVar a v m)
-exec (i:is) vs m = exec is vs (execOp i m)
+exec (i:is) vs m = exec is vs (execOpN i m)
 
 initMem :: Memory
 initMem = (0,0,0,0)
@@ -152,8 +159,11 @@ execsChunk prog inpMems =
 execAll :: [Instruction] -> [([Int],Memory)]
 execAll prog = foldl (\inpMems p -> execsChunk p inpMems) [([],initMem)] (splitProg prog)
 
-part1 :: [Instruction] -> [Int]
-part1 prog = fst $ head $ filter (\(_,m) -> getVar Z m == 0) (execAll prog)
+decimal :: [Int] -> Int
+decimal = foldl (\v d -> 10*v+d) 0
+
+part1 :: [Instruction] -> Int
+part1 prog = decimal $ fst $ head $ filter (\(_,m) -> getVar Z m == 0) (execAll prog)
 
 
   
