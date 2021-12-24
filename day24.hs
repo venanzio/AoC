@@ -118,6 +118,18 @@ search prog (mod:mods) =
      then mod
      else search prog mods                     
 
+
+spanInput :: [Instruction] -> ([Instruction],[Instruction])
+spanInput (i:is) = let (p,ps) = span notInput is in (i:p,ps)
+  where notInput (Inp _) = False
+        notInput _ = True
+
+-- Split program at input instructions
+splitProg :: [Instruction] -> [[Instruction]]
+splitProg [] = []
+splitProg prog = let (p,prog') = spanInput prog
+                 in p: splitProg prog'
+
 part1 :: [Instruction] -> [Int]
 part1 prog = search prog allModels
   
