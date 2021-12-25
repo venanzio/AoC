@@ -167,14 +167,87 @@ decimal :: [Int] -> Int
 decimal = foldl (\v d -> 10*v+d) 0
 
 
+checkDigit :: Int -> Bool
+checkDigit d = d>0 && d<10 
+
+forwardF :: (Int,Int) -> (Int,Int) -> Int
+forwardF (u,v) (z,w) =
+  if z `mod` 26 == w-u
+  then z+w+v
+  else 26*z+w+v
+
+backF :: (Int,Int) -> Int -> [(Int,Int)]
+backF (u,v) zf = filter (\p -> forwardF (u,v) p == zf)
+                   ([(zf-w-v,w) | w <- [1..9]] ++ [((zf-w-v) `div` 26,w) | w <- [1..9]])
+
+{-
+backF :: (Int,Int) -> Int -> [(Int,Int)]
+backF (u,v) zf = bf1 ++ bf2 where
+  bf1 = let z0 = zf-v+u `mod` 26
+            w = z0 `div` 2
+        in if checkDigit w && 2*w == z0 then [(zf-v-w,w)] else []
+  bf2 = let z1 = zf-v
+            w = z1 `mod` 26
+            z2 = z1-w `div` 26
+        in if checkDigit w && z2 `mod` 26 /= w-u then [(z2,w)] else []
+-}
+
+forwardT :: (Int,Int) -> (Int,Int) -> Int
+forwardT (u,v) (z,w) = let z' = z `div` 26 in
+  if z `mod` 26 == w-u
+  then z'+w+v
+  else 26*z'+w+v
+
+backT :: (Int,Int) -> Int -> [(Int,Int)]
+backT (u,v) zf = filter (\p -> forwardT (u,v) p == zf)
+                   ([(26*(zf-w-v)+x,w) | w <- [1..9], x<- [0..25]] ++
+                    [(26*((zf-w-v) `div` 26)+x,w) | w <- [1..9], x<- [0..25]])
+
+progTable :: [(Int,Int,Bool)]
+progTable = [(11,3,False),
+             (14,7,False),
+             (13,1,False),
+             (-4,6,True),
+             (11,14,False),
+             (10,7,False),
+             (-4,9,True),
+             (-12,9,True),
+             (10,6,False),
+             (-11,4,True),
+             (12,0,False),
+             (-1,7,True),
+             (0,12,True),
+             (-11,1,True)]
+
+forward1 :: (Int,Int,Bool) -> Int -> Int -> Int
+forward1 (u,v,b) w z =
+  if b then forwardT (u,v) (z,w)
+       else forwardF (u,v) (z,w)
+
+forward :: [(Int,Int,Bool)] -> [Int] -> Int -> Int
+forward [] ws z = z
+forward ((u,v,b):pT) (w:ws) z = forward pT ws (forward1 (u,v,b) w z)
+
+back1 :: (Int,Int,Bool) -> Int -> [(Int,Int)]
+back1 (u,v,b) zf = if b then backT (u,v) zf else backF (u,v) zf
+
+back :: [(Int,Int,Bool)] -> Int -> [(Int,[Int])]
+back [] zf = [(zf,[])]
+back ((u,v,b):pT) zf =
+  let zws = back pT zf
+  in concat $ map (\(z,ws) -> map (\(z0,w) -> (z0,w:ws)) (back1 (u,v,b) z)) zws
 
 
-formula :: [Int] -> Int
-formula w = w!!13 + 26*(w!!7+9) + 26^2*(w!!4+14) + 26^3*(w!!3+6) + 26^2*(w!!1+7) + 26^5*(w!!0+3)
+
+sols :: [[Int]]
+sols = map snd $ filter (\(z,_) -> z==0) $ back progTable 0
+
+
 
 
 part1 :: [Instruction] -> Int
-part1 prog = decimal $ fst $ head $ filter (\(_,m) -> getVar Z m == 0) (execAll prog)
+part1 prog = last $ sort $ map decimal sols
+  -- decimal $ fst $ head $ filter (\(_,m) -> getVar Z m == 0) (execAll prog)
 
 
   
