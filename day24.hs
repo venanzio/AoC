@@ -21,7 +21,6 @@ puzzle :: String -> IO ()
 puzzle fileName = do
   input <- readFile fileName
   let xs = parseAll pInput input
-  putStrLn (show xs)
   putStrLn ("Part 1: " ++ show (part1 xs))
   putStrLn ("Part 2: " ++ show (part2 xs))
 
@@ -70,7 +69,7 @@ pInput = pLines pInst
 type Memory = (Int,Int,Int,Int)
 
 memNorm :: Memory -> Memory
-memNorm (w,x,y,z) = (w `mod` 2, x `mod` 2, y `mod` 2, z `mod` 2) 
+memNorm (w,x,y,z) = (w, x, y, z) 
 
 getVar :: Var -> Memory -> Int
 getVar W (w,x,y,z) = w
@@ -99,14 +98,10 @@ execOp (Mod a (Right v)) m = writeVar a (getVar a m `mod` v) m
 execOp (Eql a (Right v)) m = writeVar a (getVar a m `eql` v) m
 execOp i _ = error ("Can't execute instruction " ++ show i)
 
-execOpN :: Instruction -> Memory -> Memory
-execOpN i m = memNorm (execOpN i m)
-
-
 exec :: [Instruction] -> [Int] -> Memory -> Memory
 exec [] _ m = m
 exec (Inp a:is) (v:vs) m = exec is vs (writeVar a v m)
-exec (i:is) vs m = exec is vs (execOpN i m)
+exec (i:is) vs m = exec is vs (execOp i m)
 
 initMem :: Memory
 initMem = (0,0,0,0)
@@ -138,6 +133,15 @@ splitProg prog = let (p,prog') = spanInput prog
                  in p: splitProg prog'
 
 
+selectChunks :: [[Instruction]] -> [[Instruction]]
+selectChunks ps = [ps!!0,ps!!1,ps!!3,ps!!4,ps!!7,ps!!9,ps!!13]
+
+select :: [a] -> [a]
+select l = [l!!0,l!!1,l!!3,l!!4,l!!7,l!!9,l!!13]
+
+pad :: [Int] -> [Int]
+pad l = [l!!0,l!!1,9,l!!2,l!!3,9,9,l!!4,9,l!!5,9,9,9,l!!6]
+
 nubMax :: (Ord a, Eq b) => [(a,b)] -> [(a,b)]
 nubMax []= []
 nubMax ((a,b):abs) =
@@ -162,6 +166,13 @@ execAll prog = foldl (\inpMems p -> execsChunk p inpMems) [([],initMem)] (splitP
 decimal :: [Int] -> Int
 decimal = foldl (\v d -> 10*v+d) 0
 
+
+
+
+formula :: [Int] -> Int
+formula w = w!!13 + 26*(w!!7+9) + 26^2*(w!!4+14) + 26^3*(w!!3+6) + 26^2*(w!!1+7) + 26^5*(w!!0+3)
+
+
 part1 :: [Instruction] -> Int
 part1 prog = decimal $ fst $ head $ filter (\(_,m) -> getVar Z m == 0) (execAll prog)
 
@@ -172,3 +183,24 @@ part1 prog = decimal $ fst $ head $ filter (\(_,m) -> getVar Z m == 0) (execAll 
 
 part2 :: [Instruction] -> Int
 part2 _ = 2
+
+
+
+
+
+{-
+always read the input into w
+  (w never otherwise modified)
+then set x := z `mod` 26
+  (so values of w and x at the beginning of a chunk not relevant)
+
+the first time y is used:
+         y := 25*x+1
+    (so also value of y before a chunk not relevant)
+  then multiply z by y and set y to 0 again
+
+at the end of every section add y to z??
+
+
+
+-}
