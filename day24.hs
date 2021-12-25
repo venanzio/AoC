@@ -24,6 +24,10 @@ puzzle fileName = do
   putStrLn ("Part 1: " ++ show (part1 xs))
   putStrLn ("Part 2: " ++ show (part2 xs))
 
+
+readProg :: IO [Instruction]
+readProg = readFile "input" >>= return . parseAll pInput
+
 -- Parsing the input
 
 data Var = W | X | Y | Z
@@ -105,6 +109,11 @@ exec (i:is) vs m = exec is vs (execOp i m)
 
 initMem :: Memory
 initMem = (0,0,0,0)
+
+initZ :: Int -> Memory
+initZ z = (0,0,0,z)
+
+
 
 allModels :: [[Int]]
 allModels = amAux 14
@@ -194,13 +203,13 @@ backF (u,v) zf = bf1 ++ bf2 where
 
 forwardT :: (Int,Int) -> (Int,Int) -> Int
 forwardT (u,v) (z,w) = let z' = z `div` 26 in
-  if z `mod` 26 == w-u
-  then z'+w+v
+  if z `mod` 26 + u == w
+  then z'
   else 26*z'+w+v
 
 backT :: (Int,Int) -> Int -> [(Int,Int)]
 backT (u,v) zf = filter (\p -> forwardT (u,v) p == zf)
-                   ([(26*(zf-w-v)+x,w) | w <- [1..9], x<- [0..25]] ++
+                   ([(26*zf+x,w) | w <- [1..9], x<- [0..25]] ++
                     [(26*((zf-w-v) `div` 26)+x,w) | w <- [1..9], x<- [0..25]])
 
 progTable :: [(Int,Int,Bool)]
@@ -239,14 +248,19 @@ back ((u,v,b):pT) zf =
 
 
 
-sols :: [[Int]]
-sols = map snd $ filter (\(z,_) -> z==0) $ back progTable 0
+sols :: [Int]
+sols = sort $ map decimal $ map snd $ filter (\(z,_) -> z==0) $ back progTable 0
+
+
+
+
+
 
 
 
 
 part1 :: [Instruction] -> Int
-part1 prog = last $ sort $ map decimal sols
+part1 _ = last sols
   -- decimal $ fst $ head $ filter (\(_,m) -> getVar Z m == 0) (execAll prog)
 
 
@@ -255,7 +269,7 @@ part1 prog = last $ sort $ map decimal sols
 -- Part 2
 
 part2 :: [Instruction] -> Int
-part2 _ = 2
+part2 _ = head sols
 
 
 
