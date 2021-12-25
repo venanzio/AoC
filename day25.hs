@@ -21,8 +21,7 @@ puzzle :: String -> IO ()
 puzzle fileName = do
   input <- readFile fileName
   let xs = parseAll pInput input
-  putStrLn (show $ xs M.! (8,17))
-  -- putStrLn ("Part 1: " ++ show (part1 xs))
+  putStrLn ("Part 1: " ++ show (part1 xs))
   -- putStrLn ("Part 2: " ++ show (part2 xs))
 
 readF :: IO Floor
@@ -69,8 +68,47 @@ moveR floor = case mobileR floor of
            foldl (\f ((x,y),(newx,newy)) -> M.insert (newx,newy) '>' $ M.insert (x,y) '.' f)
                  floor moves
 
+
+nextD :: Floor -> (Int,Int) -> (Int,Int)
+nextD floor (x,y) = case M.lookup (x,y) floor of
+  Just 'v' -> case M.lookup (x,y+1) floor of
+           Nothing -> case M.lookup (x,0) floor of
+             Just '.' -> (x,0)
+             _        -> (x,y)
+           Just '.' -> (x,y+1)
+           _        -> (x,y)
+  _        -> (x,y)
+
+mobileD :: Floor -> [((Int,Int),(Int,Int))]
+mobileD floor = filter (\((x,y),(newx,newy)) -> x/=newx || y/=newy)
+                       (map (\p -> (p,nextD floor p)) (M.keys floor))
+
+moveD :: Floor -> Maybe Floor
+moveD floor = case mobileD floor of
+  [] -> Nothing
+  moves -> Just $
+           foldl (\f ((x,y),(newx,newy)) -> M.insert (newx,newy) 'v' $ M.insert (x,y) '.' f)
+                 floor moves
+
+move :: Floor -> Maybe Floor
+move floor =
+  let f0 = moveR floor
+      floor0 = case f0 of
+                 Nothing -> floor
+                 Just f -> f
+      f1 = moveD floor0
+      floor1 = case f1 of
+                 Nothing -> floor0
+                 Just f -> f
+  in if f0 == Nothing && f1 == Nothing then Nothing else Just floor1
+      
+moveCount :: Floor -> Int
+moveCount floor = case move floor of
+  Nothing -> 1
+  Just floor' -> 1 + moveCount floor'
+
 part1 :: Floor -> Int
-part1 _ = 1
+part1 = moveCount 
 
 -- Part 2
 
