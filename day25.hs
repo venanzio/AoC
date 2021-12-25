@@ -21,23 +21,31 @@ puzzle :: String -> IO ()
 puzzle fileName = do
   input <- readFile fileName
   let xs = parseAll pInput input
-  putStrLn ("Part 1: " ++ show (part1 xs))
-  putStrLn ("Part 2: " ++ show (part2 xs))
+  putStrLn (show $ xs M.! (8,17))
+  -- putStrLn ("Part 1: " ++ show (part1 xs))
+  -- putStrLn ("Part 2: " ++ show (part2 xs))
 
 -- Parsing the input
 
-pData :: Parser ()
-pData = return ()
+type Floor = M.Map (Int,Int) Char
 
-pInput :: Parser [()]
-pInput = pLines pData
+pRow :: Parser [Char]
+pRow =  many (char '.' <|> char '>' <|> char 'v')
+
+pInput :: Parser Floor
+pInput = pLines pRow >>= return . mMap 
 
 -- Part 1
 
-part1 :: [()] -> Int
+nextR :: Floor -> (Int,Int) -> (Int,Int)
+nextR floor (x,y) = case M.lookup (x,y) floor of
+  Just '>' -> case M.lookup (x+1,y) of
+           Just ..
+
+part1 :: Floor -> Int
 part1 _ = 1
 
 -- Part 2
 
-part2 :: [()] -> Int
+part2 :: Floor -> Int
 part2 _ = 2
