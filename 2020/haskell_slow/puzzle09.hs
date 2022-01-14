@@ -27,7 +27,7 @@ puzzle fileName = do
 
 -- Part 1
 
--- pairSum xs y: check if y is the sum of twxo elements of xs
+-- pairSum xs y: check if y is the sum of two elements of xs
 pairSum :: [Int] -> Int -> Bool
 pairSum [] _ = False
 pairSum (x:xs) y = (y-x) `elem` xs || pairSum xs y

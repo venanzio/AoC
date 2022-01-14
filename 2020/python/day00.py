@@ -5,7 +5,13 @@ with open("../input", "r") as infile:
 
 # Parsing the input
 
+# ....
+
+
+# Part 1
+
 print("Part 1: ")
+
 
 # Part 2
 
