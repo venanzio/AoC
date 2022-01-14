@@ -71,9 +71,8 @@ def chinstr(ix):
 for i in visited:
   prog[i] = chinstr(prog[i])
   (t,a,v) = terminate(prog)
-  if t: 
-    print("Part 2: " + str(a))
-    break
+  if t: break
   prog[i] = chinstr(prog[i]) # changing back
   
+print("Part 2: " + str(a))
 
