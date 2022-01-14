@@ -29,6 +29,22 @@ print("Part 1: " + str(y))
 
 # Part 2
 
-print("Part 2: ")
+run = []
+sum = 0
+
+while not sum==y:
+  # remove initial elements to bring sum below y
+  while sum>y:
+    x = run.pop(0)
+    sum -= x
+  # add new element until you reach y
+  while sum<y:
+    x = nums.pop(0)
+    run.append(x)
+    sum += x
+
+run.sort()
+
+print("Part 2: " + str(run[0] + run[-1]))
   
 
