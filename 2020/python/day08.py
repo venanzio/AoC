@@ -1,6 +1,6 @@
-# Advent of Code 2020, Day 7
+# Advent of Code 2020, Day 8
 
-with open("../input08", "r") as infile:
+with open("../input", "r") as infile:
      lines = infile.readlines()
 
 # Parse the program into a list of instructions
@@ -31,7 +31,8 @@ def printstate():
   return ()
 
 # executes an instruction
-def execute((i,x),acc,inst):
+def execute(ix,acc,inst):
+  (i,x) = ix
   if i == 'acc':
     acc += x
     inst +=1
@@ -52,9 +53,9 @@ def terminate(prog):
     (acc,inst) = execute(prog[inst],acc,inst)
   return (inst >= size, acc, visited)
 
-#while inst not in visited:
-#  visited.append(inst)
-#  execute(prog[inst],acc,inst)
+# while inst not in visited:
+#   visited.append(inst)
+#   execute(prog[inst],acc,inst)
 
 (t,acc,visited) = terminate(prog)
 
@@ -62,7 +63,8 @@ print("Part 1: " + str(acc))
 
 # Part 2
 
-def chinstr((i,x)):
+def chinstr(ix):
+  (i,x) = ix
   if i == "jmp":
     return (("nop",x))
   elif i == "nop":
