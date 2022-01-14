@@ -19,7 +19,7 @@ puzzle fileName = do
   let nums = parseAll (some natural) input
       (pre,post) = splitAt 25 nums
       Just r = noPSum pre post
-      Just run = findRun nums r
+      run = sumRun [] 0 r nums  -- findRun nums r
       srun = sort run
   putStrLn ("Part 1: " ++ show r)
   putStrLn ("Part 2: " ++ show (head srun + last srun))
@@ -42,17 +42,12 @@ noPSum xs (y:ys) = if pairSum xs y
 
 -- Part 2
 
--- run xs y: initial segment of xs not smaller than y
-run :: [Int] -> Int -> [Int]
-run (x:xs) y
-  | y<=0      = []
-  | otherwise = x : run xs (y-x)  
+-- rs = current run, s = its sum, y = target, nums = list of numbers to use
+sumRun :: [Int] -> Int -> Int -> [Int] -> [Int]
+sumRun rs s y nums
+  | s == y = rs
+  | s > y  = sumRun (tail rs) (s-head rs) y nums
+  | s < y  = let x = head nums
+             in  sumRun (rs++[x]) (s+x) y (tail nums)
 
--- find a run of contiguous numbers that add up to y
-findRun :: [Int] -> Int -> Maybe [Int]
-findRun [] y = Nothing
-findRun xs y = let rs = run xs y
-               in if sum rs == y
-                  then Just rs
-                  else findRun (tail xs) y
 
