@@ -53,10 +53,6 @@ def terminate(prog):
     (acc,inst) = execute(prog[inst],acc,inst)
   return (inst >= size, acc, visited)
 
-# while inst not in visited:
-#   visited.append(inst)
-#   execute(prog[inst],acc,inst)
-
 (t,acc,visited) = terminate(prog)
 
 print("Part 1: " + str(acc))
@@ -75,7 +71,9 @@ def chinstr(ix):
 for i in visited:
   prog[i] = chinstr(prog[i])
   (t,a,v) = terminate(prog)
-  if t: print("Part 2: " + str(a))
+  if t: 
+    print("Part 2: " + str(a))
+    break
   prog[i] = chinstr(prog[i]) # changing back
   
 
