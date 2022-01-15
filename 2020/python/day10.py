@@ -10,6 +10,7 @@ for l in input.readlines():
 
 input.close()
 
+
 # Part 1
 
 adapters.sort()
@@ -28,6 +29,15 @@ print("Part 1: " + str(ones*threes))
 
 # Part 2
 
-print("Part 2: ")
+paths = {0:1}
+adapters.remove(0)
+
+for a in adapters:
+  paths[a] = 0
+  for i in range(1,4):
+    x = a-i
+    if x in paths: paths[a] += paths[x]
+
+print("Part 2: " + str(paths[adapters[-1]]))
   
 
