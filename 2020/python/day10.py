@@ -1,14 +1,21 @@
 # Advent of Code 2020, Day 10
 
-with open("../input", "r") as infile:
-     lines = infile.readlines()
-
 # Parsing the input
 
-# ....
+input = open("../input")
 
+adapters = []
+for l in input.readlines():
+  adapters.append(int(l))
+
+input.close()
 
 # Part 1
+
+adapters.sort()
+adapters.append(adapters[-1]+3)
+
+print(adapters)
 
 print("Part 1: ")
 
