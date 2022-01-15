@@ -42,27 +42,17 @@ part1 nums = let ns = 0:sort nums
 
 -- Part 2
 
--- Association list with indices as keys
-index :: [a] -> [(Int,a)]
-index = zip [0..]
+valSum :: M.Map Int Int -> [Int] -> Int
+valSum m [] = 0
+valSum m (i:is) = M.findWithDefault 0 i m + valSum m is
 
--- finite map with indices as keys
-indexMap :: [a] -> M.Map Int a
-indexMap = M.fromList . index
-
--- indices of elements with differences <=3 from the given one (we assume xm sorted)
-steps :: Int -> Int -> M.Map Int Int -> [Int]
-steps i x xm = takeWhile (\k -> (xm M.! k - x) <= 3) [i+1 .. n]
-               where (n,_) = M.findMax xm
-
--- for every index, count the arrangements starting at that element
---  use a dynamic programming approach
-arrangements :: [Int] -> M.Map Int Int
-arrangements xs = arrs where
-  n = length xs -1
-  xm = indexMap xs
-  arrs = M.mapWithKey (\i x -> if i == n then 1 else sum (map (arrs M.!) (steps i x xm))) xm
+paths :: [Int] -> M.Map Int Int
+paths as = ps where
+           ps = M.fromList ((0,1):[(i,valSum ps [i-3,i-2,i-1]) | i <- as])
 
 part2 :: [Int] -> Int
-part2 nums = (arrangements (0:nums ++ [last nums + 3])) M.! 0
+part2 nums =
+  let device = last nums + 3
+      nums' = nums ++ [device]
+  in (paths nums') M.! device
 
