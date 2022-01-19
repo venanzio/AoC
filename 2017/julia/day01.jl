@@ -7,7 +7,6 @@ close(f)
 lastIndx = lastindex(input)-1 # ignore ending newline
 
 s = 0
-
 for i = firstindex(input):lastIndx
   j = i==lastIndx ? 1 : i+1
   if input[i] == input[j]
@@ -16,3 +15,15 @@ for i = firstindex(input):lastIndx
 end
 
 println("part 1: ",s)
+
+halfIndx = div(lastIndx,2)
+
+s = 0
+for i = firstindex(input):halfIndx
+  j = i+halfIndx
+  if input[i] == input[j]
+    global s += 2*parse(Int,input[i])
+  end
+end
+
+println("part 2: ",s)
