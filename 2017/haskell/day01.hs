@@ -39,5 +39,10 @@ part1 = captcha
 
 -- Part 2
 
+matchCount :: [Int] -> [Int] -> Int
+matchCount (x:xs) (y:ys) = if x==y then x + matchCount xs ys else matchCount xs ys
+matchCount _ _ = 0
+
 part2 :: [Int] -> Int
-part2 _ = 2
+part2 nums = let (xs,ys) = splitAt (length nums `div` 2) nums
+             in 2 * matchCount xs ys
