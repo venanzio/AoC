@@ -3,14 +3,9 @@
 module Main where
 
 import System.Environment
-import Data.List
-import Data.Char
-
 import Control.Applicative
-import qualified Data.Map as M
 
 import FunParser
-import AoCTools
 
 main :: IO ()
 main = do
@@ -36,5 +31,8 @@ part1 xs = sum [maximum(l)-minimum(l) | l <- xs]
 
 -- Part 2
 
+evenDiv :: [Int] -> (Int,Int)
+evenDiv l = head [(x,y) | x<-l, y<-l, x/=y, x `rem` y == 0]
+
 part2 :: [[Int]] -> Int
-part2 _ = 2
+part2 xs = sum [x `div` y | (x,y) <- map evenDiv xs]

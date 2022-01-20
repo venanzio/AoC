@@ -317,9 +317,6 @@ ln = do many (char '\n')
 emptyLn :: Parser String
 emptyLn = string "\n" <|> satisfy ln (all isSpace)
 
-
-
-
 beforeNL :: Parser String
 beforeNL = do
   c <- item
