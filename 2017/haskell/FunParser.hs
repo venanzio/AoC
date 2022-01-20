@@ -172,17 +172,7 @@ digits :: (Num int, Read int) => Parser [int]
 digits = do xs <- some digit
             return (map (\x -> read [x]) xs)
 
-
-
-
-
-
-
-
-
-
-
-
+-- signed number
 sigNum :: (Num int, Read int) => Parser int
 sigNum = (do char '+'
              n <- nat
@@ -238,12 +228,6 @@ parens pa = delim "(" pa ")"
 -- parse a sequence of pas separated by ps
 seqSep :: Parser a -> String -> Parser [a]
 seqSep pa sep = seqSep1 pa sep <|> return []
-{-
-where seqSep' = do
-          x <- pa
-          xs <- many (symbol sep >> pa)
-          return (x:xs)
--}
 
 -- at least one
 seqSep1 :: Parser a -> String -> Parser [a]
