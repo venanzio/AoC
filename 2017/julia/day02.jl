@@ -17,3 +17,20 @@ end
 checksum = sum([diff(l) for l in spreadsheet])
 
 println("part 1: ", checksum)
+
+function divides(x,y)
+  y !=x && rem(y,x)==0
+end
+
+function evenDiv(l)
+  for x in l
+    for y in l
+      if divides(x,y) return div(y,x) end
+    end
+  end
+end
+
+divSum = sum([evenDiv(l) for l in spreadsheet])
+
+println("part 2: ", divSum)
+
