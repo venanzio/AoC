@@ -19,14 +19,13 @@ for c in input:
     i +=1
     j = 0
 
-(length, width) = max(seats.keys())
-length += 1
-width += 1
+seats2 = seats.copy() # backup for part 2
 
-def showSeats():
+def showSeats(seats):
   s = ""
-  for i in range(0,length):
-    for j in range(0,width):
+  (l,w) = max(seats.keys())
+  for i in range(0,l+1):
+    for j in range(0,w+1):
       s += seats[(i,j)]
     s += '\n'
   return s
@@ -34,35 +33,37 @@ def showSeats():
 
 # Part 1
 
-# coordinates of neighbours
-def nCoords(i,j):
-  return [(i+u,j+v) for u in [-1,0,1] for v in [-1,0,1]
-                    if (u,v) != (0,0) and (i+u,j+v) in seats
-         ]
+directions = [(u,v) for u in [-1,0,1] for v in [-1,0,1] if (u,v) != (0,0)]
 
-# how many neighbours are occupied?
-def neighbours(i,j):
+# all depends on a function that returns the coordinates of a position in a given direction
+# its just the first position in that direction for part 1, first seat in that direction for part 2
+def dirN(i,j,u,v):
+  return (i+u,j+v)
+
+# how many occupied seats are visible?
+def views(dirV,i,j):
   count = 0
-  for (u,v) in nCoords(i,j):
-    if seats[(u,v)]=='#': count += 1
+  for (u,v) in directions:
+    (w,z) = dirV(i,j,u,v)
+    if (w,z) in seats and seats[(w,z)]=='#': count += 1
   return count
 
 # dictionary of neighbour numbers
 # it's important to calculate all the numberse before modifying seats
 nHood = { }
-def genN():
+def genN(dirV):
   for (i,j) in seats:
-    nHood.update({(i,j):neighbours(i,j)})
+    nHood.update({(i,j):views(dirV,i,j)})
 
 # compute the next generation: return True if there has been changed
-def generation():
+def generation(dirV,maxOccupied):
   changed = False
-  genN()
+  genN(dirV)
   for (i,j) in seats:
       if seats[(i,j)]=='L' and nHood[(i,j)]==0: 
         seats[(i,j)]='#'
         changed = True
-      elif seats[(i,j)]=='#' and nHood[(i,j)]>=4:
+      elif seats[(i,j)]=='#' and nHood[(i,j)]>=maxOccupied:
         seats[(i,j)]='L'
         changed = True
   return changed
@@ -74,13 +75,28 @@ def countOccupied():
   return s
 
 # keep repeating generations until there is no change
-while generation(): continue
+def finalOccupied(dirV,maxOccupied):
+  while generation(dirV,maxOccupied): continue
+  return countOccupied()
 
-print("Part 1: " + str(countOccupied()))
-
+print("Part 1: " + str(finalOccupied(dirN,4)))
 
 # Part 2
 
-print("Part 2: ")
+seats = seats2.copy()
+
+# first seat in direction (u,v) from (i,j)
+def dirView(i,j,u,v):
+  i += u
+  j += v
+  while (i,j) in seats and seats[(i,j)] == '.':
+    i += u
+    j += v
+  return (i,j)
+
+# print(showSeats(seats))
+
+print("Part 2: " + str(finalOccupied(dirView,5)))
+
   
 
