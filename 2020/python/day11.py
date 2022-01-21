@@ -31,6 +31,7 @@ def showSeats():
     s += '\n'
   return s
 
+
 # Part 1
 
 # coordinates of neighbours
@@ -63,11 +64,19 @@ def generation():
         changed = True
       elif seats[(i,j)]=='#' and nHood[(i,j)]>=4:
         seats[(i,j)]='L'
-        changed = False
+        changed = True
+  return changed
 
+def countOccupied():
+  s = 0
+  for c in seats.values():
+    if c=='#': s+=1
+  return s
+
+# keep repeating generations until there is no change
 while generation(): continue
 
-print("Part 1: ")
+print("Part 1: " + str(countOccupied()))
 
 
 # Part 2
