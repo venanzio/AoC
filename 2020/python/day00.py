@@ -1,12 +1,12 @@
 # Advent of Code 2020, Day ?
 
-with open("../input", "r") as infile:
-     lines = infile.readlines()
+f = open("../input")
+input = f.read()
+f.close()
 
 # Parsing the input
 
-# ....
-
+# ...
 
 # Part 1
 
