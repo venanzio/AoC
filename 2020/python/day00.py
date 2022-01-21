@@ -1,7 +1,7 @@
 # Advent of Code 2020, Day ?
 
 f = open("../input")
-input = f.read()
+input = f.read().strip()
 f.close()
 
 # Parsing the input

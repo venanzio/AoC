@@ -1,22 +1,17 @@
 # Advent of Code 2020, Day 11
 
-f = open("../input")
-input = f.readlines()
-f.close()
+import re
 
-seats = re.split("\n *\n",input)
-print(str(seat))
+f = open("../input")
+input = f.read().strip()
+f.close()
 
 # Parsing the input
 
-length = len(input)
-width = len(input[0])
+seats = re.split("\n",input)
 
-
-print("length = " + str(length))
-print("width = " + str(width))
-
-print("[" + input[length-1] + "]")
+length = len(seats)
+width = len(seats[0])
 
 # Part 1
 
