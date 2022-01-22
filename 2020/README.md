@@ -67,3 +67,34 @@ In dynamic programming we compute each entry the first time it is needed and reu
 Lazy evaluation means that we can just define the computation of each entry in terms of the others and they will compute only once when they are first called.
 
 A further optimization is to sort the initial list of adapter rating, so for each of them we only need to check at most the 3 following ones to find those who can connect.
+
+## Day 11 - Functions as Objects
+
+All the puzzle of Advent of Code are divided into two parts that use the same input.
+You have to solve Part 1 before you can see Part 2.
+Often Part 2 is a variation of Part 1 that changes some of the problem in a more complicated way.
+It is common to solve Part 2 by copying Part 1 and modifying it accordingly.
+
+However, it is more compact and elegant if we have a single generalized program that solves both parts (and potentially other variations of the same puzzle).
+This program would have some extra parameters for the parts of the puzzle that changes between Part 1 and Part 2.
+
+Specifically for the puzzles of Day 11 the general program repeatedly changes the status of each location: seats change from free to occupied or vice-versa according to a certain rule, until no change happens any more.
+The rule itself looks, for every location, into the eight directions: up, down, left, right, and the four diagonal directions.
+The general solution of the puzzle is unique, computed by the function *final* in Haskell, *finalOccupied* in Python.
+These functions take parameters that specify the rule and are called with different arguments for Part 1 and Part 2.
+The parameters can be simple values, for example the minimum number of neighbours that determine that an occupied seat become empty, 4 for Part 1, 5 for Part 2.
+But they can also be more complicated and have a function type.
+
+In Part 1 we just look at the immediate neighbour in that direction, in Part 2 we look along that direction until we see a seat, either free or occupied.
+In both cases, this can be defined as a function that takes a starting location and a direction and return the state of the end location (either a free or occupied seat, or a *NoSeat* value if it is outside the area). So it has the type *Area -> (Int,Int) -> (Int,Int) -> Seat*.
+We define two functions of this type: *view1* for Part 1 and *view2* for Part 2.
+
+Another important remark about this puzzle is the use of type synonyms.
+I'm very verbose about the typing of my Haskell functions: I always explicitly write their type.
+However, sometimes the type becomes complex and difficult to read and understand.
+Often such a complex type has an intuitive meaning and it is convenient to define a type synonyms for it.
+So I define the type synonym *View* for *Area -> (Int,Int) -> (Int,Int) -> Seat*.
+This makes the type of functions easier to read, especially when the function of type *View* is a parameter of another function.
+Similarly, I defined the type synonym *Rule* for *Seat -> Int -> Seat*, for the rule that changes the free/occupied status of a seat according to the number of neighbours.
+Although this type is simple, having a different name for it clarifies the meaning of those functions and parameters that have this type.
+We could think, as another example, to introduce a type synonym *Location* for *(Int,Int)* for the same purpose.
