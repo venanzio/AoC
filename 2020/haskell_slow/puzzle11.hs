@@ -107,34 +107,36 @@ type Rule = Seat -> Int -> Seat
 
 -- specific rule from the puzzle
 -- the limit at witch an occupied seat becomes empty is a parameter
-rule :: Int -> Rule
-rule m Empty 0 = Occupied
-rule m Occupied n | n>=m = Empty
-rule _ s _ = s
+pRule :: Int -> Rule
+pRule m Empty 0 = Occupied
+pRule m Occupied n | n>=m = Empty
+pRule _ s _ = s
 
 -- next round
 --  returns Nothing if the area hasn't changed
 nextA :: View -> Rule -> Area -> Maybe Area
 nextA view rule a =
   let ruleChanged ch x n = let x' = rule x n in (ch || x/=x',x')
-      (changed, a') = M.mapAccumWithKey (\ch ij x -> ruleChanged ch x (nCount a ij)) False (area a)
+      (changed, a') = M.mapAccumWithKey (\ch ij x -> ruleChanged ch x (nCount view a ij))
+                                        False (area a)
   in if changed then Just (aWidth a, aLength a, a')
                 else Nothing
                      
 -- final state, after it stabilize
-final :: Area -> Area
-final a = case nextA a of
+final :: View -> Rule -> Area -> Area
+final view rule a = case nextA view rule a of
             Nothing -> a
-            Just a' -> final a'
+            Just a' -> final view rule a'
 
 countOccupied :: Area -> Int
 countOccupied = M.size . M.filter (==Occupied) . area
 
 part1 :: Area -> Int
-part1 a = countOccupied (final a)
+part1 a = countOccupied (final view1 (pRule 4) a)
 
 -- Part 2
 
+{-
 -- List of coordinates in one direction (going on forever)
 dirList :: (Int,Int) -> (Int,Int) -> [(Int,Int)]
 dirList (i,j) (u,v) =
@@ -186,7 +188,8 @@ finalV :: Area -> Area
 finalV a = case nextV a of
              Nothing -> a
              Just a' -> finalV a'
+-}
 
 part2 :: Area -> Int
-part2 a = countOccupied (finalV a)
+part2 a = countOccupied (final view2 (pRule 5) a)
 
