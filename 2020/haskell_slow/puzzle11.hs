@@ -67,40 +67,17 @@ pArea = pSeats >>= return.mArea
 directions :: [(Int,Int)]
 directions = [(u,v) | u <- [-1,0,1], v <- [-1,0,1], (u,v) /= (0,0)]
 
+-- type of functions that give the position visible in a direction
 type View = Area -> (Int,Int) -> (Int,Int) -> Seat
 
+-- View for part 1: next position in the direction
 view1 :: View
 view1 a (i,j) (u,v) = seat a (i+u,j+v)
-
-view2 :: View
-view2 a (i,j) (u,v) =
-  let (i',j') = (i+u,j+v)
-      s = seat a (i',j')
-  in if s == Floor then view2 a (i',j') (u,v) else s
-
-{-
-neighbours :: (Int,Int) -> [(Int,Int)]
-neighbours (i,j) = map (\(u,v)->(i+u,j+v)) directions
-
--- coordinates of neighbours
-nCoords :: Int -> Int -> (Int,Int) -> [(Int,Int)]
-nCoords w l (i,j)=
-  [(i+u,j+v) | u<-[-1,0,1], v<-[-1,0,1],
-               ((u,v) /= (0,0) &&
-                i+u>=0 && i+u<w &&
-                j+v>=0 && j+v<l)]
--}
 
 -- count the occupied places in the neighbourhood
 nCount :: View -> Area -> (Int,Int) -> Int
 nCount view a (i,j) = length $ filter (==Occupied) $
    map (view a (i,j)) directions
-
-{-
-  
-  map (seat a) $
-  nCoords (aWidth a) (aLength a) (i,j)
--}
 
 -- the type of rules to change the seat according to the view count
 type Rule = Seat -> Int -> Seat
@@ -136,59 +113,12 @@ part1 a = countOccupied (final view1 (pRule 4) a)
 
 -- Part 2
 
-{-
--- List of coordinates in one direction (going on forever)
-dirList :: (Int,Int) -> (Int,Int) -> [(Int,Int)]
-dirList (i,j) (u,v) =
+-- View for part 2: first seat in the direction
+view2 :: View
+view2 a (i,j) (u,v) =
   let (i',j') = (i+u,j+v)
-  in (i',j') : dirList (i',j') (u,v)
-
--- Check if coordinates are within the area with given width and length
-valid :: Int -> Int -> (Int,Int) -> Bool;
-valid width length (i,j) = i>=0 && i<width &&
-                           j>=0 && j<length
-
--- first seat (empty or occupied) in a given direction
-aView :: Area -> (Int,Int) -> (Int,Int) -> Seat
-aView a p d = aListView a (dirList p d)
-
--- first seat from a list of coordinates
-aListView :: Area -> [(Int,Int)] -> Seat
-aListView a (p:ps)
-  | valid (aWidth a) (aLength a) p = case seat a p of
-      Occupied -> Occupied
-      Empty -> Empty
-      Floor -> aListView a ps
-aListView a _ = Empty
-
--- count occupied seats visible from a position
-vCount :: Area -> (Int,Int) -> Int
-vCount a (i,j) =
-  let dirs = [(u,v) | u<-[-1,0,1], v<-[-1,0,1], (u,v) /= (0,0)]
-      ns = map (aView a (i,j)) dirs
-  in length $ filter (==Occupied) ns
-
--- apply the rule with n the number of visible seats
-ruleV :: Seat -> Int -> Seat
-ruleV Empty 0 = Occupied
-ruleV Occupied n | n>=5 = Empty
-ruleV s _ = s
-
-
--- next round (same as nextA but using ruleV)
-nextV :: Area -> Maybe Area
-nextV a =
-  let ruleChanged ch x n = let x' = ruleV x n in (ch || x/=x',x')
-      (changed, a') = M.mapAccumWithKey (\ch ij x -> ruleChanged ch x (vCount a ij)) False (area a)
-  in if changed then Just (aWidth a, aLength a, a')
-                else Nothing
-                     
--- final state, after it stabilize
-finalV :: Area -> Area
-finalV a = case nextV a of
-             Nothing -> a
-             Just a' -> finalV a'
--}
+      s = seat a (i',j')
+  in if s == Floor then view2 a (i',j') (u,v) else s
 
 part2 :: Area -> Int
 part2 a = countOccupied (final view2 (pRule 5) a)
