@@ -25,7 +25,7 @@ puzzle fileName = do
 
 -- Data Structures
 
-data Seat = Floor | Occupied | Empty
+data Seat = Floor | Occupied | Empty | NoSeat
   deriving (Eq,Show)
 
 -- Seating area by coordinates
@@ -41,10 +41,7 @@ area :: Area -> M.Map (Int,Int) Seat
 area (_,_,a) = a
 
 seat :: Area -> (Int,Int) -> Seat
-seat (w,l,a) (i,j) = if 0<=i && i<w && 0<=j && j<l then a M.! (i,j)
-  else error ("coordinates out of bound: width = " ++ show w ++ ", length = " ++ show l ++
-              ", coordinates = " ++ show (i,j))
-
+seat (w,l,a) (i,j) = if 0<=i && i<w && 0<=j && j<l then a M.! (i,j) else NoSeat
 
 -- Parsers for the input
 
@@ -67,6 +64,24 @@ pArea = pSeats >>= return.mArea
 
 -- Part 1
 
+directions :: [(Int,Int)]
+directions = [(u,v) | u <- [-1,0,1], v <- [-1,0,1], (u,v) /= (0,0)]
+
+type View = Area -> (Int,Int) -> (Int,Int) -> Seat
+
+view1 :: View
+view1 a (i,j) (u,v) = seat a (i+u,j+v)
+
+view2 :: View
+view2 a (i,j) (u,v) =
+  let (i',j') = (i+u,j+v)
+      s = seat a (i',j')
+  in if s == Floor then view2 a (i',j') (u,v) else s
+
+{-
+neighbours :: (Int,Int) -> [(Int,Int)]
+neighbours (i,j) = map (\(u,v)->(i+u,j+v)) directions
+
 -- coordinates of neighbours
 nCoords :: Int -> Int -> (Int,Int) -> [(Int,Int)]
 nCoords w l (i,j)=
@@ -74,24 +89,33 @@ nCoords w l (i,j)=
                ((u,v) /= (0,0) &&
                 i+u>=0 && i+u<w &&
                 j+v>=0 && j+v<l)]
-                
+-}
+
 -- count the occupied places in the neighbourhood
-nCount :: Area -> (Int,Int) -> Int
-nCount a (i,j) = length $
-  filter (==Occupied) $
+nCount :: View -> Area -> (Int,Int) -> Int
+nCount view a (i,j) = length $ filter (==Occupied) $
+   map (view a (i,j)) directions
+
+{-
+  
   map (seat a) $
   nCoords (aWidth a) (aLength a) (i,j)
+-}
 
--- applied the rule to a seat with a given number of neighbours
-rule :: Seat -> Int -> Seat
-rule Empty 0 = Occupied
-rule Occupied n | n>=4 = Empty
-rule s _ = s
+-- the type of rules to change the seat according to the view count
+type Rule = Seat -> Int -> Seat
+
+-- specific rule from the puzzle
+-- the limit at witch an occupied seat becomes empty is a parameter
+rule :: Int -> Rule
+rule m Empty 0 = Occupied
+rule m Occupied n | n>=m = Empty
+rule _ s _ = s
 
 -- next round
 --  returns Nothing if the area hasn't changed
-nextA :: Area -> Maybe Area
-nextA a =
+nextA :: View -> Rule -> Area -> Maybe Area
+nextA view rule a =
   let ruleChanged ch x n = let x' = rule x n in (ch || x/=x',x')
       (changed, a') = M.mapAccumWithKey (\ch ij x -> ruleChanged ch x (nCount a ij)) False (area a)
   in if changed then Just (aWidth a, aLength a, a')
