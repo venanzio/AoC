@@ -59,5 +59,9 @@ part1 x = manhattan (square_coords x)
 
 -- Part 2
 
+
+directions = [(u,v) | u <- [-1,0,1], v <- [-1,0,1], (u,v) /= (0,0)]
+
+
 part2 :: Int -> Int
 part2 _ = 2
