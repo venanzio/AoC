@@ -45,8 +45,17 @@ frame_tour x n
         x3 = x2-2*n
         x4 = x3-2*n
 
+-- coordinate of the square number x
+square_coords :: Int -> (Int,Int)
+square_coords x =
+  if x == 1 then (0,0) else frame_tour x (square_lt x) 
+
+-- Manhattan distance
+manhattan :: (Int,Int) -> Int
+manhattan (x,y) = abs x + abs y
+
 part1 :: Int -> Int
-part1 _ = 1
+part1 x = manhattan (square_coords x)
 
 -- Part 2
 
