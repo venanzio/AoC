@@ -23,6 +23,7 @@ input = 289326 :: Int
 
 puzzle :: Int -> IO ()
 puzzle x = do
+  putStrLn ("Advent of Code 2017, day 3")
   putStrLn ("Part 1: " ++ show (part1 x))
   putStrLn ("Part 2: " ++ show (part2 x))
 
@@ -67,6 +68,7 @@ neighbours :: (Int,Int) -> [(Int,Int)]
 neighbours (i,j) = map (\(u,v)->(i+u,j+v)) directions
 
 grid_sum :: Grid -> (Int,Int) -> Int
+grid_sum _ (0,0) = 1
 grid_sum gr p = sum [gr M.! c | c <- neighbours p, c `M.member` gr]
 
 grid_gt :: Grid -> Int -> Int -> Int
