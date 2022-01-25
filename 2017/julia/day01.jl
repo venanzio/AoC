@@ -1,11 +1,12 @@
 # Advent of Code 2017 - day 1
 
-f = open("../input")
+f = open("input1_r")
 input = read(f,String)
 close(f)
 
-lastIndx = lastindex(input)-1 # ignore ending newline
+input = filter(isdigit,input)
 
+lastIndx = lastindex(input)
 s = 0
 for i = firstindex(input):lastIndx
   j = i==lastIndx ? 1 : i+1
@@ -17,7 +18,6 @@ end
 println("part 1: ",s)
 
 halfIndx = div(lastIndx,2)
-
 s = 0
 for i = firstindex(input):halfIndx
   j = i+halfIndx
