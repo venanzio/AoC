@@ -33,6 +33,18 @@ square_lt :: Int -> Int
 square_lt x = sqlt 0
   where sqlt n = if x <= (2*n+1)^2 then n else sqlt (n+1)
 
+-- coordinates of x around the frame of the square (2n-1)^2
+frame_tour :: Int -> Int -> (Int,Int)
+frame_tour x n
+  | x1<=2*n = (n,n-x1)
+  | x2<=2*n = (n-x2,-n)
+  | x3<=2*n = (-n,-n+x3)
+  | otherwise = (-n+x4,n)
+  where x1 = x - (2*n-1)^2
+        x2 = x1-2*n
+        x3 = x2-2*n
+        x4 = x3-2*n
+
 part1 :: Int -> Int
 part1 _ = 1
 
