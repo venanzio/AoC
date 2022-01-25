@@ -59,9 +59,21 @@ part1 x = manhattan (square_coords x)
 
 -- Part 2
 
+type Grid = M.Map (Int,Int) Int
 
 directions = [(u,v) | u <- [-1,0,1], v <- [-1,0,1], (u,v) /= (0,0)]
 
+neighbours :: (Int,Int) -> [(Int,Int)]
+neighbours (i,j) = map (\(u,v)->(i+u,j+v)) directions
+
+grid_sum :: Grid -> (Int,Int) -> Int
+grid_sum gr p = sum [gr M.! c | c <- neighbours p, c `M.member` gr]
+
+grid_gt :: Grid -> Int -> Int -> Int
+grid_gt gr v x =
+  let p = square_coords x
+      s = grid_sum gr p              
+  in if s > v then s else grid_gt (M.insert p s gr) v (x+1)
 
 part2 :: Int -> Int
-part2 _ = 2
+part2 v = grid_gt M.empty v 1
