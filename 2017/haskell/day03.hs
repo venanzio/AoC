@@ -14,31 +14,68 @@ import AoCTools
 
 main :: IO ()
 main = do
-  args <- getArgs
-  puzzle (head args)
+  putStr("input number: ")
+  input <- getLine
+  let x = read input
+  puzzle x
 
-puzzle :: String -> IO ()
-puzzle fileName = do
-  putStrLn "Advent of Code 2017, day 3"
-  input <- readFile fileName
-  let xs = parseAll pInput input
-  putStrLn ("Part 1: " ++ show (part1 xs))
-  putStrLn ("Part 2: " ++ show (part2 xs))
+input = 289326 :: Int
 
--- Parsing the input
-
-pData :: Parser ()
-pData = return ()
-
-pInput :: Parser [()]
-pInput = pLines pData
+puzzle :: Int -> IO ()
+puzzle x = do
+  putStrLn ("Advent of Code 2017, day 3")
+  putStrLn ("Part 1: " ++ show (part1 x))
+  putStrLn ("Part 2: " ++ show (part2 x))
 
 -- Part 1
 
-part1 :: [()] -> Int
-part1 _ = 1
+-- "inner" square, return n s.t. (2n-1)^2 < x <= (2n+1)^2
+square_lt :: Int -> Int
+square_lt x = sqlt 0
+  where sqlt n = if x <= (2*n+1)^2 then n else sqlt (n+1)
+
+-- coordinates of x around the frame of the square (2n-1)^2
+frame_tour :: Int -> Int -> (Int,Int)
+frame_tour x n
+  | x1<=2*n = (n,n-x1)
+  | x2<=2*n = (n-x2,-n)
+  | x3<=2*n = (-n,-n+x3)
+  | otherwise = (-n+x4,n)
+  where x1 = x - (2*n-1)^2
+        x2 = x1-2*n
+        x3 = x2-2*n
+        x4 = x3-2*n
+
+-- coordinate of the square number x
+square_coords :: Int -> (Int,Int)
+square_coords x =
+  if x == 1 then (0,0) else frame_tour x (square_lt x) 
+
+-- Manhattan distance
+manhattan :: (Int,Int) -> Int
+manhattan (x,y) = abs x + abs y
+
+part1 :: Int -> Int
+part1 x = manhattan (square_coords x)
 
 -- Part 2
 
-part2 :: [()] -> Int
-part2 _ = 2
+type Grid = M.Map (Int,Int) Int
+
+directions = [(u,v) | u <- [-1,0,1], v <- [-1,0,1], (u,v) /= (0,0)]
+
+neighbours :: (Int,Int) -> [(Int,Int)]
+neighbours (i,j) = map (\(u,v)->(i+u,j+v)) directions
+
+grid_sum :: Grid -> (Int,Int) -> Int
+grid_sum _ (0,0) = 1
+grid_sum gr p = sum [gr M.! c | c <- neighbours p, c `M.member` gr]
+
+grid_gt :: Grid -> Int -> Int -> Int
+grid_gt gr v x =
+  let p = square_coords x
+      s = grid_sum gr p              
+  in if s > v then s else grid_gt (M.insert p s gr) v (x+1)
+
+part2 :: Int -> Int
+part2 v = grid_gt M.empty v 1
