@@ -142,12 +142,14 @@ alphanum = sat isAlphaNum
 char :: Char -> Parser Char
 char x = sat (== x)
 
+-- Parse a specific string
 string :: String -> Parser String
 string []     = return []
 string (x:xs) = do char x
                    string xs
                    return (x:xs)
 
+-- Parse a sequence of non-space characters
 label :: Parser String
 label = some (sat (not.isSpace))
 
@@ -263,8 +265,9 @@ pLine :: Parser a -> Parser a
 pLine p = do l <- line
              return (parseAll p l)
 
+-- parse many lines (ignoring empty lines)
 pLines :: Parser a -> Parser [a]
-pLines p = many (pLine p)
+pLines p = many (token $ pLine p)
 
 
 -- Parsing blocks of data separated by empty lines
