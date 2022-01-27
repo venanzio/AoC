@@ -14,6 +14,7 @@ main = do
 
 puzzle :: String -> IO ()
 puzzle fileName = do
+  putStrLn "Advent of Code 2017, day 2"
   input <- readFile fileName
   let xs = parseAll pInput input
   putStrLn ("Part 1: " ++ show (part1 xs))
