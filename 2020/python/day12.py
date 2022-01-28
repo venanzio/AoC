@@ -1,4 +1,4 @@
-# Advent of Code 2020, Day 12
+print("Advent of Code 2020, Day 12")
 
 f = open("../input")
 input = f.readlines() 
@@ -46,9 +46,40 @@ print("Part 1: ", str(manhattan(x,y)))
 
 # Part 2
 
+x = 0
+y = 0
 wayx = 10
-wayy = 0
+wayy = 1
 
-print("Part 2: ")
+def rotate(angle):
+  global wayx
+  global wayy
+  angle = angle % 360
+  if   angle==90:  wayx,wayy = -wayy,wayx
+  elif angle==180: wayx,wayy = -wayx,-wayy
+  elif angle==270: wayx,wayy = wayy,-wayx
+  else: print("wrong angle")
+
+def moveW(inst):
+  global x
+  global y
+  global wayx
+  global wayy
+  if   inst[0]=='N': wayy += inst[1]
+  elif inst[0]=="S": wayy -= inst[1]
+  elif inst[0]=='E': wayx += inst[1]
+  elif inst[0]=="W": wayx -= inst[1]
+  elif inst[0]=="L": rotate(inst[1])
+  elif inst[0]=="R": rotate(-inst[1])
+  elif inst[0]=="F":
+    x += inst[1] * wayx
+    y += inst[1] * wayy
+  else:
+    print("invalid instruction")
+
+for inst in instructions: moveW(inst)
+
+print("Part 2: ", str(manhattan(x,y)))
+
   
 
