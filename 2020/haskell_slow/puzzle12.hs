@@ -27,6 +27,7 @@ puzzle fileName = do
 
 type Action = (Char,Int)
 
+-- first two numbers are coordinates, third is the direction
 type Ship = (Int,Int,Int)
 
 shipPos :: Ship -> (Int,Int)
