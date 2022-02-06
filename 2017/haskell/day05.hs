@@ -42,7 +42,7 @@ mInit :: [Int] -> Maze
 mInit l = (l,[])
 
 mSound :: Maze -> Bool
-mSound = not . null
+mSound (front,_) = not (null front)
 
 mMove :: Int -> Maze -> Maybe (Maze)
 mMove 0 m | mSound m = Just m
@@ -50,27 +50,23 @@ mMove n (x:xs,ys) | n>0 = mMove (n-1) (xs,x:ys)
 mMove n (xs,y:ys) | n<0 = mMove (n+1) (y:xs,ys)
 mMove _ _ = Nothing
 
-mRead :: Maze -> Int
-mRead (x:_,_) = x
-mRead _ = error "out of bounds"
+mRead :: Maze -> Maybe Int
+mRead (x:_,_) = Just x
+mRead _ = Nothing
 
-mWrite :: Int -> Maze -> Maze
-mWrite x (_:xs,ys) = (x:xs,ys)
-mWrite _ _ = error "out of bounds"
+mWrite :: Int -> Maze -> Maybe Maze
+mWrite x (_:xs,ys) = Just (x:xs,ys)
+mWrite _ _ = Nothing
 
 mStep :: Maze -> Maybe Maze
-mStep m = let x = mRead m
-          in case mMove x m of
-               Nothing -> Nothing
-               Just m' -> Just (mWrite (x+1) m')
+mStep m = do x <- mRead m
+             m' <- mWrite (x+1) m
+             mMove x m'
 
 mTrip :: Maze -> Int
-mTrip m =
-  let x = mRead m
-      m1 = mWrite (x+1) m
-  in case mMove x m1 of
-       Just m2 -> (mTrip m2) + 1
-       Nothing -> 0
+mTrip m = case mStep m of
+  Nothing -> 1
+  Just m' -> 1 + mTrip m'
 
 part1 :: [Int] -> Int
 part1 = mTrip . mInit
