@@ -25,10 +25,7 @@ puzzle fileName = do
   putStrLn ("Part 1: " ++ show (part1 xs))
   putStrLn ("Part 2: " ++ show (part2 xs))
 
-exMaze = mInit [0,3,0,1,-3]
-
 -- Parsing the input
-
 
 pInput :: Parser [Int]
 pInput = some integer
@@ -73,5 +70,17 @@ part1 = mTrip . mInit
 
 -- Part 2
 
+mStep2 :: Maze -> Maybe Maze
+mStep2 m = do x <- mRead m
+              let x' = if x>=3 then x-1 else x+1
+              m' <- mWrite x' m
+              mMove x m'
+
+mTrip2 :: Maze -> Int
+mTrip2 m = case mStep2 m of
+  Nothing -> 1
+  Just m' -> 1 + mTrip2 m'
+
 part2 :: [Int] -> Int
-part2 _ = 2
+part2 = mTrip2 . mInit
+
