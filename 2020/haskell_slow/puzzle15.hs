@@ -27,43 +27,54 @@ xs = [15,12,0,14,3,1] :: [Int]
 puzzle :: String -> IO ()
 puzzle input = do
   let xs = (read input)
-  putStrLn ("input: " ++ show xs)
   putStrLn ("Part 1: " ++ show (part1 xs))
   putStrLn ("Part 2: " ++ show (part2 xs))
 
 -- data type and main algorithm
 
-type NumTurns = M.Map Int Int
--- maps each number to the turn of its last occurrence
+type NumTurns = (M.Map Int Int, Int, Int)
+-- map numbers to turn of last occurrence, new number, current turn
 
-init :: [Int] -> NumTurns
-init xs = M.fromList (zip xs [1..])
+-- initial numbers from a given list
+initNums :: [Int] -> NumTurns
+initNums xs = let n = length xs
+                  xs' = take (n-1) xs
+                  x = last xs
+              in (M.fromList (zip xs' [1..]), x, n)
 
--- playing the memory game with a starting number x at given turn
-playSeq :: NumTurns -> Int -> Int -> [Int]
-playSeq nums x turn = x : playSeq nums' x' (turn+1)
-  where nums' = M.insert x turn nums
-        x' = case M.lookup x nums of
-               Nothing -> 0
-               Just t -> turn-t
+-- play one turn: insert the new element and determine the next
+playTurn :: NumTurns -> NumTurns
+playTurn (nums, x, turn) = case M.lookup x nums of
+  Nothing -> (M.insert x turn nums, 0, turn+1)
+  Just t  -> (M.insert x turn nums, turn-t, turn+1)
 
--- Playing with a list of starting numbers
-playStart :: [Int] -> [Int]
-playStart xs = playS M.empty xs 1
-  where playS nums [x] turn = playSeq nums x turn
-        playS nums (x:xs) turn = x : playS (M.insert x turn nums) xs (turn+1)
-        playS nums [] turn = playSeq nums 0 turn -- if the list is empty, we start with 0
+-- play up to a given turn
+playTo :: NumTurns -> Int -> Int
+playTo nl@(_,x,t) end = if t==end then x else playTo (playTurn nl) end
 
--- number spoken at a given turn
-numTurn :: [Int] -> Int -> Int
-numTurn xs turn = (playStart xs)!!(turn-1) -- because indices start at 0
+-- play from the beginning to a given turn
+play :: [Int] -> Int -> Int
+play xs end = playTo (initNums xs) end
 
 -- Part 1
 
 part1 :: [Int] -> Int
-part1 xs = numTurn xs 2020
+part1 xs = play xs 2020
 
 -- Part 2
 
 part2 :: [Int] -> Int
-part2 xs = numTurn xs 30000000
+part2 xs = play xs 30000000
+
+
+{-
+Note that the apparently equivalent version of playTurn:
+
+playTurn :: NumTurns -> NumTurns
+playTurn (nums, x, turn) = (M.insert x turn nums, x', turn+1)
+  where x' = case M.lookup x nums of
+               Nothing -> 0
+               Just t -> turn-t
+               
+is inefficient, because it doesn't force the evaluation of the case expression.
+-}
