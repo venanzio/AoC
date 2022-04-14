@@ -22,6 +22,7 @@ puzzle fileName = do
   input <- readFile fileName
   let (t,bs) = parseAll pInput input
   putStrLn (show (map (busTime t) bs))
+  putStrLn ("Coprimes? " ++ show (coPrimes bs))
   putStrLn ("Part 1: " ++ show (part1 t bs))
   putStrLn ("Part 2: " ++ show (part2 t bs))
 
@@ -53,6 +54,18 @@ part1 :: Int -> [Int] -> Int
 part1 t bs = let (b,t') = (firstBus t bs) in b * (t'-t)
 
 -- Part 2
+
+-- If the numbers in the list are coprime, we can use the Chinese Remainder Theorem
+
+-- Are two numbers relatively prime?
+relPrime :: Int -> Int -> Bool
+relPrime x y = gcd x y == 1
+
+-- Are numbers in a list pairways relatively prime?
+coPrimes :: [Int] -> Bool
+coPrimes (x:xs) = all (relPrime x) xs && coPrimes xs
+coPrimes [] = True
+
 
 part2 :: Int -> [Int] -> Int
 part2 _ _ = 2
