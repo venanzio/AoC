@@ -42,7 +42,8 @@ pInput = do time <- natural
 
 -- for a given bus, return the next departure time after t
 busTime :: Int -> Int -> Int
-busTime t b = head $ filter (>=t) $ map (b*) [0..]
+busTime t b = let r = t `rem` b
+              in if r==0 then t else t+b-r
 
 -- first bus to depart and time of departure
 firstBus :: Int -> [Int] -> (Int,Int)
