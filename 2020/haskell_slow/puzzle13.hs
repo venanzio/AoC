@@ -66,6 +66,13 @@ coPrimes :: [Int] -> Bool
 coPrimes (x:xs) = all (relPrime x) xs && coPrimes xs
 coPrimes [] = True
 
+-- Extended Euclidean algorithm: returns the coefficients and the gcd
+euclid :: Int -> Int -> (Int,Int,Int)
+euclid x 0 = (x,1,0)
+euclid x y = let d = x `div` y
+                 r = x `rem` y
+                 (g,a,b) = euclid y r
+             in (g,b,a-b*d)
 
 part2 :: Int -> [Int] -> Int
 part2 _ _ = 2
