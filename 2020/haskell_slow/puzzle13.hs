@@ -20,21 +20,28 @@ main = do
 puzzle :: String -> IO ()
 puzzle fileName = do
   input <- readFile fileName
-  let (t,bs) = parseAll pInput input
-  putStrLn (show (map (busTime t) bs))
-  putStrLn ("Coprimes? " ++ show (coPrimes bs))
+  let (t,bts) = parseAll pInput input
+      bs = map fst bts
+  putStrLn (show bts)
   putStrLn ("Part 1: " ++ show (part1 t bs))
-  putStrLn ("Part 2: " ++ show (part2 t bs))
+  putStrLn ("Part 2: " ++ show (part2 bts))
 
 -- Parsing the input
 
 pBus :: Parser (Maybe Int)
 pBus = (natural >>= return.Just) <|> (symbol "x" >> return Nothing)
 
-pBusses :: Parser [Int]
-pBusses = (seqSep pBus ",") >>= return.filterJust
+-- bus and arrival time
+busTimes :: [Maybe Int] -> [(Int,Int)]
+busTimes bs = delNothing (zip bs [0..])
+  where delNothing [] = []
+        delNothing ((Nothing,_):bts) = delNothing bts
+        delNothing ((Just b,t):bts) = (b,t):delNothing bts
 
-pInput :: Parser (Int,[Int])
+pBusses :: Parser [(Int,Int)]
+pBusses = (seqSep pBus ",") >>= return.busTimes  -- return.filterJust
+
+pInput :: Parser (Int,[(Int,Int)])
 pInput = do time <- natural
             busses <- pBusses
             return (time,busses)
@@ -89,5 +96,5 @@ chinese [(n,a)] = a
 chinese ((n1,a1):(n2,a2):ps) = chinese ((n1*n2,chinesePair n1 n2 a1 a2):ps) 
                                
 
-part2 :: Int -> [Int] -> Int
-part2 _ _ = 2
+part2 :: [(Int,Int)] -> Int
+part2 = chinese . map (\(b,t) -> (b,b-t))
