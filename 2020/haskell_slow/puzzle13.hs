@@ -68,11 +68,22 @@ coPrimes [] = True
 
 -- Extended Euclidean algorithm: returns the coefficients and the gcd
 euclid :: Int -> Int -> (Int,Int,Int)
-euclid x 0 = (x,1,0)
+euclid x 0 = (1,0,x)
 euclid x y = let d = x `div` y
                  r = x `rem` y
-                 (g,a,b) = euclid y r
-             in (g,b,a-b*d)
+                 (a,b,g) = euclid y r
+             in (b,a-b*d,g)
+
+-- Chinese Reminder for two moduli:
+--  if n1 n2 are relatively prime, find x s.t.
+--  x = a1 (mod n1), x = a2 (mod n2)
+chinese :: Int -> Int -> Int -> Int -> Int
+chinese n1 n2 a1 a2 =
+  let (m1,m2,g) = euclid n1 n2
+  in if g/=1 then error ("moduli " ++ show n1 ++ " and " ++ show n2 ++ " not relatively prime")
+             else a1*m2*n2 + a2*m1*n1
+
+
 
 part2 :: Int -> [Int] -> Int
 part2 _ _ = 2
