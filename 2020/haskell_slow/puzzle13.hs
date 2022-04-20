@@ -84,8 +84,8 @@ euclid x y = let d = x `div` y
 -- Chinese Reminder for two moduli:
 --  if n1 n2 are relatively prime, find x s.t.
 --  x = a1 (mod n1), x = a2 (mod n2)
-chinesePair :: Int -> Int -> Int -> Int -> Int
-chinesePair n1 n2 a1 a2 =
+chinesePair :: (Int,Int) -> (Int,Int) -> Int
+chinesePair (n1,a1) (n2,a2) =
   let (m1,m2,g) = euclid n1 n2
   in if g/=1 then error ("moduli " ++ show n1 ++ " and " ++ show n2 ++ " not relatively prime")
              else a1*m2*n2 + a2*m1*n1
@@ -93,8 +93,8 @@ chinesePair n1 n2 a1 a2 =
 -- Chinese reminder coefficient for a list of modulus/reminder
 chinese :: [(Int,Int)] -> Int
 chinese [(n,a)] = a
-chinese ((n1,a1):(n2,a2):ps) = chinese ((n1*n2,chinesePair n1 n2 a1 a2):ps) 
+chinese ((n1,a1):(n2,a2):ps) = chinese ((n1*n2,chinesePair (n1,a1) (n2,a2)):ps) 
                                
 
 part2 :: [(Int,Int)] -> Int
-part2 = chinese . map (\(b,t) -> (b,b-t))
+part2 = chinese . map (\(b,t) -> (b,-t))
