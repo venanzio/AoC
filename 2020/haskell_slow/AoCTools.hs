@@ -40,3 +40,37 @@ matrixMap (i0,j0) xss = M.fromList [((i0+i,j0+j), xss!!j!!i) |
 mMap :: [[a]] -> M.Map (Int,Int) a
 mMap = matrixMap (0,0)
 
+--NUMBER THEORY
+
+-- Are two numbers relatively prime?
+relPrime :: Integral int => int -> int -> Bool
+relPrime x y = gcd x y == 1
+
+-- Are numbers in a list pairways relatively prime?
+coPrimes :: Integral int => [int] -> Bool
+coPrimes (x:xs) = all (relPrime x) xs && coPrimes xs
+coPrimes [] = True
+
+-- Extended Euclidean algorithm
+--  returns (m,n,g) where g=gcd(x,y) and m*x + n*y = g
+euclid :: Integral int => int -> int -> (int,int,int)
+euclid x 0 = (1,0,x)
+euclid x y = let d = x `div` y
+                 r = x `mod` y
+                 (a,b,g) = euclid y r
+             in (b,a-b*d,g)
+
+-- Chinese Reminder for two moduli:
+--  if n1 n2 are relatively prime, find x (mod n1*n2) s.t.
+--      x = a1 (mod n1), x = a2 (mod n2)
+chinesePair :: Integral int => (int,int) -> (int,int) -> int
+chinesePair (n1,a1) (n2,a2) =
+  let (m1,m2,g) = euclid n1 n2
+  in if g/=1 then error ("moduli " ++ show (toInteger n1) ++ " and " ++ show (toInteger n2) ++ " not relatively prime")
+             else (a1*m2*n2 + a2*m1*n1) `mod` (n1*n2)
+
+-- Chinese reminder coefficient for a list of modulus/reminder
+chineseReminder :: Integral int => [(int,int)] -> int
+chineseReminder [(n,a)] = a
+chineseReminder ((n1,a1):(n2,a2):ps) = chineseReminder ((n1*n2,chinesePair (n1,a1) (n2,a2)):ps) 
+   
