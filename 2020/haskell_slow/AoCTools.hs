@@ -71,6 +71,6 @@ chinesePair (n1,a1) (n2,a2) =
 
 -- Chinese reminder coefficient for a list of modulus/reminder
 chineseReminder :: Integral int => [(int,int)] -> int
-chineseReminder [(n,a)] = a
-chineseReminder ((n1,a1):(n2,a2):ps) = chineseReminder ((n1*n2,chinesePair (n1,a1) (n2,a2)):ps) 
-   
+chineseReminder = snd . chRem
+  where chRem ((n1,a1):ps) = let (n2,a2) = chRem ps in (n1*n2, chinesePair (n1,a1) (n2,a2))
+        chRem [] = (1,0)

@@ -22,7 +22,6 @@ puzzle fileName = do
   input <- readFile fileName
   let (t,bts) = parseAll pInput input
       bs = map fst bts
-  putStrLn (show bts)
   putStrLn ("Part 1: " ++ show (part1 t bs))
   putStrLn ("Part 2: " ++ show (part2 bts))
 
