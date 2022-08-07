@@ -48,6 +48,17 @@ maximumF f (x:xs) =
                            if w>v then (j,z,w) else (i,y,v))
         (0,x,f x) (zip [1..] xs)
 
+-- Index and value of maximum
+imax :: Ord a => [a] -> (Int,a)
+imax xs = let (i,m,_) = maximumF id xs in (i,m)
+
+-- mapping with indices: f a function of index and value
+imap :: (Int -> a -> b) -> [a] -> [b]
+imap f = imap_aux 0 where
+  imap_aux i [] = []
+  imap_aux i (x:xs) = f i x : imap_aux (i+1) xs
+
+
 -- Indexed maps
 
 -- list to index map with indices as keys, starting at index i0

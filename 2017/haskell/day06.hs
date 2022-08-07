@@ -32,14 +32,6 @@ pInput = some natural
 
 -- Part 1
 
--- Auxiliary: map with indices
---  f a function of index and value
-imap :: (Int -> a -> b) -> [a] -> [b]
-imap f = imap_aux 0 where
-  imap_aux i [] = []
-  imap_aux i (x:xs) = f i x : imap_aux (i+1) xs
-
-
 splitOn :: Int -> [Int] -> ([Int],[Int])
 splitOn x [] = ([],[])
 splitOn x (y:ys)
@@ -47,17 +39,16 @@ splitOn x (y:ys)
   | otherwise = let (us,vs) = splitOn x ys
                 in (y:us,vs)
 
-redistr :: Int -> [Int] -> [Int]
-redistr = undefined
-
-redistribute :: Int -> ([Int],[Int]) -> [Int]
-redistribute 0 (xs,ys) = xs++ys
-redistribute n (x:xs,[]) = redistribute (n-1) ([x+1],xs)
-redistribute n (xs,y:ys) = redistribute (n-1) (xs++[y+1],ys)
-
+-- redistribution step
 redStep :: [Int] -> [Int]
-redStep xs = let m = maximum xs
-             in redistribute m (splitOn m xs)
+redStep xs = let (k,x) = imax xs
+                 l = length xs
+                 q = x `div` l
+                 r = x `rem` l
+             in
+  imap (\i y -> (if i==k then 0 else y) + q +
+                (if (i-k-1) `mod` l < r then 1 else 0))
+       xs
 
 redRounds :: [Int] -> [[Int]] -> Int
 redRounds xs yss = let us = redStep xs
