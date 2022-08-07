@@ -32,12 +32,23 @@ pInput = some natural
 
 -- Part 1
 
+-- Auxiliary: map with indices
+--  f a function of index and value
+imap :: (Int -> a -> b) -> [a] -> [b]
+imap f = imap_aux 0 where
+  imap_aux i [] = []
+  imap_aux i (x:xs) = f i x : imap_aux (i+1) xs
+
+
 splitOn :: Int -> [Int] -> ([Int],[Int])
 splitOn x [] = ([],[])
 splitOn x (y:ys)
   | x==y      = ([0],ys)
   | otherwise = let (us,vs) = splitOn x ys
                 in (y:us,vs)
+
+redistr :: Int -> [Int] -> [Int]
+redistr = undefined
 
 redistribute :: Int -> ([Int],[Int]) -> [Int]
 redistribute 0 (xs,ys) = xs++ys
