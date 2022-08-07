@@ -60,5 +60,10 @@ part1 xs = redRounds xs []
 
 -- Part 2
 
+countRounds :: [Int] -> [[Int]] -> Int
+countRounds xs yss = case elemIndex xs yss of
+  Nothing -> countRounds (redStep xs) (xs:yss)
+  Just i -> i+1
+
 part2 :: [Int] -> Int
-part2 _ = 2
+part2 xs = countRounds xs []
