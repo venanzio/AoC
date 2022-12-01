@@ -27,18 +27,18 @@ puzzle fileName = do
 
 -- Parsing the input
 
-pData :: Parser ()
-pData = return ()
+pData :: Parser [Int]
+pData = many integer
 
-pInput :: Parser [()]
-pInput = pLines pData
+pInput :: Parser [[Int]]
+pInput = blocks pData
 
 -- Part 1
 
-part1 :: [()] -> Int
-part1 _ = 1
+part1 :: [[Int]] -> Int
+part1 xs = maximum (map sum xs)
 
 -- Part 2
 
-part2 :: [()] -> Int
-part2 _ = 2
+part2 :: [[Int]] -> Int
+part2 = sum . take 3 . reverse . sort . map sum
