@@ -37,42 +37,59 @@ pInput = many pData
 
 -- Part 1
 
-shape :: String -> Int
-shape "X" = 1
-shape "Y" = 2
-shape "Z" = 3
+data RPS = Rock | Paper | Scissors
+  deriving Eq
 
-outcome :: String -> String -> Int
-outcome "C" "X" = 6
-outcome "B" "Z" = 6
-outcome "A" "Y" = 6
-outcome "A" "Z" = 0
-outcome "C" "Y" = 0
-outcome "B" "X" = 0
-outcome a x = 3
+aRPS :: String -> RPS
+aRPS "A" = Rock
+aRPS "B" = Paper
+aRPS "C" = Scissors
 
-guide :: (String,String) -> Int
-guide (a,x) = shape x + outcome a x
+xRPS :: String -> RPS
+xRPS "X" = Rock
+xRPS "Y" = Paper
+xRPS "Z" = Scissors
 
+axRPS :: (String,String) -> (RPS,RPS)
+axRPS (a,x) = (aRPS a, xRPS x)
+
+shapeScore :: RPS -> Int
+shapeScore Rock     = 1
+shapeScore Paper    = 2
+shapeScore Scissors = 3
+
+outcomeScore :: RPS -> RPS -> Int
+outcomeScore Rock     Scissors = 0
+outcomeScore Scissors Paper    = 0
+outcomeScore Paper    Rock     = 0
+outcomeScore a x = if a==x then 3 else 6
+
+score :: (RPS,RPS) -> Int
+score (a,x) = shapeScore x + outcomeScore a x
 
 part1 :: [(String,String)] -> Int
-part1 = sum . map guide
+part1 = sum . map (score.axRPS)
 
 -- Part 2
 
-choose :: String -> String -> String
-choose "A" "X" = "Z"
-choose "A" "Y" = "X"
-choose "A" "Z" = "Y"
-choose "B" "X" = "X"
-choose "B" "Y" = "Y"
-choose "B" "Z" = "Z"
-choose "C" "X" = "Y"
-choose "C" "Y" = "Z"
-choose "C" "Z" = "X"
+winOver :: RPS -> RPS
+winOver Rock = Paper
+winOver Paper = Scissors
+winOver Scissors = Rock
 
+loseTo :: RPS -> RPS
+loseTo Rock = Scissors
+loseTo Paper = Rock
+loseTo Scissors = Paper
 
+choose :: RPS -> String -> RPS
+choose a "X" = loseTo a
+choose a "Y" = a
+choose a "Z" = winOver a
 
+chooseRPS :: (String,String) -> (RPS,RPS)
+chooseRPS (a,x) = let a' = aRPS a in (a', choose a' x)
 
 part2 :: [(String,String)] -> Int
-part2 = part1 . map (\(a,x) -> (a,choose a x))
+part2 = sum . map (score.chooseRPS) 
+
