@@ -27,11 +27,17 @@ puzzle fileName = do
 
 -- Parsing the input
 
-stkNum = 9
+-- stkNum = 9
 
 type CrateLine = [Maybe Char]
 type Move = (Int,Int,Int)
+type CrateStacks = [[Char]]
 
+stkNum :: [CrateLine] -> Int
+stkNum (l:_) = length l
+
+createStacks :: [CrateLine] -> CrateStacks
+createStacks cls = foldr lineStack (take (stkNum cls) (repeat [])) cls
 
 crate :: Parser (Maybe Char)
 crate = do string "   "
@@ -42,17 +48,8 @@ crate = do string "   "
            char ']'
            return (Just x)
 
-
-crateLine :: Int -> Parser CrateLine
-crateLine 1 = do x <- crate
-                 return [x]
-crateLine n = do x <- crate
-                 char ' '
-                 xs <- crateLine (n-1)
-                 return (x:xs)
-
 crLine :: Parser CrateLine
-crLine = do xs <- crateLine stkNum
+crLine = do xs <- sequenceSep crate (char ' ')
             emptyLn
             return xs
 
@@ -74,10 +71,6 @@ pInput = do crates <- some crLine
 
 -- Part 1
 
-type CrateStacks = [[Char]]
-
-createStacks :: [CrateLine] -> CrateStacks
-createStacks = foldr lineStack (take stkNum (repeat []))
 
 lineStack :: CrateLine -> CrateStacks -> CrateStacks
 lineStack (Nothing:crs) (st:sts) = st:lineStack crs sts

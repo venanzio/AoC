@@ -227,6 +227,18 @@ delim left pa right = do
 parens :: Parser a -> Parser a
 parens pa = delim "(" pa ")"
 
+
+-- Sequences: parsing a sequence of as separated by bs
+sequenceSep :: Parser a -> Parser b -> Parser [a]
+sequenceSep pa pb = sequenceSep1 pa pb <|> return []
+
+sequenceSep1 :: Parser a -> Parser b -> Parser [a]
+sequenceSep1 pa pb = do
+  x <- pa
+  xs <- many (pb >> pa)
+  return (x:xs)
+
+
 -- parse a sequence of pas separated by ps
 seqSep :: Parser a -> String -> Parser [a]
 seqSep pa sep = seqSep1 pa sep <|> return []
