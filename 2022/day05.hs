@@ -23,7 +23,7 @@ puzzle fileName = do
   input <- readFile fileName
   let xs = parseAll pInput input
   putStrLn ("Part 1: " ++ part1 xs)
-  putStrLn ("Part 2: " ++ show (part2 xs))
+  putStrLn ("Part 2: " ++ part2 xs)
 
 -- Parsing the input
 
@@ -104,5 +104,15 @@ part1 (crs,mvs) = stackTops (moves mvs crs)
 
 -- Part 2
 
-part2 :: (CrateStacks,[Move]) -> Int
-part2 _ = 2
+mv2 :: CrateStacks -> Move -> CrateStacks
+mv2 crs (k,n,m) =
+  let xs = crs!!(n-1)
+      (xs1,xs2) = splitAt k xs
+      ys = crs!!(m-1)
+  in replace (n-1) xs2 (replace (m-1) (xs1 ++ ys) crs)
+
+moves2 :: [Move] -> CrateStacks -> CrateStacks
+moves2 mvs sts = foldl mv2 sts mvs
+
+part2 :: (CrateStacks,[Move]) -> String
+part2 (crs,mvs) = stackTops (moves2 mvs crs)
