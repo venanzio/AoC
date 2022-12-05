@@ -1,0 +1,108 @@
+-- Advent of Code 2022, day 5
+--  Venanzio Capretta
+
+module Main where
+
+import System.Environment
+import Data.List
+import Data.Char
+
+import Control.Applicative
+import qualified Data.Map as M
+
+import FunParser
+import AoCTools
+
+main :: IO ()
+main = do
+  args <- getArgs
+  puzzle (head args)
+
+puzzle :: String -> IO ()
+puzzle fileName = do
+  input <- readFile fileName
+  let xs = parseAll pInput input
+  putStrLn ("Part 1: " ++ part1 xs)
+  putStrLn ("Part 2: " ++ show (part2 xs))
+
+-- Parsing the input
+
+stkNum = 9
+
+type CrateLine = [Maybe Char]
+type Move = (Int,Int,Int)
+
+
+crate :: Parser (Maybe Char)
+crate = do string "   "
+           return Nothing
+        <|>
+        do char '['
+           x <- item
+           char ']'
+           return (Just x)
+
+
+crateLine :: Int -> Parser CrateLine
+crateLine 1 = do x <- crate
+                 return [x]
+crateLine n = do x <- crate
+                 char ' '
+                 xs <- crateLine (n-1)
+                 return (x:xs)
+
+crLine :: Parser CrateLine
+crLine = do xs <- crateLine stkNum
+            emptyLn
+            return xs
+
+move :: Parser Move
+move = do symbol "move"
+          n <- natural
+          symbol "from"
+          fr <- natural
+          symbol "to"
+          to <- natural
+          return (n,fr,to)
+
+pInput :: Parser (CrateStacks,[Move])
+pInput = do crates <- some crLine
+            line
+            line
+            moves <- some move
+            return (createStacks crates,moves)
+
+-- Part 1
+
+type CrateStacks = [[Char]]
+
+createStacks :: [CrateLine] -> CrateStacks
+createStacks = foldr lineStack (take stkNum (repeat []))
+
+lineStack :: CrateLine -> CrateStacks -> CrateStacks
+lineStack (Nothing:crs) (st:sts) = st:lineStack crs sts
+lineStack (Just x:crs)  (st:sts) = (x:st):lineStack crs sts
+lineStack [] [] = []
+
+mv :: CrateStacks -> Move -> CrateStacks
+mv crs (k,n,m) =
+  let xs = crs!!(n-1)
+      (xs1,xs2) = splitAt k xs
+      ys = crs!!(m-1)
+  in replace (n-1) xs2 (replace (m-1) (reverse xs1 ++ ys) crs)
+
+moves :: [Move] -> CrateStacks -> CrateStacks
+moves mvs sts = foldl mv sts mvs
+
+stackTops :: CrateStacks -> String
+stackTops [] = ""
+stackTops ([]:crs) = stackTops crs
+stackTops ((c:_):crs) = c:stackTops crs
+
+part1 :: (CrateStacks,[Move]) -> String
+part1 (crs,mvs) = stackTops (moves mvs crs)
+
+-- Part 2
+
+part2 :: (CrateStacks,[Move]) -> Int
+part2 _ = 2
