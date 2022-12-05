@@ -229,30 +229,28 @@ parens pa = delim "(" pa ")"
 
 
 -- Sequences: parsing a sequence of as separated by bs
-sequenceSep :: Parser a -> Parser b -> Parser [a]
-sequenceSep pa pb = sequenceSep1 pa pb <|> return []
-
-sequenceSep1 :: Parser a -> Parser b -> Parser [a]
-sequenceSep1 pa pb = do
+someSep :: Parser a -> Parser b -> Parser [a]
+someSep pa pb = do
   x <- pa
   xs <- many (pb >> pa)
   return (x:xs)
 
+manySep :: Parser a -> Parser b -> Parser [a]
+manySep pa pb = someSep pa pb <|> return []
 
--- parse a sequence of pas separated by ps
-seqSep :: Parser a -> String -> Parser [a]
-seqSep pa sep = seqSep1 pa sep <|> return []
 
+-- When the separator is just a string and we ignore white space
 -- at least one
-seqSep1 :: Parser a -> String -> Parser [a]
-seqSep1 pa sep = do
-  x <- pa
-  xs <- many (symbol sep >> pa)
-  return (x:xs)
+someSepStr :: Parser a -> String -> Parser [a]
+someSepStr pa sep = someSep pa (symbol sep)
+
+manySepStr :: Parser a -> String -> Parser [a]
+manySepStr pa sep = manySep pa (symbol sep)
+
 
 -- Example: parsing a list of integers
 nats :: Parser [Integer]
-nats = delim "[" (seqSep natural ",") "]"
+nats = delim "[" (manySepStr natural ",") "]"
 
 
 -- parse p n times

@@ -49,7 +49,7 @@ crate = do string "   "
            return (Just x)
 
 crLine :: Parser CrateLine
-crLine = do xs <- sequenceSep crate (char ' ')
+crLine = do xs <- manySep crate (char ' ')
             emptyLn
             return xs
 
