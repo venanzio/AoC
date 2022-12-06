@@ -21,43 +21,28 @@ main = do
 puzzle :: String -> IO ()
 puzzle fileName = do
   input <- readFile fileName
-  let xs = input -- parseAll pInput input
-  putStrLn ("Part 1: " ++ show (part1 xs))
-  putStrLn ("Part 2: " ++ show (part2 xs))
-
--- Parsing the input
-
-pData :: Parser ()
-pData = return ()
-
-pInput :: Parser [()]
-pInput = pLines pData
+  putStrLn ("Part 1: " ++ show (part1 input))
+  putStrLn ("Part 2: " ++ show (part2 input))
 
 -- Part 1
 
 norep :: String -> Bool
-norep xs = length (nub xs) == 4
+norep xs = let n = length xs in length (nub xs) == n
 
 marker :: Int -> String -> String -> Int
 marker n xs (y:ys) =
   if norep xs then n
               else marker (n+1) (tail xs++[y]) ys
 
+findMarker :: Int -> String -> Int
+findMarker n ys = let (xs,zs) = splitAt n ys
+                  in marker n xs zs
 
 part1 :: String -> Int
-part1 ys = marker 4 (take 4 ys) (drop 4 ys)
+part1 = findMarker 4
 
 -- Part 2
 
-norep2 :: String -> Bool
-norep2 xs = length (nub xs) == 14
-
-marker2 :: Int -> String -> String -> Int
-marker2 n xs (y:ys) =
-  if norep2 xs then n
-               else marker2 (n+1) (tail xs++[y]) ys
-
-
 part2 :: String -> Int
-part2 ys = marker2 14 (take 14 ys) (drop 14 ys)
+part2 = findMarker 14
 
