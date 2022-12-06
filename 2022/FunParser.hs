@@ -300,14 +300,7 @@ chunk :: Parser String
 chunk = do many emptyLn
            ls <- some neLine
            return (unlines ls)
-
-{-
-
-  do s <- many (sat (/='\n'))
-           char '\n'
-           if all isSpace s then empty else return s
--}
-
+           
 -- empty line
 emptyLine :: Parser ()
 emptyLine = (many (char ' ')) >> char '\n' >> return ()

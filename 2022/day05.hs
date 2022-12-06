@@ -22,6 +22,7 @@ puzzle :: String -> IO ()
 puzzle fileName = do
   input <- readFile fileName
   let xs = parseAll pInput input
+  putStrLn (show (fst xs))
   putStrLn ("Part 1: " ++ part1 xs)
   putStrLn ("Part 2: " ++ part2 xs)
 
@@ -97,6 +98,12 @@ move st (k,n,m) =
   let xs = take k (st M.! n)
   in M.adjust (drop k) n (M.adjust (reverse xs ++) m st)
 
+moves :: Stacks -> [Move] -> Stacks
+moves = foldl move
+
+stackTops :: Stacks -> String
+stackTops = foldr ((:).head) ""
+
 {-
 lineStack :: CrateLine -> CrateStacks -> CrateStacks
 lineStack (Nothing:crs) (st:sts) = st:lineStack crs sts
@@ -123,7 +130,7 @@ part1 (crs,mvs) = stackTops (moves mvs crs)
 -}
 
 part1 :: (Stacks,[Move]) -> String
-part1 (sts,mvs) = undefined
+part1 (sts,mvs) = stackTops (moves sts mvs)
 
 -- Part 2
 
