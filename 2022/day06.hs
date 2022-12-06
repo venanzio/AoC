@@ -1,4 +1,4 @@
--- Advent of Code 2022, day ?
+-- Advent of Code 2022, day 6
 --  Venanzio Capretta
 
 module Main where
@@ -21,7 +21,7 @@ main = do
 puzzle :: String -> IO ()
 puzzle fileName = do
   input <- readFile fileName
-  let xs = parseAll pInput input
+  let xs = input -- parseAll pInput input
   putStrLn ("Part 1: " ++ show (part1 xs))
   putStrLn ("Part 2: " ++ show (part2 xs))
 
@@ -35,10 +35,29 @@ pInput = pLines pData
 
 -- Part 1
 
-part1 :: [()] -> Int
-part1 _ = 1
+norep :: String -> Bool
+norep xs = length (nub xs) == 4
+
+marker :: Int -> String -> String -> Int
+marker n xs (y:ys) =
+  if norep xs then n
+              else marker (n+1) (tail xs++[y]) ys
+
+
+part1 :: String -> Int
+part1 ys = marker 4 (take 4 ys) (drop 4 ys)
 
 -- Part 2
 
-part2 :: [()] -> Int
-part2 _ = 2
+norep2 :: String -> Bool
+norep2 xs = length (nub xs) == 14
+
+marker2 :: Int -> String -> String -> Int
+marker2 n xs (y:ys) =
+  if norep2 xs then n
+               else marker2 (n+1) (tail xs++[y]) ys
+
+
+part2 :: String -> Int
+part2 ys = marker2 14 (take 14 ys) (drop 14 ys)
+
