@@ -73,6 +73,19 @@ pInput = pFS
 
 -- Part 1
 
+type DirSize = M.Map Directory Integer
+
+sumDS :: [Directory] -> DirSize -> Integer
+sumDS ds dSize = sum (map (dSize M.!) ds)
+
+dirSize :: FileSystem -> DirSize
+dirSize fsys =
+  let dsize = M.foldrWithKey
+                (\d (ds,fs) ->
+                   M.insert d (sumDS ds dsize + sum (map snd fs)))
+                M.empty fsys
+  in dsize
+
 part1 :: FileSystem -> Int
 part1 _ = 1
 
