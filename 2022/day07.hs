@@ -27,49 +27,49 @@ puzzle fileName = do
 
 -- Parsing the input
 
-type Directory = String
+type Directory = [String]  -- inverse path
 type File = (String,Integer)
 
 type FileSystem = M.Map Directory ([Directory],[File])
 
-pDir :: Parser Directory
-pDir = do symbol "dir"
-          dirName <- label
-          return dirName
+pDir :: Directory -> Parser Directory
+pDir d = do symbol "dir"
+            dirName <- label
+            return (dirName:d)
 
 pFile :: Parser File
 pFile = do size <- natural
            fileName <- label
            return (fileName,size)
 
-pDirCont :: Parser ([Directory],[File])
-pDirCont = do d <- pDir
-              (ds,fs) <- pDirCont
-              return (d:ds,fs)
-           <|>
-           do f <- pFile
-              (ds,fs) <- pDirCont
-              return (ds,f:fs)
-          <|> return ([],[])
-
-pDirectory :: Parser (Directory,[Directory],[File])
-pDirectory = do symbol "$ cd .."
-                pDirectory
+pDirCont :: Directory -> Parser ([Directory],[File])
+pDirCont d = do dp <- pDir d
+                (ds,fs) <- pDirCont d
+                return (dp:ds,fs)
              <|>
-             do symbol "$ cd"
-                symbol "ls"
-                dirName <- pDir
-                (ds,fs) <- pDirCont
-                return (dirName,ds,fs)
+             do f <- pFile
+                (ds,fs) <- pDirCont d
+                return (ds,f:fs)
+            <|> return ([],[])
 
-pFS :: Parser FileSystem
-pFS = do (dirName,ds,fs) <- pDirectory
-         fsys <- pFS
-         return (M.insert dirName (ds,fs) fsys)
-      <|> return M.empty
+pDirectory :: Directory -> Parser (Directory,[Directory],[File])
+pDirectory d = do symbol "$ cd .."
+                  pDirectory (tail d)
+               <|>
+               do symbol "$ cd "
+                  dirName <- label
+                  symbol "$ ls"
+                  (ds,fs) <- pDirCont (dirName:d)
+                  return (dirName:d,ds,fs)
+
+pFS :: Directory -> Parser FileSystem
+pFS d = do (d',ds,fs) <- pDirectory d
+           fsys <- pFS d' 
+           return (M.insert d' (ds,fs) fsys)
+        <|> return M.empty
 
 pInput :: Parser FileSystem
-pInput = pFS
+pInput = pFS []
 
 -- Part 1
 
@@ -86,8 +86,11 @@ dirSize fsys =
                 M.empty fsys
   in dsize
 
-part1 :: FileSystem -> Int
-part1 _ = 1
+bigDirSum :: DirSize -> Integer
+bigDirSum = sum . filter (<100000) . M.elems
+
+part1 :: FileSystem -> Integer
+part1 = bigDirSum . dirSize
 
 -- Part 2
 
