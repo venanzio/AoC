@@ -22,13 +22,14 @@ puzzle :: String -> IO ()
 puzzle fileName = do
   input <- readFile fileName
   let xs = parseAll pInput input
-  putStrLn ("Part 1: " ++ show (part1 xs))
-  putStrLn ("Part 2: " ++ show (part2 xs))
+      ds = dirSize xs
+  putStrLn ("Part 1: " ++ show (part1 ds))
+  putStrLn ("Part 2: " ++ show (part2 ds))
 
 -- Parsing the input
 
 type Directory = [String]  -- inverse path
-type File = (String,Integer)
+type File = (String,Int)
 
 type FileSystem = M.Map Directory ([Directory],[File])
 
@@ -73,9 +74,9 @@ pInput = pFS []
 
 -- Part 1
 
-type DirSize = M.Map Directory Integer
+type DirSize = M.Map Directory Int
 
-sumDS :: [Directory] -> DirSize -> Integer
+sumDS :: [Directory] -> DirSize -> Int
 sumDS ds dSize = sum (map (dSize M.!) ds)
 
 dirSize :: FileSystem -> DirSize
@@ -86,13 +87,15 @@ dirSize fsys =
                 M.empty fsys
   in dsize
 
-bigDirSum :: DirSize -> Integer
+bigDirSum :: DirSize -> Int
 bigDirSum = sum . filter (<100000) . M.elems
 
-part1 :: FileSystem -> Integer
-part1 = bigDirSum . dirSize
+part1 :: DirSize -> Int
+part1 = bigDirSum
 
 -- Part 2
 
-part2 :: FileSystem -> Int
-part2 _ = 2
+part2 :: DirSize -> Int
+part2 ds = let free = 70000000 - ds M.! ["/"]
+               needed = 30000000 - free
+           in head . sort . filter (>= needed) $ (M.elems ds)
