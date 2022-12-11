@@ -28,24 +28,36 @@ puzzle fileName = do
 -- Parsing the input
 
 data Monkey = Monkey {
-  mItems :: [Integer],
-  mOperation :: Integer -> Integer,
-  mTest :: Integer -> Int,  -- indicating to which monkey to throw
+  mItems :: [Int],
+  mOperation :: Int -> Int,
+  mTest :: Int -> Int,  -- indicating to which monkey to throw
   mActivity :: Int
   }
 
+filterDiv :: Int -> [Int] -> [Int]
+filterDiv x = filter (\y -> y `mod` x /= 0)
+
+sieve :: [Int] -> [Int]
+sieve (x:ys) = x : sieve (filterDiv x ys)
+
+primes :: [Int]
+primes = sieve [2..]
+
+
+bigNum = product (take 30 primes)
+
 type Monkeys = M.Map Int Monkey
 
-pOp :: Parser (Integer -> Integer -> Integer)
+pOp :: Parser (Int -> Int -> Int)
 pOp = (symbol "+" >> return (+)) <|> (symbol "*" >> return (*)) 
 
-pOperand :: Parser (Integer -> Integer)
+pOperand :: Parser (Int -> Int)
 pOperand = (symbol "old" >> return id)
            <|>
            do x <- natural
               return (\_ -> x)
 
-pOperation :: Parser (Integer -> Integer)
+pOperation :: Parser (Int -> Int)
 pOperation = do a1 <- pOperand
                 op <- pOp
                 a2 <- pOperand
@@ -92,7 +104,7 @@ monkeyThrow n ms =
   let m = ms M.! n
   in case mItems m of
     [] -> ms
-    (x:xs) -> let x' = mOperation m x -- `div` 3
+    (x:xs) -> let x' = mOperation m x `mod` bigNum -- `div` 3
                   n1 = (mTest m x')
                   m1 = ms M.! n1
               in M.insert n (m {mItems = xs, mActivity = mActivity m +1})
