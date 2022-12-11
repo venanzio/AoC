@@ -22,6 +22,7 @@ puzzle :: String -> IO ()
 puzzle fileName = do
   input <- readFile fileName
   let xs = parseAll pInput input
+  putStrLn (show $ map mTestV $ M.elems xs)
   putStrLn ("Part 1: " ++ show (part1 xs))
   putStrLn ("Part 2: " ++ show (part2 xs))
 
@@ -30,22 +31,20 @@ puzzle fileName = do
 data Monkey = Monkey {
   mItems :: [Int],
   mOperation :: Int -> Int,
-  mTest :: Int -> Int,  -- indicating to which monkey to throw
+  mTestV :: Int,
+  mTestY :: Int,
+  mTestN  :: Int,
+--  mTest :: Int -> Int,  -- indicating to which monkey to throw
   mActivity :: Int
   }
 
-filterDiv :: Int -> [Int] -> [Int]
-filterDiv x = filter (\y -> y `mod` x /= 0)
+mTest :: Monkey -> Int -> Int
+mTest m x = if x `mod` (mTestV m) == 0
+              then (mTestY m) else (mTestN m)
 
-sieve :: [Int] -> [Int]
-sieve (x:ys) = x : sieve (filterDiv x ys)
-
-primes :: [Int]
-primes = sieve [2..]
-
-
-bigNum = product (take 30 primes)
-
+bigNum = product [5,2,13,7,19,11,3,17]
+         -- product [23,19,13,17]
+         
 type Monkeys = M.Map Int Monkey
 
 pOp :: Parser (Int -> Int -> Int)
@@ -83,8 +82,11 @@ pMonkey =
      monkey2 <- natural
      return (Monkey {mItems = items,
                      mOperation = operation,
-                     mTest = \x -> if x `mod` testV == 0
-                                     then monkey1 else monkey2,
+                     mTestV = testV,
+                     mTestY = monkey1,
+                     mTestN = monkey2,
+--                     mTest = \x -> if x `mod` testV == 0
+--                                     then monkey1 else monkey2,
                      mActivity = 0})
               
 pMonkeys :: Parser Monkeys
