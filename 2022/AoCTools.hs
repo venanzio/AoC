@@ -4,6 +4,7 @@ module AoCTools where
 
 import qualified Data.Map as M
 
+-- ALREADY EXISTS: partition
 spanBy :: (a->Bool) -> [a] -> ([a],[a])
 spanBy p [] = ([],[])
 spanBy p (x:xs) = let (ys,zs) = spanBy p xs

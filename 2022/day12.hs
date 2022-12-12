@@ -39,8 +39,8 @@ pLocs = pLines pLoc >>= return . mMap
 sourceTarget :: M.Map Location Char -> (Location,Location)
 sourceTarget m = let ass = M.toList m
                      [(lS,_)] = filter (\(_,c) -> c=='S') ass
-                     [(lT,_)] = filter (\(_,c) -> c=='E') ass
-                 in (lS,lT)
+                     [(lE,_)] = filter (\(_,c) -> c=='E') ass
+                 in (lS,lE)
 
 stElim :: M.Map Location Char -> M.Map Location Char
 stElim = M.map (\c -> case c of
@@ -53,15 +53,24 @@ toGrid = M.map (\c -> ord c - ord 'a')
 
 pInput :: Parser (Grid,Location,Location)
 pInput = do m <- pLocs
-            let (lS,lT) = sourceTarget m
-            return (toGrid (stElim m), lS, lT)
+            let (lS,lE) = sourceTarget m
+            return (toGrid (stElim m), lS, lE)
 
 -- Part 1
-close :: Grid -> Location -> Location -> Bool
-close grid (x1,y1) (x2,y2) =
-  ((x1==x2 && abs (y1-y2) == 1) || (abs (x1-x2) == 1 && y1==y2)) &&
-  (grid M.! (x2,y2) <= grid M.! (x1,y1) + 1)
 
+-- Use Dijkstra's algorithm, computing distances backwards from E
+--   so we have all minimum distances from each location in one pass
+
+oneStep :: Grid -> Location -> [Location]
+oneStep grid (x1,y1) =
+  filter (\l -> case M.lookup l grid of
+             Nothing -> False
+             Just h -> h <= grid M.! (x1,y1) + 1)
+         [(x1,y1-1), (x1,y1+1), (x1-1,y1), (x1+1,y1)]
+
+close :: Grid -> Location -> Location -> Bool
+close grid (x2,y2) (x1,y1) = (x2,y2) `elem` oneStep grid (x1,y1)
+  
 relax :: Grid -> (Location,Int) -> (Location,Int) -> (Location,Int)
 relax grid (l0,d0) (l1,d1) =
   (l1, if close grid l0 l1 then min d1 (d0 + 1) else d1)
@@ -69,16 +78,16 @@ relax grid (l0,d0) (l1,d1) =
 dijkstra :: Grid -> [(Location,Int)] -> [Location] -> [(Location,Int)]
 dijkstra _ [] _ = []
 dijkstra grid visited locs =
-  let ((l0,d0):visited1) = sortBy (\(l1,d1) (l2,d2) -> compare d1 d2) visited
+  let ((l0,d0):visited1) = sortBy (\(_,d1) (_,d2) -> compare d1 d2) visited
       (newVis,locs1) = partition (close grid l0) locs
       visited2 = map (relax grid (l0,d0)) visited1 ++
                    (map (\l->(l, d0+1)) newVis)
   in (l0,d0) : dijkstra grid visited2 locs1
 
 shortest :: (Grid,Location,Location) -> Int
-shortest (grid,lS,lT) =
-  let locDist = dijkstra grid [(lS,0)] (M.keys grid \\ [lS])
-  in case find (\(l,_) -> l==lT) locDist of
+shortest (grid,lS,lE) =
+  let locDist = dijkstra grid [(lE,0)] (M.keys grid \\ [lE])
+  in case find (\(l,_) -> l==lS) locDist of
        Just (_,d) -> d
        Nothing -> 1000
      
@@ -88,9 +97,11 @@ part1 = shortest
 -- Part 2
 
 bestStart :: Grid -> Location -> Int
-bestStart grid lT =
-  let as = map fst $ filter (\(_,d) -> d == 0) $ M.toList grid
-  in minimum (map (\s -> shortest (grid,s,lT)) as)
-    
+bestStart grid lE =
+  head $ sort $
+  map snd $
+  filter (\(l,_) -> grid M.! l == 0) $
+  dijkstra grid [(lE,0)] (M.keys grid \\ [lE])
+ 
 part2 :: (Grid,Location,Location) -> Int
-part2 (grid,_,lT) = bestStart grid lT
+part2 (grid,_,lE) = bestStart grid lE
