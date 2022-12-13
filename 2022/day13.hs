@@ -27,18 +27,58 @@ puzzle fileName = do
 
 -- Parsing the input
 
-pData :: Parser ()
-pData = return ()
+data Packet = PValue Int | PList [Packet]
+  deriving (Show,Eq)
 
-pInput :: Parser [()]
-pInput = pLines pData
+pPacket :: Parser Packet
+pPacket = do n <- natural
+             return (PValue n)
+          <|>
+          do ps <- delim "[" (manySepStr pPacket ",") "]"
+             return (PList ps)
+
+pInput :: Parser [(Packet,Packet)]
+pInput = many (do p1 <- pPacket
+                  p2 <- pPacket
+                  return (p1,p2))
 
 -- Part 1
 
-part1 :: [()] -> Int
-part1 _ = 1
+instance Ord Packet where
+  -- compare :: Packet -> Packet -> Ordering
+  (PValue n1) <= (PValue n2) = n1 <= n2
+  PList [] <= _ = True
+  _ <= PList [] = False
+  (PList (p1:ps1)) <= (PList (p2:ps2)) =
+    case compare p1 p2 of
+      LT -> True
+      GT -> False
+      EQ -> (PList ps1) <= (PList ps2)
+  (PValue n) <= (PList ps) = PList [PValue n] <= (PList ps)
+  (PList ps) <= (PValue n) = PList ps <= PList [PValue n]
+
+
+
+part1 :: [(Packet,Packet)] -> Int
+part1 ps = sum $ map ((+1).fst) $ filterIndices (\(p1,p2) -> p1<=p2) ps
 
 -- Part 2
 
-part2 :: [()] -> Int
-part2 _ = 2
+divP1 :: Packet 
+divP1 = PList [PList [PValue 2]]
+
+divP2 :: Packet 
+divP2 = PList [PList [PValue 6]]
+  
+flatten :: [(Packet,Packet)] -> [Packet]
+flatten [] = []
+flatten ((p1,p2):ps) = p1 : p2 : flatten ps
+
+decoderKey :: [Packet] -> Int
+decoderKey ps =
+  let Just i1 = elemIndex divP1 ps
+      Just i2 = elemIndex divP2 ps
+  in (i1+1) * (i2+1)
+
+part2 :: [(Packet,Packet)] -> Int
+part2 = decoderKey . sort . ([divP1,divP2]++) . flatten

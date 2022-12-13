@@ -31,6 +31,11 @@ nIter :: (a->a) -> Int -> a->a
 nIter f 0 x = x
 nIter f n x = nIter f (n-1) (f x)
 
+filterIndices :: (a -> Bool) -> [a] -> [(Int,a)]
+filterIndices p xs = fIndAux 0 xs where
+  fIndAux n [] = []
+  fIndAux n (x:xs) = if p x then (n,x) : fIndAux (n+1) xs else fIndAux (n+1) xs
+
 -- Keeping the Just values from a list of Maybe
 filterJust :: [Maybe a] -> [a]
 filterJust l = [x | Just x <- l]
