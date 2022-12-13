@@ -46,18 +46,10 @@ pInput = many (do p1 <- pPacket
 
 instance Ord Packet where
   -- compare :: Packet -> Packet -> Ordering
-  (PValue n1) <= (PValue n2) = n1 <= n2
-  PList [] <= _ = True
-  _ <= PList [] = False
-  (PList (p1:ps1)) <= (PList (p2:ps2)) =
-    case compare p1 p2 of
-      LT -> True
-      GT -> False
-      EQ -> (PList ps1) <= (PList ps2)
-  (PValue n) <= (PList ps) = PList [PValue n] <= (PList ps)
-  (PList ps) <= (PValue n) = PList ps <= PList [PValue n]
-
-
+  compare (PValue n1)   (PValue n2)   = compare n1 n2
+  compare (PList ps1)   (PList ps2)   = compare ps1 ps2
+  compare p1@(PValue _) p2            = compare (PList [p1]) p2
+  compare p1            p2@(PValue _) = compare p1 (PList [p2])
 
 part1 :: [(Packet,Packet)] -> Int
 part1 ps = sum $ map ((+1).fst) $ filterIndices (\(p1,p2) -> p1<=p2) ps
