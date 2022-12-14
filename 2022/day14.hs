@@ -22,7 +22,6 @@ puzzle :: String -> IO ()
 puzzle fileName = do
   input <- readFile fileName
   let xs = parseAll pInput input
-  putStrLn (showCave (7,rockFloor 5))
   putStrLn ("Part 1: " ++ show (part1 xs))
   putStrLn ("Part 2: " ++ show (part2 xs))
 
@@ -32,17 +31,6 @@ data Point = Rock | Sand
   deriving (Eq,Show)
 type Coords = (Int,Int)
 type Cave = M.Map Coords Point
-
-showCave :: (Int,Cave) -> String
-showCave (n,cave) =
-  concat [
-    map (\c -> case M.lookup c cave of
-                 Nothing -> '.'
-                 Just Rock  -> '#'
-                 Just Sand  -> 'o')
-        [(x,y) | x <- [492..505]] ++ "\n"
-   | y <- [0..n]]
-    
 
 pRockPath :: Parser [Coords]
 pRockPath = do x <- natural
@@ -63,17 +51,13 @@ fullPath :: [Coords] -> [Coords]
 fullPath (c1:c2:cs) = pathLine c1 c2 ++ fullPath (c2:cs)
 fullPath [c] = [c]
 
-maxY :: [Coords] -> Int
-maxY = maximum . map snd
-
-
 rockCave :: [Coords] -> Cave
 rockCave cs = M.fromList $ zip cs (repeat Rock)
 
-pInput :: Parser (Int,Cave)
+pInput :: Parser Cave
 pInput = do ps <- pLines pRockPath
             let rs = concat $ map fullPath ps
-            return (maxY rs, rockCave $ rs)
+            return (rockCave rs)
 
 -- Part 1
 
@@ -101,13 +85,13 @@ countSand n cave = case M.lookup (500,0) cave of
     Nothing -> 0
     Just cave' -> countSand n cave' + 1
 
-part1 :: (Int,Cave) -> Int
-part1 (n,cave) = countSand n cave
-
--- Part 2
-
 bottom :: Cave -> Int
 bottom = maximum . map snd . M.keys
+
+part1 :: Cave -> Int
+part1 cave = countSand (bottom cave) cave
+
+-- Part 2
 
 minX :: Cave -> Int
 minX = minimum . map fst . M.keys
@@ -116,10 +100,10 @@ maxX :: Cave -> Int
 maxX = maximum . map fst . M.keys
 
 rockFloor :: Int -> Cave
-rockFloor n = rockCave [(x,n) | x <- [500-n-10 .. 500+n+10]]
+rockFloor n = rockCave [(x,n) | x <- [500-n .. 500+n]]
 
 addFloor :: Cave -> Cave
 addFloor cave = M.union cave (rockFloor (bottom cave + 2))
   
-part2 :: (Int,Cave) -> Int
-part2 (n,cave) = countSand (n+3) (addFloor cave)
+part2 :: Cave -> Int
+part2 cave = countSand (bottom cave + 2) (addFloor cave)
