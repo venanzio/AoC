@@ -95,30 +95,39 @@ noBeacon sensor beacon yrow =
 noBRange :: Grid -> Int -> Range
 noBRange grid rowY =
   let sensors = M.keys grid
-      beacons = map fst $ filter (\b -> snd b == rowY) (M.elems grid)
   in rsUnion (map (\s -> noBeacon s (grid M.! s) rowY) sensors)
-       `noPoints` beacons
+
+noBERange :: Grid -> Int -> Range
+noBERange grid rowY =
+  let sensors = map fst $ filter (\b -> snd b == rowY) (M.keys grid)
+      beacons = map fst $ filter (\b -> snd b == rowY) (M.elems grid)
+  in  noBRange grid rowY `noPoints` (sensors ++ beacons)
 
 part1 :: Grid -> Int
-part1 grid = rLength (noBRange grid 2000000)
+part1 grid = rLength (noBERange grid 2000000)
 
 -- Part 2
 
+-- This uses brute force
+-- There should be a more elegant solution using linear optimization
+ 
+-- Find a point not in range withing the interval (l,h)
 findBR :: (Int,Int) -> Range -> Maybe Int
 findBR (l,h) [] = Just l
 findBR (l,h) ((l0,h0):r)
   | l<l0 = Just l
+  | l>h0 = findBR (l,h) r
   | h<=h0 = Nothing
   | otherwise = findBR (h0+1,h) r
 
 -- Searching from row y: search should finish if there is a solution
 findB :: (Int,Int) -> Grid -> (Int,Int)
-findB (x0,y0) grid = findBAux x0
+findB (l,h) grid = findBAux l
   where findBAux y =
-          case findBR (x0,y0) (noBRange grid y) of
+          case findBR (l,h) (noBRange grid y) of
             Just x -> (x,y)
             Nothing -> findBAux (y+1)
 
 part2 :: Grid -> Int
-part2 grid = let (x,y) = findB (0,20) grid
-             in x*1000000 + y
+part2 grid = let (x,y) = findB (0,4000000) grid
+             in x*4000000 + y
