@@ -104,20 +104,21 @@ part1 grid = rLength (noBRange grid 2000000)
 
 -- Part 2
 
-{-
-singleInter :: (Int,Int) -> (Int,Int) -> (Int,Int)
-singleInter (l0,h0) (l1,h1) = (max l0 l1, min h0 h1)
-
-oneInter :: (Int,Int) -> Range -> Range
-oneInter r range = noNegR $ map (singleInter r) range
--}
-
-findB :: (Int,Int) -> Range -> Maybe Int
-findB (l,h) [] = Just l
-findB (l,h) ((l0,h0):r)
+findBR :: (Int,Int) -> Range -> Maybe Int
+findBR (l,h) [] = Just l
+findBR (l,h) ((l0,h0):r)
   | l<l0 = Just l
   | h<=h0 = Nothing
-  | otherwise = findB (h0,h) r
+  | otherwise = findBR (h0,h) r
+
+-- Searching from row y: search should finish if there is a solution
+findB :: (Int,Int) -> Grid -> (Int,Int)
+findB (x0,y0) grid = findBAux 0
+  where findBAux y =
+          case findBR (x0,y0) (noBRange grid y) of
+            Just x -> (x,y)
+            Nothing -> findBAux (y+1)
 
 part2 :: Grid -> Int
-part2 _ = 2
+part2 grid = let (x,y) = findB (0,20) grid
+             in x*1000000 + y
