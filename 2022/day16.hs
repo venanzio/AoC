@@ -60,18 +60,18 @@ pInput = do vs <- pLines pData
 -- Part 1
 
 pressure :: Int -> String -> Cave -> Int
-pressure 0 _ _ = 0
-pressure time vName cave =
+pressure time vName cave = if time <= 0 then 0 else
   let valve = cave M.! vName
-      fr = if vOpen valve then vFlowRate valve else 0
+      fr = if vOpen valve then 0 else vFlowRate valve
       time' = if fr == 0 then time-1 else time-2
-      vns = vTunnels valve -- `intersect` M.keys cave
+      vns = vTunnels valve
+      cave' = M.insert vName (valve {vOpen = True}) cave
   in fr * (time-1) +
-      maximum (0:[pressure time' vn cave -- (M.delete vn cave)
+      maximum (0:[pressure time' vn cave'
                  | vn <- vns])
               
 part1 :: Cave -> Int
-part1 cave = pressure 30 "AA" cave -- (M.delete "AA" cave)
+part1 cave = pressure 30 "AA" cave
 
 -- Part 2
 

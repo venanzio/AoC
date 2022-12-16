@@ -83,3 +83,10 @@ matrixMap (i0,j0) xss = M.fromList [((i0+i,j0+j), xss!!j!!i) |
 mMap :: [[a]] -> M.Map (Int,Int) a
 mMap = matrixMap (0,0)
 
+
+
+fst3 :: (a,b,c) -> a
+fst3 (x,_,_) = x
+
+snd3 :: (a,b,c) -> b
+snd3 (_,y,_) = y
