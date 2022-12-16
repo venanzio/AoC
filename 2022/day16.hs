@@ -22,13 +22,14 @@ puzzle :: String -> IO ()
 puzzle fileName = do
   input <- readFile fileName
   let xs = parseAll pInput input
-  putStrLn (show $ xs M.! "VJ")
+  putStrLn (show $ xs M.! "AA")
   putStrLn ("Part 1: " ++ show (part1 xs))
   putStrLn ("Part 2: " ++ show (part2 xs))
 
 -- Parsing the input
 
 data Valve = Valve {
+  vOpen :: Bool,
   vFlowRate :: Int,
   vTunnels :: [String]
   }
@@ -50,7 +51,7 @@ pData = do symbol "Valve"
            symbol "has flow rate="
            fRate <- integer
            vs <- pValves
-           return (vName,Valve fRate vs)
+           return (vName, Valve False fRate vs)
 
 pInput :: Parser Cave
 pInput = do vs <- pLines pData
@@ -58,8 +59,19 @@ pInput = do vs <- pLines pData
 
 -- Part 1
 
+pressure :: Int -> String -> Cave -> Int
+pressure 0 _ _ = 0
+pressure time vName cave =
+  let valve = cave M.! vName
+      fr = if vOpen valve then vFlowRate valve else 0
+      time' = if fr == 0 then time-1 else time-2
+      vns = vTunnels valve -- `intersect` M.keys cave
+  in fr * (time-1) +
+      maximum (0:[pressure time' vn cave -- (M.delete vn cave)
+                 | vn <- vns])
+              
 part1 :: Cave -> Int
-part1 _ = 1
+part1 cave = pressure 30 "AA" cave -- (M.delete "AA" cave)
 
 -- Part 2
 
