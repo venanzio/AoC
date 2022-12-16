@@ -22,7 +22,6 @@ puzzle :: String -> IO ()
 puzzle fileName = do
   input <- readFile fileName
   let xs = parseAll pInput input
-  putStrLn (show $ xs M.! "AA")
   putStrLn ("Part 1: " ++ show (part1 xs))
   putStrLn ("Part 2: " ++ show (part2 xs))
 
@@ -63,9 +62,11 @@ pressure :: Int -> String -> Cave -> Int
 pressure time vName cave = if time <= 0 then 0 else
   let valve = cave M.! vName
       fr = if vOpen valve then 0 else vFlowRate valve
-      time' = if fr == 0 then time-1 else time-2
+      (time',cave') =
+        if fr == 0 then (time-1, cave)
+                   else (time-2, M.insert vName (valve {vOpen = True}) cave)
       vns = vTunnels valve
-      cave' = M.insert vName (valve {vOpen = True}) cave
+      -- cave' = M.insert vName (valve {vOpen = True}) cave
   in fr * (time-1) +
       maximum (0:[pressure time' vn cave'
                  | vn <- vns])
