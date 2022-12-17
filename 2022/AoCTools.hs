@@ -90,3 +90,12 @@ fst3 (x,_,_) = x
 
 snd3 :: (a,b,c) -> b
 snd3 (_,y,_) = y
+
+divide :: Eq a => a -> [a] -> [[a]]
+divide _ [] = []
+divide x l = case break (==x) l of
+  (xs,[]) -> [xs]
+  (xs,(_:ys)) -> xs : divide x ys
+
+maximumB :: Ord a => a -> [a] -> a
+maximumB x xs = maximum (x:xs)
