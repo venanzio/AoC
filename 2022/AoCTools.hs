@@ -26,6 +26,11 @@ unJust :: Maybe a -> a
 unJust (Just x) = x
 unJust y = error "can't unJust Nothing"
 
+-- and with a default value for Nothing
+unJustD :: a -> Maybe a -> a
+unJustD d Nothing = d
+unJustD _ (Just x) = x
+
 -- Iterating a function n times
 nIter :: (a->a) -> Int -> a->a
 nIter f 0 x = x
