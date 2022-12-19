@@ -107,6 +107,10 @@ mUpdate :: Material -> ST BMState ()
 mUpdate m = do (bp,_,rn) <- stState
                stUpdate (bp,m,rn)
 
+rnUpdate :: RNumbers -> ST BMState ()
+rnUpdate rn = do (bp,m,_) <- stState
+                 stUpdate (bp,m,rn)
+
 
 getMaterial :: Material -> Material -> Maybe Material
 getMaterial needed available =
@@ -136,8 +140,9 @@ makeOreR = do
     Nothing -> return False
     Just m' -> do
       let rn' = rn {rnOre = rnOre rn +1}
-      stUpdate (bp,m',rn')
+      mUpdate m'
       collectMaterial
+      rnUpdate rn'
       return True
 
 makeClayR :: ST BMState Bool
@@ -148,8 +153,9 @@ makeClayR = do
     Nothing -> return False
     Just m' -> do
       let rn' = rn {rnClay = rnClay rn +1}
-      stUpdate (bp,m',rn')
+      mUpdate m'
       collectMaterial
+      rnUpdate rn'
       return True
 
 makeObsidianR :: ST BMState Bool
@@ -160,8 +166,9 @@ makeObsidianR = do
     Nothing -> return False
     Just m' -> do
       let rn' = rn {rnObsidian = rnObsidian rn +1}
-      stUpdate (bp,m',rn')
+      mUpdate m'
       collectMaterial
+      rnUpdate rn'
       return True
 
 makeGeodeR :: ST BMState Bool
@@ -172,24 +179,48 @@ makeGeodeR = do
     Nothing -> return False
     Just m' -> do
       let rn' = rn {rnGeode = rnGeode rn +1}
-      stUpdate (bp,m',rn')
+      mUpdate m'
       collectMaterial
+      rnUpdate rn'
       return True
 
+stepGeode :: ST BMState ()
+stepGeode = do
+  b <- makeGeodeR
+  if b
+    then return ()
+    else do (bp,m,_) <- stState
+            if mObsidian m < mObsidian (bp GeodeR)
+              then stepObsidian
+              else stepOre
 
-bRun :: Int -> BMState -> Int
-bRun 0 (_,m,_) = mGeode m
-bRun n st = let (bOr,stOr) = app makeOreR st
-                (bCl,stCl) = app makeClayR st
-                (bOb,stOb) = app makeObsidianR st
-                (bG,stG)   = app makeGeodeR st
-                ((),stNoR) = app collectMaterial st
-                bsts = if bG
-                         then [(bG,stG)]
-                         else [(bOr,stOr),(bCl,stCl),
-                               (bOb,stOb),(True,stNoR)]
-                sts = [ m | (b,m) <- bsts , b]
-            in maximum (map (\st -> bRun (n-1) st) sts)
+stepObsidian :: ST BMState ()
+stepObsidian = do
+  b <- makeObsidianR
+  if b then return ()
+    else do (bp,m,_) <- stState
+            if mClay m < mClay (bp ObsidianR)
+              then stepClay
+              else stepOre
+
+stepClay :: ST BMState ()
+stepClay = do
+  b <- makeClayR
+  if b then return ()
+    else stepOre
+
+stepOre :: ST BMState ()
+stepOre = do
+  b <- makeOreR
+  if b then return ()
+    else collectMaterial
+
+
+bRun :: Int -> ST BMState Int
+bRun 0 = do (_,m,_) <- stState
+            return (mGeode m)
+bRun n = stepGeode >> bRun (n-1)
+                
                  
 
 {-
@@ -261,8 +292,8 @@ bGeodes bp = stRun (bRun 24) (bp,noMaterial,justOneOreRobot)
 
 
 bGeodes :: Blueprint -> Int
-bGeodes bp = bRun 3 (bp,noMaterial,justOneOreRobot)
-
+bGeodes bp = fst $ app (bRun 24) (bp,noMaterial,justOneOreRobot)
+             
                        
 part1 :: [Blueprint] -> Int
 part1 bps = bGeodes (bps!!0)
