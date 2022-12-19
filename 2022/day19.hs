@@ -119,38 +119,6 @@ getMaterial needed available =
                         mGeode = mGeode available}
   else Nothing
 
-makeOreR :: ST BMState Bool
-makeOreR = do
-  (bp,m,rn) <- stState
-  let needed = bp OreR
-  case getMaterial needed m of
-    Nothing -> return False
-    Just m' -> mUpdate m' >> collectMaterial >> return True
-
-makeClayR :: ST BMState Bool
-makeClayR = do
-  (bp,m,rn) <- stState
-  let needed = bp ClayR
-  case getMaterial needed m of
-    Nothing -> return False
-    Just m' -> mUpdate m' >> collectMaterial >> return True
-
-makeObsidianR :: ST BMState Bool
-makeObsidianR = do
-  (bp,m,rn) <- stState
-  let needed = bp ObsidianR
-  case getMaterial needed m of
-    Nothing -> return False
-    Just m' -> mUpdate m' >> collectMaterial >> return True
-
-makeGeodeR :: ST BMState Bool
-makeGeodeR = do
-  (bp,m,rn) <- stState
-  let needed = bp GeodeR
-  case getMaterial needed m of
-    Nothing -> return False
-    Just m' -> mUpdate m' >> collectMaterial >> return True
-
 collectMaterial :: ST BMState ()
 collectMaterial = do
   (bp,m,rn) <- stState
@@ -160,6 +128,55 @@ collectMaterial = do
                      mGeode = mGeode m + (rnGeode rn)}
   mUpdate m'
 
+makeOreR :: ST BMState Bool
+makeOreR = do
+  (bp,m,rn) <- stState
+  let needed = bp OreR
+  case getMaterial needed m of
+    Nothing -> return False
+    Just m' -> do
+      let rn' = rn {rnOre = rnOre rn +1}
+      stUpdate (bp,m',rn')
+      collectMaterial
+      return True
+
+makeClayR :: ST BMState Bool
+makeClayR = do
+  (bp,m,rn) <- stState
+  let needed = bp ClayR
+  case getMaterial needed m of
+    Nothing -> return False
+    Just m' -> do
+      let rn' = rn {rnClay = rnClay rn +1}
+      stUpdate (bp,m',rn')
+      collectMaterial
+      return True
+
+makeObsidianR :: ST BMState Bool
+makeObsidianR = do
+  (bp,m,rn) <- stState
+  let needed = bp ObsidianR
+  case getMaterial needed m of
+    Nothing -> return False
+    Just m' -> do
+      let rn' = rn {rnObsidian = rnObsidian rn +1}
+      stUpdate (bp,m',rn')
+      collectMaterial
+      return True
+
+makeGeodeR :: ST BMState Bool
+makeGeodeR = do
+  (bp,m,rn) <- stState
+  let needed = bp GeodeR
+  case getMaterial needed m of
+    Nothing -> return False
+    Just m' -> do
+      let rn' = rn {rnGeode = rnGeode rn +1}
+      stUpdate (bp,m',rn')
+      collectMaterial
+      return True
+
+
 bRun :: Int -> BMState -> Int
 bRun 0 (_,m,_) = mGeode m
 bRun n st = let (bOr,stOr) = app makeOreR st
@@ -168,9 +185,11 @@ bRun n st = let (bOr,stOr) = app makeOreR st
                 (bG,stG)   = app makeGeodeR st
                 ((),stNoR) = app collectMaterial st
                 bNoR = not bG
-                bsts = [(bOr,stOr),(bCl,stCl),(bOb,stOb),
+                bsts = [(bCl,stCl),(bOb,stOb),
                         (bG,stG),(bNoR,stNoR)]
-                sts = take 4 [ m | (b,m) <- bsts , b]
+                sts = if bOr
+                        then [stOr]
+                        else take 2 [ m | (b,m) <- bsts , b]
             in maximum (map (\st -> bRun (n-1) st) sts)
                  
 
