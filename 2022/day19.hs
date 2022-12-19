@@ -117,6 +117,43 @@ getMaterial needed available =
                         mGeode = mGeode available}
   else Nothing
 
+makeGeodeR :: ST BMState Bool
+makeGeodeR = do
+  (bp,m,rn) <- stState
+  let needed = bp GeodeR
+  case getMaterial needed m of
+    Nothing -> return False
+    Just m' -> mUpdate m' >> collectMaterial >> return True
+
+collectMaterial :: ST BMState ()
+collectMaterial = do
+  (bp,m,rn) <- stState
+  let m' = Material {mOre = mOre m + (rnOre rn),
+                     mClay = mClay m + (rnClay rn),
+                     mObsidian = mObsidian m + (rnObsidian rn),
+                     mGeode = mGeode m + (rnGeode rn)}
+  updateMaterial m'
+
+bRun :: Int -> BMState -> Int
+bRun 0 (_,m,_) = mGeode m
+bRun n st = let (bG,mG)   = app makeGeodeR st
+                ((),mNoR) = app collectMaterial st
+                bNoR = not bG
+            in maximum (filter (\(b,m) = b)) [(bG,mG),(bNoR,mNoR)]
+                 
+
+
+
+  do (bp,m,rn) <- stState
+            let m' = Material {mOre = mOre m + (rnOre rn),
+                               mClay = mClay m + (rnClay rn),
+                               mObsidian = mObsidian m + (rnObsidian rn),
+                               mGeode = mGeode m + (rnGeode rn)}
+            updateMaterial m'
+            bRun (n-1)
+
+
+{-
 -- n is the number of robots requiring the needed material
 getMAll :: Material -> Material -> (Int,Material)
 getMAll needed available = case getMaterial needed available of
@@ -166,33 +203,22 @@ updateMaterial :: Material -> ST BMState ()
 updateMaterial m = do (bp,_,rn) <- stState
                       stUpdate (bp,m,rn)
 
--- Strategy: always use the higher robots first
+-- Strategy: always build a higher robots first
 bRun :: Int -> ST BMState Int
 bRun 0 = do (_,m,rn) <- stState
             return (mGeode m)
 bRun n = do getGeodeR
             (bp,m,rn) <- stState
-{-
-            let (newGeodeRs,m1) = getMAll (bp GeodeR) m
-                (newObsidianRs,m2) = getMAll (bp ObsidianR) m1
-                (newClayRs,m3) = getMAll (bp ClayR) m2
-                (newOreRs,m4) = getMAll (bp OreR) m3
--}
             let m' = Material {mOre = mOre m + (rnOre rn),
                                mClay = mClay m + (rnClay rn),
                                mObsidian = mObsidian m + (rnObsidian rn),
                                mGeode = mGeode m + (rnGeode rn)}
-{-
-                rn' = RNumbers {rnOre = rnOre rn + newOreRs,
-                                rnClay = rnClay rn + newClayRs,
-                                rnObsidian = rnObsidian rn + newObsidianRs,
-                                rnGeode = rnGeode rn + newGeodeRs}
--}
-            updateMaterial m' -- stUpdate (bp,m',rn')
+            updateMaterial m'
             bRun (n-1)
             
 bGeodes :: Blueprint -> Int
 bGeodes bp = stRun (bRun 24) (bp,noMaterial,justOneOreRobot)
+-}
 
 part1 :: [Blueprint] -> Int
 part1 bps = bGeodes (bps!!0)
