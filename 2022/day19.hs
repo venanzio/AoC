@@ -184,7 +184,7 @@ makeGeodeR = do
       rnUpdate rn'
       return True
 
-stepGeode :: ST BMState ()
+stepGeode :: ST BMState Bool
 stepGeode = do
   b <- makeGeodeR
   if b
@@ -193,6 +193,7 @@ stepGeode = do
             if mObsidian m < mObsidian (bp GeodeR)
               then stepObsidian
               else stepOre
+  return b
 
 stepObsidian :: ST BMState ()
 stepObsidian = do
@@ -220,12 +221,12 @@ bRun :: Int -> ST BMState Int
 bRun 0 = do (_,m,_) <- stState
             return (mGeode m)
 bRun n = do st <- stState
-            let (_,stG) = app stepGeode st
+            let (b,stG) = app stepGeode st
                 (_,stC) = app collectMaterial st
                 nG = stRun (bRun (n-1)) stG
-                nC = stRun (bRun (n-1)) stC
-            return (max nG nC)
-                
+            return (if b
+                      then nG
+                      else max nG (stRun (bRun (n-1)) stC))
                  
 bGeodes :: Blueprint -> Int
 bGeodes bp = fst $ app (bRun 24) (bp,noMaterial,justOneOreRobot)
