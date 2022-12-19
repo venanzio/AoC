@@ -184,12 +184,11 @@ bRun n st = let (bOr,stOr) = app makeOreR st
                 (bOb,stOb) = app makeObsidianR st
                 (bG,stG)   = app makeGeodeR st
                 ((),stNoR) = app collectMaterial st
-                bNoR = not bG
-                bsts = [(bCl,stCl),(bOb,stOb),
-                        (bG,stG),(bNoR,stNoR)]
-                sts = if bOr
-                        then [stOr]
-                        else take 2 [ m | (b,m) <- bsts , b]
+                bsts = if bG
+                         then [(bG,stG)]
+                         else [(bOr,stOr),(bCl,stCl),
+                               (bOb,stOb),(True,stNoR)]
+                sts = [ m | (b,m) <- bsts , b]
             in maximum (map (\st -> bRun (n-1) st) sts)
                  
 
@@ -262,7 +261,7 @@ bGeodes bp = stRun (bRun 24) (bp,noMaterial,justOneOreRobot)
 
 
 bGeodes :: Blueprint -> Int
-bGeodes bp = bRun 24 (bp,noMaterial,justOneOreRobot)
+bGeodes bp = bRun 3 (bp,noMaterial,justOneOreRobot)
 
                        
 part1 :: [Blueprint] -> Int
