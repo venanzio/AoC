@@ -233,7 +233,7 @@ bGeodes bp = fst $ app (bRun 24) (bp,noMaterial,justOneOreRobot)
              
                        
 part1 :: [Blueprint] -> Int
-part1 bps = bGeodes (bps!!0)
+part1 bps = bGeodes (bps!!1)
 
 -- Part 2
 
