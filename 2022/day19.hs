@@ -12,6 +12,7 @@ import qualified Data.Map as M
 
 import FunParser
 import AoCTools
+import State
 
 main :: IO ()
 main = do
