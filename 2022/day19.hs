@@ -219,78 +219,14 @@ stepOre = do
 bRun :: Int -> ST BMState Int
 bRun 0 = do (_,m,_) <- stState
             return (mGeode m)
-bRun n = stepGeode >> bRun (n-1)
+bRun n = do st <- stState
+            let (_,stG) = app stepGeode st
+                (_,stC) = app collectMaterial st
+                nG = stRun (bRun (n-1)) stG
+                nC = stRun (bRun (n-1)) stC
+            return (max nG nC)
                 
                  
-
-{-
--- n is the number of robots requiring the needed material
-getMAll :: Material -> Material -> (Int,Material)
-getMAll needed available = case getMaterial needed available of
-  Nothing -> (0,available)
-  Just available1 -> let (m,available2) =  getMAll needed available1
-                     in  (m+1, available2)
-
--- Get the highest possible robot from the available material
-
-getGeodeR :: ST BMState ()
-getGeodeR =
-  do (bp,m,rn) <- stState
-     let needed = bp GeodeR
-     if (mObsidian m >= mObsidian needed)
-       then case getMaterial needed m of
-         Nothing -> return ()
-         Just m' -> stUpdate (bp,m',rn {rnGeode = rnGeode rn + 1})
-       else getObsidianR
-       
-getObsidianR :: ST BMState ()
-getObsidianR =
-  do (bp,m,rn) <- stState
-     let needed = bp ClayR
-     if (mClay m >= mClay needed)
-       then case getMaterial needed m of
-         Nothing -> return ()
-         Just m' -> stUpdate (bp,m',rn {rnObsidian = rnObsidian rn + 1})
-       else getClayR
-       
-getClayR :: ST BMState ()
-getClayR =
-  do (bp,m,rn) <- stState
-     let needed = bp OreR
-     case getMaterial needed m of
-       Nothing -> getOreR
-       Just m' -> stUpdate (bp,m',rn {rnClay = rnClay rn + 1})
-
-getOreR :: ST BMState ()
-getOreR =
-  do (bp,m,rn) <- stState
-     case getMaterial (bp OreR) m of
-       Nothing -> return ()
-       Just m' -> stUpdate (bp,m',rn {rnOre = rnOre rn + 1})
-
-
-mUpdate :: Material -> ST BMState ()
-mUpdate m = do (bp,_,rn) <- stState
-                      stUpdate (bp,m,rn)
-
--- Strategy: always build a higher robots first
-bRun :: Int -> ST BMState Int
-bRun 0 = do (_,m,rn) <- stState
-            return (mGeode m)
-bRun n = do getGeodeR
-            (bp,m,rn) <- stState
-            let m' = Material {mOre = mOre m + (rnOre rn),
-                               mClay = mClay m + (rnClay rn),
-                               mObsidian = mObsidian m + (rnObsidian rn),
-                               mGeode = mGeode m + (rnGeode rn)}
-            mUpdate m'
-            bRun (n-1)
-            
-bGeodes :: Blueprint -> Int
-bGeodes bp = stRun (bRun 24) (bp,noMaterial,justOneOreRobot)
--}
-
-
 bGeodes :: Blueprint -> Int
 bGeodes bp = fst $ app (bRun 24) (bp,noMaterial,justOneOreRobot)
              
