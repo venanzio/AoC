@@ -23,6 +23,9 @@ puzzle :: String -> IO ()
 puzzle fileName = do
   input <- readFile fileName
   let xs = parseAll pInput input
+      (_,(_,m,rn)) = app (bRun 24) (xs!!0,noMaterial,justOneOreRobot)
+  putStrLn ("Material : " ++ show m)
+  putStrLn ("Robots   : " ++ show rn)
   putStrLn ("Part 1: " ++ show (part1 xs))
   putStrLn ("Part 2: " ++ show (part2 xs))
 
@@ -95,6 +98,7 @@ data RNumbers = RNumbers {
   rnClay :: Int,
   rnObsidian :: Int,
   rnGeode :: Int}
+  deriving (Show,Eq)
 
 justOneOreRobot :: RNumbers
 justOneOreRobot =
@@ -104,9 +108,9 @@ type BMState = (Blueprint,Material,RNumbers)
 
 getMaterial :: Material -> Material -> Maybe Material
 getMaterial needed available =
-  if mOre available <= mOre needed &&
-     mClay available <= mClay needed &&
-     mObsidian available <= mObsidian needed
+  if mOre needed <= mOre available &&
+     mClay needed <= mClay available &&
+     mObsidian needed <= mObsidian available
   then Just $ Material {mOre = mOre available - mOre needed,
                         mClay = mClay available - mClay needed,
                         mObsidian = mObsidian available - mObsidian needed,
