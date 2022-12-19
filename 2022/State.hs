@@ -10,6 +10,9 @@ newtype ST st a = S (st -> (a, st))
 app :: ST st a -> st -> (a,st)
 app (S st) x  =  st x
 
+stRun :: ST st a -> st -> a
+stRun s x = fst (app s x)
+
 stUpdate :: st -> ST st ()
 stUpdate st = S (\_ -> ((),st))
 
