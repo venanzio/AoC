@@ -23,9 +23,9 @@ puzzle :: String -> IO ()
 puzzle fileName = do
   input <- readFile fileName
   let xs = parseAll pInput input
-      (_,(_,m,rn)) = app (bRun 24) (xs!!0,noMaterial,justOneOreRobot)
-  putStrLn ("Material : " ++ show m)
-  putStrLn ("Robots   : " ++ show rn)
+      bp = xs!!0
+      (_,(_,m,rn)) = app (bRun 24) (bp,noMaterial,justOneOreRobot)
+  putStrLn (show rn)
   putStrLn ("Part 1: " ++ show (part1 xs))
   putStrLn ("Part 2: " ++ show (part2 xs))
 
@@ -118,31 +118,77 @@ getMaterial needed available =
   else Nothing
 
 -- n is the number of robots requiring the needed material
-getMn :: Int -> Material -> Material -> (Int,Material)
-getMn 0 _ available = (0,available)
-getMn n needed available = case getMaterial needed available of
+getMAll :: Material -> Material -> (Int,Material)
+getMAll needed available = case getMaterial needed available of
   Nothing -> (0,available)
-  Just available1 -> let (m,available2) =  getMn (n-1) needed available1
+  Just available1 -> let (m,available2) =  getMAll needed available1
                      in  (m+1, available2)
+
+-- Get the highest possible robot from the available material
+
+getGeodeR :: ST BMState ()
+getGeodeR =
+  do (bp,m,rn) <- stState
+     let needed = bp GeodeR
+     if (mObsidian m >= mObsidian needed)
+       then case getMaterial needed m of
+         Nothing -> return ()
+         Just m' -> stUpdate (bp,m',rn {rnGeode = rnGeode rn + 1})
+       else getObsidianR
+       
+getObsidianR :: ST BMState ()
+getObsidianR =
+  do (bp,m,rn) <- stState
+     let needed = bp ClayR
+     if (mClay m >= mClay needed)
+       then case getMaterial needed m of
+         Nothing -> return ()
+         Just m' -> stUpdate (bp,m',rn {rnObsidian = rnObsidian rn + 1})
+       else getClayR
+       
+getClayR :: ST BMState ()
+getClayR =
+  do (bp,m,rn) <- stState
+     let needed = bp OreR
+     case getMaterial needed m of
+       Nothing -> getOreR
+       Just m' -> stUpdate (bp,m',rn {rnClay = rnClay rn + 1})
+
+getOreR :: ST BMState ()
+getOreR =
+  do (bp,m,rn) <- stState
+     case getMaterial (bp OreR) m of
+       Nothing -> return ()
+       Just m' -> stUpdate (bp,m',rn {rnOre = rnOre rn + 1})
+
+
+updateMaterial :: Material -> ST BMState ()
+updateMaterial m = do (bp,_,rn) <- stState
+                      stUpdate (bp,m,rn)
 
 -- Strategy: always use the higher robots first
 bRun :: Int -> ST BMState Int
 bRun 0 = do (_,m,rn) <- stState
             return (mGeode m)
-bRun n = do (bp,m,rn) <- stState
-            let (newGeodeRs,m1) = getMn (rnGeode rn) (bp GeodeR) m
-                (newObsidianRs,m2) = getMn (rnObsidian rn) (bp ObsidianR) m1
-                (newClayRs,m3) = getMn (rnClay rn) (bp ClayR) m2
-                (newOreRs,m4) = getMn (rnOre rn) (bp OreR) m3
-                m' = Material {mOre = mOre m4 + (rnOre rn),
-                               mClay = mClay m4 + (rnClay rn),
-                               mObsidian = mObsidian m4 + (rnObsidian rn),
-                               mGeode = mGeode m4 + (rnGeode rn)}
+bRun n = do getGeodeR
+            (bp,m,rn) <- stState
+{-
+            let (newGeodeRs,m1) = getMAll (bp GeodeR) m
+                (newObsidianRs,m2) = getMAll (bp ObsidianR) m1
+                (newClayRs,m3) = getMAll (bp ClayR) m2
+                (newOreRs,m4) = getMAll (bp OreR) m3
+-}
+            let m' = Material {mOre = mOre m + (rnOre rn),
+                               mClay = mClay m + (rnClay rn),
+                               mObsidian = mObsidian m + (rnObsidian rn),
+                               mGeode = mGeode m + (rnGeode rn)}
+{-
                 rn' = RNumbers {rnOre = rnOre rn + newOreRs,
                                 rnClay = rnClay rn + newClayRs,
                                 rnObsidian = rnObsidian rn + newObsidianRs,
                                 rnGeode = rnGeode rn + newGeodeRs}
-            stUpdate (bp,m',rn')
+-}
+            updateMaterial m' -- stUpdate (bp,m',rn')
             bRun (n-1)
             
 bGeodes :: Blueprint -> Int
