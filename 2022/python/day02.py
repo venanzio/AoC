@@ -1,7 +1,7 @@
-# Advent of Code 2022, day ?
+# Advent of Code 2022, day 2
 #   Venanzio Capretta
 
-print("Advent of Code 2022, Day ?")
+print("Advent of Code 2022, Day 2")
 
 f = open("../input02")
 input = f.read().strip()
