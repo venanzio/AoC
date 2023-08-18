@@ -55,7 +55,7 @@ print(part1(strategy))
 
 def two_move(strategy):
   opp = convABC(strategy.pop(0))
-  reply = convXYZ(strategy.pop(0))-1 + opp
+  reply = rotate(opp,convXYZ(strategy.pop(0))-1)
   return(reply+1+score(opp,reply))
 
 def part2(strategy):
