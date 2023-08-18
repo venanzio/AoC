@@ -3,7 +3,7 @@
 
 print("Advent of Code 2022, Day 1")
 
-f = open("../input")
+f = open("../input01")
 input = f.read().strip()
 f.close()
 
