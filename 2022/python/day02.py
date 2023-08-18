@@ -25,9 +25,6 @@ def convXYZ(c):
 def rotate(x,n):
   return(divmod(x+n,3)[1])
 
-def value(mv):
-  return (ord(mv)-ord('X')+1)
-
 def score(v0,v1):
   match (divmod(v1-v0,3)[1]):
    case 0:
@@ -66,4 +63,3 @@ def part2(strategy):
   return total
 
 print("Part 2: " + str(part2(strategy)))
-
