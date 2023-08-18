@@ -29,18 +29,19 @@ def score(m0,m1):
    case 2:
      return 0
 
-def one_move():
-  global strategy
+def one_move(strategy):
   opp = strategy.pop(0)
   reply = strategy.pop(0)
   return(value(reply)+score(opp,reply))
 
-total = 0
-while strategy:
-  total += one_move()
+def part1(strategy):
+  total = 0
+  while strategy:
+    total += one_move(strategy)
+  return total
 
 print("Part 1: ")
-print(total)
+print(part1(strategy))
 
 # Part 2
 
