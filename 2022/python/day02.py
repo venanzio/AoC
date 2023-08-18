@@ -48,8 +48,9 @@ def part1(strategy):
     total += one_move(strategy)
   return total
 
-print("Part 1: ")
-print(part1(strategy))
+# This passes a copy of the list strategy to part1, 
+# so the original is unchanged
+print("Part 1: " + str(part1(strategy[:])))
 
 # Part 2
 
@@ -64,6 +65,5 @@ def part2(strategy):
     total += two_move(strategy)
   return total
 
-print("Part 2: ")
-print(part2(strategy))
+print("Part 2: " + str(part2(strategy)))
 
