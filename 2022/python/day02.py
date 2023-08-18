@@ -53,21 +53,17 @@ print(part1(strategy))
 
 # Part 2
 
-def score2(mv):
-  match mv:
-    case 'X':
-      return 0
-    case 'Y':
-      return 3
-    case 'Z':
-      return 6
-
 def two_move(strategy):
-  opp = strategy.pop(0)
-  res = strategy.pop(0)
-  reply = ord(res)-ord('Y')
-  return(value(reply)+score(opp,reply))
+  opp = convABC(strategy.pop(0))
+  reply = convXYZ(strategy.pop(0))-1 + opp
+  return(reply+1+score(opp,reply))
+
+def part2(strategy):
+  total = 0
+  while strategy:
+    total += two_move(strategy)
+  return total
 
 print("Part 2: ")
-  
+print(part2(strategy))
 
