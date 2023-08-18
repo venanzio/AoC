@@ -15,12 +15,20 @@ strategy = input.split()
 
 # Part 1
 
+def convABC(c):
+  return(ord(c)-ord('A'))
+
+def convXYZ(c):
+  return(ord(c)-ord('X'))
+
+# "rotate" between Rock, Paper, and Scissors
+def rotate(x,n):
+  return(divmod(x+n,3)[1])
+
 def value(mv):
   return (ord(mv)-ord('X')+1)
 
-def score(m0,m1):
-  v0 = ord(m0) - ord('A')
-  v1 = ord(m1) - ord('X')
+def score(v0,v1):
   match (divmod(v1-v0,3)[1]):
    case 0:
      return 3
@@ -30,9 +38,9 @@ def score(m0,m1):
      return 0
 
 def one_move(strategy):
-  opp = strategy.pop(0)
-  reply = strategy.pop(0)
-  return(value(reply)+score(opp,reply))
+  opp = convABC(strategy.pop(0))
+  reply = convXYZ(strategy.pop(0))
+  return(reply+1+score(opp,reply))
 
 def part1(strategy):
   total = 0
@@ -44,6 +52,21 @@ print("Part 1: ")
 print(part1(strategy))
 
 # Part 2
+
+def score2(mv):
+  match mv:
+    case 'X':
+      return 0
+    case 'Y':
+      return 3
+    case 'Z':
+      return 6
+
+def two_move(strategy):
+  opp = strategy.pop(0)
+  res = strategy.pop(0)
+  reply = ord(res)-ord('Y')
+  return(value(reply)+score(opp,reply))
 
 print("Part 2: ")
   
