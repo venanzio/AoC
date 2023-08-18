@@ -4,14 +4,13 @@
 module Main where
 
 import System.Environment
-import Data.List
-import Data.Char
 
-import Control.Applicative
-import qualified Data.Map as M
+import Data.List (sort)
+import Control.Applicative (many)
 
 import FunParser
-import AoCTools
+
+-- import AoCTools
 
 main :: IO ()
 main = do
