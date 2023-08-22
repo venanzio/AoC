@@ -33,6 +33,17 @@ print(sum([priority(wrong_item(r)) for r in rucksacks]))
 
 # Part 2
 
-print("Part 2: ")
-  
+def take(l,n):
+  tl = []
+  for i in range(n):
+    tl.append(l.pop(0))
+  return tl
 
+s = 0
+while rucksacks:
+  group = take(rucksacks,3)
+  badge = set(group[1]).intersect(group[2],group[3])
+  s += priority(badge)
+
+print("Part 2: ")
+print(s)
