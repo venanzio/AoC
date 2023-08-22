@@ -42,7 +42,7 @@ def take(l,n):
 s = 0
 while rucksacks:
   group = take(rucksacks,3)
-  badge = set(group[1]).intersect(group[2],group[3])
+  badge = ''.join(set(group[0]).intersection(group[1],group[2]))
   s += priority(badge)
 
 print("Part 2: ")
