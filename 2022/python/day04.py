@@ -9,9 +9,17 @@ f.close()
 
 # Parsing the input
 
-# ...
+def parsePair(s):
+  rs = input.split(',')
+  r0 = rs[0].split('-')
+  r1 = rs[1].split('-')
+  return((int(r0[0]),int(r0[1])),(int(r1[0]),int(r1[1])))
 
-print(input)
+# pairRange = map(parsePair,input.splitlines())
+
+# print(list(pairRange))
+
+print(parsePair('1-6,12-30'))
 
 # Part 1
 
