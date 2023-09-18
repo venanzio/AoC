@@ -17,6 +17,11 @@ pairRange = list(map(parsePair,input.splitlines()))
 
 # Part 1
 
+def rangeContained(r1,r2):
+  return(r1[0]>=r2[0] and r1[1]<=r2[1])
+
+print(rangeContained((3,7),(4,9)))
+
 print("Part 1: ")
 
 
