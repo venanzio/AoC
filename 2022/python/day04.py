@@ -20,10 +20,11 @@ pairRange = list(map(parsePair,input.splitlines()))
 def rangeContained(r1,r2):
   return(r1[0]>=r2[0] and r1[1]<=r2[1])
 
-print(rangeContained((3,7),(4,9)))
+contained = list(filter(lambda rs: rangeContained(rs[0],rs[1]) or rangeContained(rs[1],rs[0]),
+                        pairRange))
 
 print("Part 1: ")
-
+print(len(contained))
 
 # Part 2
 
