@@ -30,6 +30,14 @@ print(contained)
 
 # Part 2
 
+def overlap(r0,r1):
+  return(r0[0]<=r1[1] and r1[0]<=r0[1])
+
+overlapping = 0
+for (r0,r1) in pairRange:
+  if overlap(r0,r1):
+    overlapping += 1
+
 print("Part 2: ")
-  
+print(overlapping)
 
