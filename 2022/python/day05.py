@@ -9,6 +9,8 @@ f.close()
 
 # Parsing the input
 
+# stacks 
+
 def numberline(s):
   return (s[1]=='1')
 
@@ -37,11 +39,23 @@ for i in range(0,len(stacks)):
 
 print(stacks)
 
+# moves
 
 # eliminates numbers and blanks
 input.pop(0)
 input.pop(0)
 
+def move(s):
+  (x,s1) = s.split("move ",1)
+  (num,s2) = s1.split(" from ",1)
+  (frs,tos) = s2.split(" to ",1)
+  return (int(num),int(frs),int(tos))
+
+moves = []
+for m in input:
+  moves.append(move(m))
+
+print(moves)
  
 # Part 1
 
