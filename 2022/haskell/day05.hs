@@ -31,29 +31,16 @@ type Stack = [Char]
 type Stacks = M.Map Int Stack
 type Move = (Int,Int,Int)
 
-stacks :: String -> Stacks
-stacks input = let sinput = takeWhile (not.isDigit) input
-                   slines = map compressLine $ init (lines sinput)
-                   stks = map (dropWhile (==' ')) $ transpose slines
+stackMap :: String -> Stacks
+stackMap input = let sinput = takeWhile (not.isDigit) input
+                     slines = map compressLine $ init (lines sinput)
+                     stks = map (dropWhile (==' ')) $ transpose slines
                in listMap 1 stks
 
 
 compressLine :: String -> String
 compressLine s | length s <3 = []
                | otherwise   = (s!!1) : compressLine (drop 4 s)
-
-
-inputStacks :: String -> [String]
-inputStacks s = let (s1,s2) = break (=='1') s
-                in init (lines s1)
-
-
-
-stackMatrix :: [String] -> [Stack]
-stackMatrix = map (dropWhile (==' ')) . transpose . map compressLine
-
-stackMap :: String -> Stacks
-stackMap = listMap 1 . stackMatrix . inputStacks
 
 pMove :: Parser Move
 pMove = do symbol "move"
