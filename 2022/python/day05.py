@@ -12,9 +12,15 @@ f.close()
 def numberline(s):
   return (s[1]=='1')
 
+def stack(s):
+  st = ""
+  for i in range(0,len(s),4):
+    st += s[i+1]
+  return st
+
 sinput = []
 while not numberline(input[0]):
-  sinput.append(input[0])
+  sinput.append(stack(input[0]))
   input.pop(0)
 
 # eliminates numbers and blanks
