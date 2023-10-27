@@ -23,12 +23,25 @@ while not numberline(input[0]):
   sinput.append(stack(input[0]))
   input.pop(0)
 
+def transpose(l):
+  tr = []
+  for i in range(0,9):
+    tr.append("")
+    for j in range(0,len(l)):
+      tr[i] += l[j][i]
+  return tr
+
+stacks = transpose(sinput)
+for i in range(0,len(stacks)):
+  stacks[i] = stacks[i].strip()
+
+print(stacks)
+
+
 # eliminates numbers and blanks
 input.pop(0)
 input.pop(0)
 
-print(sinput)
-print(input[0])
  
 # Part 1
 
