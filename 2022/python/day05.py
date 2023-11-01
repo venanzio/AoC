@@ -14,35 +14,19 @@ f.close()
 def numberline(s):
   return (s[1]=='1')
 
-def stack(s):
-  st = ""
-  for i in range(0,len(s),4):
-    st += s[i+1]
-  return st
-
-sinput = []
+stacks = [[] for i in range(9)]
 while not numberline(input[0]):
-  sinput.append(stack(input[0]))
+  i = 0
+  for k in range(0,len(input[0]),4):
+    if input[0][k+1] != ' ' :
+      stacks[i].append(input[0][k+1])
+    i += 1
   input.pop(0)
 
-def transpose(l):
-  tr = []
-  for i in range(0,9):
-    tr.append([])
-    for j in range(0,len(l)):
-      if l[j][i] != ' ':
-        tr[i].append(l[j][i])
-  return tr
+for s in stacks:
+  s.reverse()
 
-#stacks = transpose(sinput)
-#for i in range(0,len(stacks)):
-#  stacks[i] = stacks[i].strip()
-
-stacks = transpose(sinput)
-#for s in transpose(sinput):
-#  stacks.append(list(s.strip()))
-
-print(stacks)
+# print(stacks)
 
 # moves
 
@@ -60,6 +44,7 @@ moves = []
 for m in input:
   moves.append(move(m))
 
+# print(moves)
  
 # Part 1
 
