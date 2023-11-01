@@ -28,14 +28,18 @@ while not numberline(input[0]):
 def transpose(l):
   tr = []
   for i in range(0,9):
-    tr.append("")
+    tr.append([])
     for j in range(0,len(l)):
-      tr[i] += l[j][i]
+      tr[i].append(l[j][i])
   return tr
 
+#stacks = transpose(sinput)
+#for i in range(0,len(stacks)):
+#  stacks[i] = stacks[i].strip()
+
 stacks = transpose(sinput)
-for i in range(0,len(stacks)):
-  stacks[i] = stacks[i].strip()
+#for s in transpose(sinput):
+#  stacks.append(list(s.strip()))
 
 print(stacks)
 
@@ -55,9 +59,14 @@ moves = []
 for m in input:
   moves.append(move(m))
 
-print(moves)
  
 # Part 1
+
+#for (n,s,t) in moves:
+#  for i in range(n):
+    
+
+
 
 print("Part 1: ")
 
