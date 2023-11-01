@@ -48,14 +48,17 @@ for m in input:
  
 # Part 1
 
-#for (n,s,t) in moves:
-#  for i in range(n):
-    
-
-
+for (n,s,t) in moves:
+  for i in range(n):
+    stacks[t-1].append(stacks[s-1].pop())
 
 print("Part 1: ")
 
+answer = ""
+for l in stacks:
+  answer += l[-1]
+
+print(answer)
 
 # Part 2
 
