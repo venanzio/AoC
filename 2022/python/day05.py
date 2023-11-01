@@ -30,7 +30,8 @@ def transpose(l):
   for i in range(0,9):
     tr.append([])
     for j in range(0,len(l)):
-      tr[i].append(l[j][i])
+      if l[j][i] != ' ':
+        tr[i].append(l[j][i])
   return tr
 
 #stacks = transpose(sinput)
