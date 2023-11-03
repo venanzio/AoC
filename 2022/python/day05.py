@@ -48,20 +48,30 @@ for m in input:
  
 # Part 1
 
+stacks1 = [l.copy() for l in stacks]
+
 for (n,s,t) in moves:
   for i in range(n):
-    stacks[t-1].append(stacks[s-1].pop())
+    stacks1[t-1].append(stacks1[s-1].pop())
+
+def answer(sts):
+  ans = ""
+  for l in sts:
+    ans += l[-1]
+  return ans
 
 print("Part 1: ")
 
-answer = ""
-for l in stacks:
-  answer += l[-1]
-
-print(answer)
+print(answer(stacks1))
 
 # Part 2
 
+stacks2 = [l.copy() for l in stacks]
+for (n,s,t) in moves:
+  l = stacks2[s-1][-n:-1]
+  stacks2[s-1] = stacks2[s-1][0:-n-1]
+  stacks2[t-1] += l
+
 print("Part 2: ")
-  
+print(answer(stacks2))
 
