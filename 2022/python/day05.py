@@ -26,8 +26,6 @@ while not numberline(input[0]):
 for s in stacks:
   s.reverse()
 
-# print(stacks)
-
 # moves
 
 # eliminates numbers and blanks
@@ -43,8 +41,6 @@ def move(s):
 moves = []
 for m in input:
   moves.append(move(m))
-
-# print(moves)
  
 # Part 1
 
@@ -61,15 +57,15 @@ def answer(sts):
   return ans
 
 print("Part 1: ")
-
 print(answer(stacks1))
 
 # Part 2
 
 stacks2 = [l.copy() for l in stacks]
+
 for (n,s,t) in moves:
-  l = stacks2[s-1][-n:-1]
-  stacks2[s-1] = stacks2[s-1][0:-n-1]
+  l = stacks2[s-1][-n:]
+  stacks2[s-1] = stacks2[s-1][:-n]
   stacks2[t-1] += l
 
 print("Part 2: ")
