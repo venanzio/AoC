@@ -9,18 +9,20 @@ f.close()
 
 # Part 1
 
-def marker(s):
-  return (len(set(s)) == 4)
+def marker(s,n):
+  return (len(set(s)) == n)
 
-i = 4
-while not marker(input[i-4:i]):
-  i += 1
+def find_marker(ins,n):
+  i = n
+  while not marker(input[i-n:i],n):
+    i += 1
+  return i
 
 print("Part 1: ")
-print(i)
+print(find_marker(input,4))
 
 # Part 2
 
 print("Part 2: ")
-  
+print(find_marker(input,14))  
 
