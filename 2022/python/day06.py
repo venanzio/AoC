@@ -9,12 +9,15 @@ f.close()
 
 # Part 1
 
-
 def marker(s):
-  return True
+  return (len(set(s)) == 4)
+
+i = 4
+while not marker(input[i-4:i]):
+  i += 1
 
 print("Part 1: ")
-
+print(i)
 
 # Part 2
 
