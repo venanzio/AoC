@@ -18,13 +18,14 @@ class filesystem:
   def __str__(self):
     return f"{self.name} ({self.size})"+str([str(x) for x in self.children])
 
+  def get_size(self):
+    if self.size == -1:
+      self.size = sum([x.get_size() for x in self.children])
+    return self.size
+
 class node(filesystem):
   def add_child(self,child):
     self.children.append(child)
-
-  def get_size(self):
-    self.size = 42 # sum([x.size for x in self.children])
-    return self.size
 
 class leaf(filesystem):
   def __init__(self,name,size):
@@ -37,12 +38,10 @@ class leaf(filesystem):
 
 fs1 = node("/")
 fs2 = node("d1")
-l1 = leaf("a",27)
-l2 = leaf("b",83)
-
-fs1.add_child(l1)
+fs1.add_child(leaf("a",27))
 fs1.add_child(fs2)
-fs2.add_child(l2)
+fs2.add_child(leaf("b",83))
+fs2.add_child(leaf("c",31))
 
 print(fs1)
 
