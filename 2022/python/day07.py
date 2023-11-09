@@ -73,16 +73,15 @@ for l in input:
     x = x.find_dir(l[5:])
   elif l[0].isdigit():
     sznm = l.split()
-    x.find_file(sznm[1],sznm[0])
+    x.find_file(sznm[1],int(sznm[0]))
   # no need to parse "$ ls" and it's output
 
 print(fs)
 
 # Part 1
-
 def sizes(fs):
   ch_sz = sum([sizes(x) for x in fs.children if x.is_file==False],[])
-  if fs.get_size() < 100000:
+  if fs.get_size() <= 100000:
     ch_sz.append(fs.size)
   return ch_sz
     
