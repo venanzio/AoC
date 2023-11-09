@@ -90,6 +90,17 @@ print(sum(sizes(fs)))
 
 # Part 2
 
+free_space = 70000000 - fs.get_size()
+needed_space = 30000000 - free_space
+
+def all_sizes(fs):
+  ch_sz = sum([sizes(x) for x in fs.children if x.is_file==False],[])
+  ch_sz.append(fs.size)
+  return ch_sz
+
+big_sizes = [sz for sz in all_sizes(fs) if sz >= needed_space]
+big_sizes.sort()
+
 print("Part 2: ")
-  
+print(big_sizes[0])  
 
