@@ -13,6 +13,7 @@ class filesystem:
   def __init__(self,name):
     self.name = name
     self.parent = None
+    self.is_file = False
     self.size = -1  # -1 means it hasn't been computed yet
     self.children = []
 
@@ -51,6 +52,7 @@ class file(filesystem):
   def __init__(self,name,size):
     self.name = name
     self.parent = None
+    self.is_file = True
     self.size = size
     self.children = []
 
@@ -72,13 +74,20 @@ for l in input:
   elif l[0].isdigit():
     sznm = l.split()
     x.find_file(sznm[1],sznm[0])
+  # no need to parse "$ ls" and it's output
 
 print(fs)
 
 # Part 1
 
+def sizes(fs):
+  ch_sz = sum([sizes(x) for x in fs.children if x.is_file==False],[])
+  if fs.get_size() < 100000:
+    ch_sz.append(fs.size)
+  return ch_sz
+    
 print("Part 1: ")
-
+print(sum(sizes(fs)))
 
 # Part 2
 
