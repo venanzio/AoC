@@ -23,7 +23,7 @@ class node(filesystem):
     self.children.append(child)
 
   def get_size(self):
-    self.size = sum([x.size for x in self.children])
+    self.size = 42 # sum([x.size for x in self.children])
     return self.size
 
 class leaf(filesystem):
@@ -46,7 +46,7 @@ fs2.add_child(l2)
 
 print(fs1)
 
-fs1.get_size
+print(fs1.get_size())
 
 print(fs1)
 
