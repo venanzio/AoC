@@ -4,15 +4,16 @@
 print("Advent of Code 2022, Day 7")
 
 f = open("../input07")
-input = f.read().strip()
+input = f.read().splitlines()
 f.close()
 
-# Parsing the input
+# data structure
 
 class filesystem:
   def __init__(self,name):
     self.name = name
-    self.size = -1
+    self.parent = None
+    self.size = -1  # -1 means it hasn't been computed yet
     self.children = []
 
   def __str__(self):
@@ -23,33 +24,56 @@ class filesystem:
       self.size = sum([x.get_size() for x in self.children])
     return self.size
 
-class node(filesystem):
+class directory(filesystem):
   def add_child(self,child):
+    child.parent = self
     self.children.append(child)
 
-class leaf(filesystem):
+  def find_dir(self,nm):
+    for c in self.children:
+      if c.name == nm:
+        return c
+    # if not found, create it
+    c = directory(nm)
+    self.add_child(c)
+    return c
+
+  def find_file(self,nm,sz):
+    for c in self.children:
+      if c.name == nm:
+        return c
+    # if not found, create it
+    c = file(nm,sz)
+    self.add_child(c)
+    return c
+
+class file(filesystem):
   def __init__(self,name,size):
     self.name = name
+    self.parent = None
     self.size = size
     self.children = []
 
   def __str__(self):
     return f"{self.name} ({self.size})"
 
-fs1 = node("/")
-fs2 = node("d1")
-fs1.add_child(leaf("a",27))
-fs1.add_child(fs2)
-fs2.add_child(leaf("b",83))
-fs2.add_child(leaf("c",31))
+# Parsing the input
 
-print(fs1)
+fs = directory("/")
+x = fs
 
-print(fs1.get_size())
+for l in input:
+  if l == "$ cd /":
+    x = fs
+  elif l == "$ cd ..":
+    x = x.parent
+  elif l[:5] == "$ cd ":
+    x = x.find_dir(l[5:])
+  elif l[0].isdigit():
+    sznm = l.split()
+    x.find_file(sznm[1],sznm[0])
 
-print(fs1)
-
-# ...
+print(fs)
 
 # Part 1
 
