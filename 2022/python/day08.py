@@ -33,12 +33,19 @@ def visible(x,y,dx,dy):
   while in_bounds(ix,iy):
     if grid[y][x] <= grid[iy][ix]:
       return False
+    ix += dx
+    iy += dy
   return True
 
-print("Part 1: ")
+vis_trees = 0
+for x in range(0,boundx):
+  for y in range(0,boundy):
+    if visible(x,y,-1,0) or visible(x,y,+1,0) or visible(x,y,0,-1) or visible(x,y,0,+1):
+      vis_trees += 1
 
-print(in_bounds(-1,-1))
-print(visible(0,0,1,0))
+print("Part 1: ")
+print(vis_trees)
+
 
 # Part 2
 
