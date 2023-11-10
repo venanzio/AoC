@@ -51,8 +51,12 @@ print(vis_trees)
 def visible_from(x,y,dx,dy):
   ix = x+dx
   iy = y+dy
-  d = 1
+  d = 0
   while in_bounds(ix,iy) and grid[y][x] > grid[iy][ix]:
+    d += 1
+    ix += dx
+    iy += dy
+  if in_bounds(ix,iy):
     d += 1
   return d
 
@@ -61,4 +65,3 @@ def scenic_score(x,y):
 
 print("Part 2: ")
 print(max([scenic_score(x,y) for x in range(0,boundx) for y in range(0,boundy)]))
-
