@@ -13,6 +13,10 @@ def move(s):
   (mv,steps) = s.split(' ',1)
   return (mv,int(steps))
 
+moves = [move(s) for s in input]
+
+print(moves)
+
 # Part 1
 
 print("Part 1: ")
