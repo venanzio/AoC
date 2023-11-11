@@ -9,11 +9,11 @@ f.close()
 
 # Parsing the input
 
-def move(s):
+def parse_move(s):
   (mv,steps) = s.split(' ',1)
   return (mv,int(steps))
 
-moves = [move(s) for s in input]
+moves = [parse_move(s) for s in input]
 
 # Part 1
 
@@ -26,15 +26,38 @@ def sign(x):
   else:
     return x//abs(x)
 
+def move(x,y,dir):
+  if dir == 'U':
+    return (x,y+1)
+  elif dir == "D":
+    return (x,y-1)
+  elif dir == "R":
+    return (x+1,y)
+  elif dir == "L":
+    return (x-1,y)
+  else:
+    return None
+
 def follow(hx,hy,tx,ty):
   if distance(hx,hy,tx,ty) <= 1:
     return (tx,ty)
   else:
     return (tx+sign(hx-tx), ty+sign(hy-ty))
 
-print(follow(4,7,2,8))
+visited = {(0,0)}
+
+(hx,hy) = (tx,ty) = (0,0)
+
+for (dir,steps) in moves:
+  for i in range(steps):
+    (hx,hy) = move(hx,hy,dir)
+    (tx,ty) = follow(hx,hy,tx,ty)
+    visited.add((tx,ty))
+  
 
 print("Part 1: ")
+print(len(visited))
+
 
 
 # Part 2
