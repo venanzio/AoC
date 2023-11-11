@@ -54,14 +54,21 @@ for (dir,steps) in moves:
     (tx,ty) = follow(hx,hy,tx,ty)
     visited.add((tx,ty))
   
-
 print("Part 1: ")
 print(len(visited))
 
-
-
 # Part 2
 
+rope = [(0,0) for i in range(10)]
+visited = {(0,0)}
+
+for (dir,steps) in moves:
+  for i in range(steps):
+    rope[0] = move(rope[0][0],rope[0][1],dir)
+    for k in range(1,10):
+      rope[k] = follow(rope[k-1][0],rope[k-1][1],rope[k][0],rope[k][1])
+    visited.add((rope[9][0],rope[9][1]))
+
 print("Part 2: ")
-  
+print(len(visited))
 
