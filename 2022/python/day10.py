@@ -27,10 +27,10 @@ for s in input:
 #    actions[i+1] += program[i][1]
 
 actions = [0]
-for i in range(len(program)):
+for (inst,x) in program:
   actions.append(0)
-  if program[i][0] == 'addx':
-    actions.append(program[i][1])
+  if inst == 'addx':
+    actions.append(x)
 
 print(actions)
 
