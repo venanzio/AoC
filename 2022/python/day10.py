@@ -18,23 +18,27 @@ for s in input:
 
 # Part 1
 
-cycle = 1
-registerX = 1
 
-actions = [0 for i in range(len(program))]
+action_range = range(0,len(program)+3)
+
+actions = [0 for i in action_range]
 for i in range(len(program)):
   if program[i][0] == 'addx':
     actions[i+1] += program[i][1]
 
-print(actions)
+def signal_strength(c,x):
+  return c*x
 
-def signal_strength():
-  return cycle*registerX
-
-print(signal_strength())
+registerX = 1
+sig_sum = 0
+for cycle in action_range:
+  if (cycle-20)%40 == 0:
+    sig_sum += signal_strength(cycle,registerX)
+    print('cycle ',cycle,' - sum = ',sig_sum)
+  registerX += actions[cycle]
 
 print("Part 1: ")
-
+print(sig_sum)
 
 # Part 2
 
