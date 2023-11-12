@@ -42,7 +42,6 @@ sig_sum = 0
 for cycle in range(len(actions)):
   if (cycle-20)%40 == 0:
     sig_sum += signal_strength(cycle,registerX)
-    print('cycle ',cycle,' - sum = ',sig_sum)
   registerX += actions[cycle]
 
 print("Part 1: ")
@@ -50,6 +49,19 @@ print(sig_sum)
 
 # Part 2
 
+cycle = 0
+registerX = 0
+crt = []
+for i in range(6):
+  for j in range(40):
+    cycle = 40*i+j+1
+    if i-registerX in {-1,0,1}:
+      crt.append('#')
+    else:
+      crt.append('.')
+    registerX += actions[cycle]
+
 print("Part 2: ")
-  
+for i in range(6):
+  print(str(crt[i]))
 
