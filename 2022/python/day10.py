@@ -18,21 +18,11 @@ for s in input:
 
 # Part 1
 
-
-#action_range = range(0,len(program)+3)
-
-#actions = [0 for i in action_range]
-#for i in range(len(program)):
-#  if program[i][0] == 'addx':
-#    actions[i+1] += program[i][1]
-
 actions = [0]
 for (inst,x) in program:
   actions.append(0)
   if inst == 'addx':
     actions.append(x)
-
-print(actions)
 
 def signal_strength(c,x):
   return c*x
@@ -49,19 +39,20 @@ print(sig_sum)
 
 # Part 2
 
-cycle = 0
-registerX = 0
+registerX = 1
 crt = []
 for i in range(6):
+  crt_row = []
   for j in range(40):
     cycle = 40*i+j+1
-    if i-registerX in {-1,0,1}:
-      crt.append('#')
+    if abs(j-registerX) <= 1:
+      crt_row.append('#')
     else:
-      crt.append('.')
+      crt_row.append('.')
     registerX += actions[cycle]
+  crt.append(crt_row)
 
 print("Part 2: ")
 for i in range(6):
-  print(str(crt[i]))
+  print(''.join(crt[i]))
 
