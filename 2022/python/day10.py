@@ -21,6 +21,12 @@ for s in input:
 cycle = 1
 registerX = 1
 
+actions = [0 for i in range(len(program))]
+for i in range(len(program)):
+  if program[i][0] == 'addx':
+    actions[i+1] += program[i][1]
+
+print(actions)
 
 def signal_strength():
   return cycle*registerX
