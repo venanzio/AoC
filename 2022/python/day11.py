@@ -10,12 +10,12 @@ f.close()
 # Parsing the input
 
 class Monkey:
-  def __init__(self,items,operation,test,throwif,throwelse):
+  def __init__(self,items,operation,test,throwT,throwF):
     self.items = items
     self.operation = operation
     self.test = test
-    self.throwif = throwif
-    self.throwelse = throwelse
+    self.throwT = throwT
+    self.throwF = throwF
     self.activity = 0
 
 def parse_num(s):
@@ -56,24 +56,37 @@ def parse_op(s):
   else:
     return None
 
+def parse_test(s):
+  s = s.strip()
+  (_,s) = parse_word(s,'Test: divisible by')
+  (n,s) = parse_num(s)
+  return (lambda x: x // n == 0,s)
+
+
+
+
 def parse_monkey(ss):
   s = ss[0]
   (_,s) = parse_word(s,'Monkey')
   (n,s) = parse_num(s)
   s = ss[1]
   (_,s) = parse_word(s,'Starting items:')
-  its = parse_list(s,parse_num)
+  (its,_) = parse_list(s,parse_num)
   s = ss[2]
   op = parse_op(s)
-  return None
+  s = ss[3]
+  test = parse_test(s)
+  s = ss[4]
+  (_,s) = parse_word(s,'If true: throw to monkey')
+  (throwT,s) = parse_num(s)
+  s = ss[5]
+  (_,s) = parse_word(s,'If false: throw to monkey')
+  (throwF,s) = parse_num(s)
+  return Monkey(its,op,test,throwT,throwF)
 
-print(input[2])
-(op,_) = parse_op(input[2])
-print(op(8))
+m = parse_monkey(input[7:])
+print(m.items,m.throwT,m.throwF)
 
-
-
-# parse_monkey(input[7:])
 
 # Part 1
 
