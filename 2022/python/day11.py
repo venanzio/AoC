@@ -10,10 +10,10 @@ f.close()
 # Parsing the input
 
 class Monkey:
-  def __init__(self,items,operation,test,throwT,throwF):
+  def __init__(self,items,operation,testnum,throwT,throwF):
     self.items = items
     self.operation = operation
-    self.test = test
+    self.testnum = testnum
     self.throwT = throwT
     self.throwF = throwF
     self.activity = 0
@@ -69,7 +69,7 @@ def parse_test(s):
   s = s.strip()
   (_,s) = parse_word(s,'Test: divisible by')
   (n,s) = parse_num(s)
-  return (lambda x: x % n == 0,s)
+  return (n, s)
 
 def parse_monkey(ss):
   s = ss[0]
@@ -99,7 +99,7 @@ for i in range(1,21):
     m.activity += len(m.items)
     for it in m.items:
       it = m.operation(it) // 3
-      if m.test(it):
+      if it % m.testnum == 0:
         monkeys[m.throwT].items.append(it)
       else:
         monkeys[m.throwF].items.append(it)
@@ -113,6 +113,27 @@ print(mas[0] * mas[1])
 
 # Part 2
 
+import numpy
+
+for m in monkeys:
+  m.activity = 0
+
+max_worry = numpy.prod([m.testnum for m in monkeys])
+
+for i in range(1,10001):
+  for m in monkeys:
+    m.activity += len(m.items)
+    for it in m.items:
+      it = m.operation(it) % max_worry
+      if it % m.testnum == 0:
+        monkeys[m.throwT].items.append(it)
+      else:
+        monkeys[m.throwF].items.append(it)
+    m.items = []
+
+mas = [m.activity for m in monkeys]
+mas.sort(reverse=True)
+
 print("Part 2: ")
-  
+print(mas[0] * mas[1])
 
