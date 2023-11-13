@@ -22,13 +22,23 @@ def parse_num(s):
   s = s.strip()
   sn = ''
   i = 0
-  while s[i].isdigit():
+  while s[i:]!='' and s[i].isdigit():
     sn += s[i]
     i += 1
   return((int(sn),s[i:].strip()))
 
+def parse_list(parser,s):
+  ls = s.split(',')
+  l = []
+  for xs in ls:
+    (x,s) = parser(xs)
+    l.append(x)
+  return (l,s)
 
+s = '  12,  23,  36  '
+(l,s) = parse_list(parse_num,s)
 
+print(l,s)
 
 def parse_monkey(s):
   return None  
