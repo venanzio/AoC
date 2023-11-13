@@ -4,7 +4,7 @@
 print("Advent of Code 2022, Day 11")
 
 f = open("../input11")
-input = f.read().strip()
+input = f.read().splitlines()
 f.close()
 
 # Parsing the input
@@ -18,9 +18,20 @@ class Monkey:
     self.throwelse = throwelse
     self.activity = 0
 
-m = Monkey([1,2],lambda x: x*11,lambda x: x//5==0,7,4)
+def parse_num(s):
+  s = s.strip()
+  sn = ''
+  i = 0
+  while s[i].isdigit():
+    sn += s[i]
+    i += 1
+  return((int(sn),s[i:].strip()))
 
-print(m.items)
+
+
+
+def parse_monkey(s):
+  return None  
 
 # Part 1
 
