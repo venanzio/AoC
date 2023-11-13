@@ -9,7 +9,18 @@ f.close()
 
 # Parsing the input
 
-# ...
+class Monkey:
+  def __init__(self,items,operation,test,throwif,throwelse):
+    self.items = items
+    self.operation = operation
+    self.test = test
+    self.throwif = throwif
+    self.throwelse = throwelse
+    self.activity = 0
+
+m = Monkey([1,2],lambda x: x*11,lambda x: x//5==0,7,4)
+
+print(m.items)
 
 # Part 1
 
