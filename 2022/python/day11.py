@@ -36,6 +36,7 @@ def parse_list(s,parser):
   return (l,s)
 
 def parse_word(s,w):
+  s = s.strip()
   n = len(w)
   (w1,s) = (s[:n],s[n:])
   if w1==w:
@@ -43,14 +44,18 @@ def parse_word(s,w):
   else:
     return None
 
-def parse_monkey(s):
+def parse_monkey(ss):
+  s = ss[0]
   (_,s) = parse_word(s,'Monkey')
   (n,s) = parse_num(s)
-  print(n,s)
+  s = ss[1]
+  (_,s) = parse_word(s,'Starting items:')
+  its = parse_list(s,parse_num)
+  print(its)
   return None
 
 
-parse_monkey(input[0])
+parse_monkey(input[7:])
 
 # Part 1
 
