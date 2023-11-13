@@ -44,15 +44,24 @@ def parse_word(s,w):
   else:
     return None
 
+def parse_arg(s):
+  s = s.strip()
+  if s[:3] == 'old':
+    return (lambda x:x, s[3:].strip())
+  else:
+    (n,s) = parse_num(s)
+    return (lambda x: n, s)
+
 def parse_op(s):
   s = s.strip()
-  (_,s) = parse_word(s,'Operation: new = old')
+  (_,s) = parse_word(s,'Operation: new =')
+  (f1,s) = parse_arg(s)
   ops = s[0]
-  (n,s) = parse_num(s[1:])
+  (f2,s) = parse_arg(s[1:])
   if ops == '*':
-    return (lambda x: x * n,s)
+    return (lambda x: f1(x) * f2(x), s)
   elif ops == '+':
-    return (lambda x: x + n,s)
+    return (lambda x: f1(x) + f2(x), s)
   else:
     return None
 
@@ -93,10 +102,8 @@ r = range(0,len(input),7)
 print(list(r))
 
 
-for i in r[:4]:
-  print(i)
+for i in r:
   m = parse_monkey(input[i:i+6])
-  print(m.items)
   monkeys.append(m)
 
 for m in monkeys:
