@@ -3,7 +3,7 @@
 
 print("Advent of Code 2022, Day 11")
 
-f = open("../input11test")
+f = open("../input11")
 input = f.read().splitlines()
 f.close()
 
@@ -94,6 +94,8 @@ monkeys = [parse_monkey(input[i:i+6]) for i in range(0,len(input),7)]
 
 # Part 1
 
+all_items = [m.items.copy() for m in monkeys] # to restore them in part 2
+
 for i in range(1,21):
   for m in monkeys:
     m.activity += len(m.items)
@@ -115,10 +117,10 @@ print(mas[0] * mas[1])
 
 import numpy
 
-for m in monkeys:
+for i in range(len(monkeys)):
+  m = monkeys[i]
+  m.items = all_items[i]
   m.activity = 0
-
-print([m.activity for m in monkeys])
 
 max_worry = numpy.prod([m.testnum for m in monkeys])
 
