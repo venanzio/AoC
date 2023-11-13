@@ -62,9 +62,6 @@ def parse_test(s):
   (n,s) = parse_num(s)
   return (lambda x: x // n == 0,s)
 
-
-
-
 def parse_monkey(ss):
   s = ss[0]
   (_,s) = parse_word(s,'Monkey')
@@ -84,9 +81,20 @@ def parse_monkey(ss):
   (throwF,s) = parse_num(s)
   return Monkey(its,op,test,throwT,throwF)
 
-m = parse_monkey(input[7:])
-print(m.items,m.throwT,m.throwF)
 
+
+monkeys = []
+
+#monkeys.append(parse_monkey(input[0:6]))
+#rint(monkeys[0].items)
+
+
+r = range(0,len(input),7)
+for i in r[:4]:
+  monkeys.append(parse_monkey(input[i:i+6]))
+
+for m in monkeys:
+  print(m.items)
 
 # Part 1
 
