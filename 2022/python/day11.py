@@ -40,7 +40,19 @@ def parse_word(s,w):
   n = len(w)
   (w1,s) = (s[:n],s[n:])
   if w1==w:
-    return (w,s)
+    return (w,s.strip())
+  else:
+    return None
+
+def parse_op(s):
+  s = s.strip()
+  (_,s) = parse_word(s,'Operation: new = old')
+  ops = s[0]
+  (n,s) = parse_num(s[1:])
+  if ops == '*':
+    return (lambda x: x * n,s)
+  elif ops == '+':
+    return (lambda x: x + n,s)
   else:
     return None
 
@@ -51,11 +63,17 @@ def parse_monkey(ss):
   s = ss[1]
   (_,s) = parse_word(s,'Starting items:')
   its = parse_list(s,parse_num)
-  print(its)
+  s = ss[2]
+  op = parse_op(s)
   return None
 
+print(input[2])
+(op,_) = parse_op(input[2])
+print(op(8))
 
-parse_monkey(input[7:])
+
+
+# parse_monkey(input[7:])
 
 # Part 1
 
