@@ -90,10 +90,7 @@ def parse_monkey(ss):
   (throwF,s) = parse_num(s)
   return Monkey(its,op,test,throwT,throwF)
 
-monkeys = []
-for i in range(0,len(input),7):
-  m = parse_monkey(input[i:i+6])
-  monkeys.append(m)
+monkeys = [parse_monkey(input[i:i+6]) for i in range(0,len(input),7)]
 
 # Part 1
 
@@ -110,8 +107,6 @@ for i in range(1,21):
 
 mas = [m.activity for m in monkeys]
 mas.sort(reverse=True)
-
-print(mas)
 
 print("Part 1: ")
 print(mas[0] * mas[1])
