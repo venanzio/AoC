@@ -27,7 +27,7 @@ def parse_num(s):
     i += 1
   return((int(sn),s[i:].strip()))
 
-def parse_list(parser,s):
+def parse_list(s,parser):
   ls = s.split(',')
   l = []
   for xs in ls:
@@ -35,13 +35,22 @@ def parse_list(parser,s):
     l.append(x)
   return (l,s)
 
-s = '  12,  23,  36  '
-(l,s) = parse_list(parse_num,s)
-
-print(l,s)
+def parse_word(s,w):
+  n = len(w)
+  (w1,s) = (s[:n],s[n:])
+  if w1==w:
+    return (w,s)
+  else:
+    return None
 
 def parse_monkey(s):
-  return None  
+  (_,s) = parse_word(s,'Monkey')
+  (n,s) = parse_num(s)
+  print(n,s)
+  return None
+
+
+parse_monkey(input[0])
 
 # Part 1
 
