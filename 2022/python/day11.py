@@ -3,7 +3,7 @@
 
 print("Advent of Code 2022, Day 11")
 
-f = open("../input11")
+f = open("../input11test")
 input = f.read().splitlines()
 f.close()
 
@@ -118,6 +118,8 @@ import numpy
 for m in monkeys:
   m.activity = 0
 
+print([m.activity for m in monkeys])
+
 max_worry = numpy.prod([m.testnum for m in monkeys])
 
 for i in range(1,10001):
@@ -130,6 +132,7 @@ for i in range(1,10001):
       else:
         monkeys[m.throwF].items.append(it)
     m.items = []
+
 
 mas = [m.activity for m in monkeys]
 mas.sort(reverse=True)
