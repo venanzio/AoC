@@ -69,7 +69,7 @@ def parse_test(s):
   s = s.strip()
   (_,s) = parse_word(s,'Test: divisible by')
   (n,s) = parse_num(s)
-  return (lambda x: x // n == 0,s)
+  return (lambda x: x % n == 0,s)
 
 def parse_monkey(ss):
   s = ss[0]
@@ -79,9 +79,9 @@ def parse_monkey(ss):
   (_,s) = parse_word(s,'Starting items:')
   (its,_) = parse_list(s,parse_num)
   s = ss[2]
-  op = parse_op(s)
+  (op,s) = parse_op(s)
   s = ss[3]
-  test = parse_test(s)
+  (test,s) = parse_test(s)
   s = ss[4]
   (_,s) = parse_word(s,'If true: throw to monkey')
   (throwT,s) = parse_num(s)
@@ -90,29 +90,31 @@ def parse_monkey(ss):
   (throwF,s) = parse_num(s)
   return Monkey(its,op,test,throwT,throwF)
 
-
-
 monkeys = []
-
-#monkeys.append(parse_monkey(input[0:6]))
-#rint(monkeys[0].items)
-
-
-r = range(0,len(input),7)
-print(list(r))
-
-
-for i in r:
+for i in range(0,len(input),7):
   m = parse_monkey(input[i:i+6])
   monkeys.append(m)
 
-for m in monkeys:
-  print(m.items)
-
 # Part 1
 
-print("Part 1: ")
+for i in range(1,21):
+  for m in monkeys:
+    m.activity += len(m.items)
+    for it in m.items:
+      it = m.operation(it) // 3
+      if m.test(it):
+        monkeys[m.throwT].items.append(it)
+      else:
+        monkeys[m.throwF].items.append(it)
+    m.items = []
 
+mas = [m.activity for m in monkeys]
+mas.sort(reverse=True)
+
+print(mas)
+
+print("Part 1: ")
+print(mas[0] * mas[1])
 
 # Part 2
 
