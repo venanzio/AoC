@@ -90,8 +90,14 @@ monkeys = []
 
 
 r = range(0,len(input),7)
+print(list(r))
+
+
 for i in r[:4]:
-  monkeys.append(parse_monkey(input[i:i+6]))
+  print(i)
+  m = parse_monkey(input[i:i+6])
+  print(m.items)
+  monkeys.append(m)
 
 for m in monkeys:
   print(m.items)
