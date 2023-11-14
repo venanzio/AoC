@@ -1,29 +1,29 @@
 class Source:
   def __init__(self,s):
-    self.source = s
+    self.text = s
     self.error = ''
 
 def space(s):
-  s.source = s.source.strip()
+  s.text = s.text.strip()
 
-def parse_word(s,w):
+def word(s,w):
   space(s)
   n = len(w)
-  if s.source[:n] == w:
-    s.source = s.source[n:]
+  if s.text[:n] == w:
+    s.text = s.text[n:]
     return w
   else:
     s.error += "no parsing of '"+w+"'"
     return None
 
-def parse_num(s):
+def num(s):
   space(s)
   sn = ''
   i = 0
-  while s.source[i:]!='' and s.source[i].isdigit():
-    sn += s.source[i]
+  while s.text[i:]!='' and s.text[i].isdigit():
+    sn += s.text[i]
     i += 1
-  s.source = s.source[i:]
+  s.text = s.text[i:]
   space(s)
   if sn == '':
     s.error = 'failed to parse a number'
@@ -31,8 +31,5 @@ def parse_num(s):
   else:
     return int(sn)
 
-s = Source(" wa 345  one two three")
-
-print(s.source)
-print(parse_num(s))
-print(s.error)
+def new_line(s):
+  return None
