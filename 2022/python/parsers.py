@@ -32,4 +32,6 @@ def num(s):
     return int(sn)
 
 def new_line(s):
+  n = s.text.find('\n')
+  s.text = s.text[n+1:]
   return None
