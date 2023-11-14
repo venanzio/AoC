@@ -35,3 +35,16 @@ def new_line(s):
   n = s.text.find('\n')
   s.text = s.text[n+1:]
   return None
+
+def list(s,pr):
+  space(s)
+  l = [pr(s)]
+  while s.text != '' and s.text[0] == ',':
+    word(s,',')
+    l.append(pr(s))
+  return l
+
+
+s = Source(' 1,  2  ,   3  , 4   blablabla')
+
+print(list(s,num))  
