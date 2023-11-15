@@ -62,17 +62,19 @@ def newline(s):
     s.text = s.text[n+1:]
     return True
 
-# parse a (non-empty) list of items, each parsed by pr
+# parse a (non-empty) list of items separated by commas, each parsed by pr
 
 def list(pr,s):
-  l = [pr(s)]
-  while word(',',s)==',':
-    l.append(pr(s))
-  return l
+  txt = s.text
+  l = []
+  x = pr(s)
+  while x != None and word(',',s)==',':
+    l.append(x)
+    x = pr(s)
+  if x == None:
+    s.text = txt
+    return None
+  else:
+    l.append(x)
+    return l
 
-
-
-
-s = Source(' bla ')
-print(list(num,s))
-print(s.text)
