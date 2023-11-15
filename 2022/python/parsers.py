@@ -6,15 +6,20 @@ class Source:
 def space(s):
   s.text = s.text.strip()
 
+def char(s):
+  c = s.text[0]
+  s.text = s.text[1:]
+  return c
+
 def word(s,w):
   space(s)
   n = len(w)
   if s.text[:n] == w:
     s.text = s.text[n:]
-    return w
+    return True
   else:
     s.error += "no parsing of '"+w+"'"
-    return None
+    return False
 
 def num(s):
   space(s)
@@ -31,7 +36,7 @@ def num(s):
   else:
     return int(sn)
 
-def new_line(s):
+def newline(s):
   n = s.text.find('\n')
   s.text = s.text[n+1:]
   return None
@@ -45,6 +50,3 @@ def list(s,pr):
   return l
 
 
-s = Source(' 1,  2  ,   3  , 4   blablabla')
-
-print(list(s,num))  

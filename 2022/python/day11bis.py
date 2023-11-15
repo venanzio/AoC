@@ -22,19 +22,48 @@ class Monkey:
     self.throwF = throwF
     self.activity = 0
 
+def parse_arg(s):
+  P.space(s)
+  if P.word(s,'old'):
+    return (lambda x:x)
+  else:
+    n = P.num(s)
+    return (lambda x: n)
+
+def parse_op(s):
+  P.word(s,'Operation: new =')
+  f1 = parse_arg(s)
+  print(f1(13))
+  ops = P.char(s)
+  print(ops)
+  f2 = parse_arg(s)
+  print(f2(13))
+  if ops == '*':
+    return (lambda x: f1(x) * f2(x))
+  elif ops == '+':
+    return (lambda x: f1(x) + f2(x))
+  else:
+    return None
+
 def parse_monkey(s):
+  # monkey number (not needed)
   P.word(s,'Monkey')
   n = P.num(s)
-  P.new_line(s)
-  P.parse_words(s,'Starting items:')
+  P.newline(s)
+
+  # list of items
+  P.word(s,'Starting items:')
   its = P.list(s,P.num)
-  return n
+  P.newline(s)
 
-# print(parse_monkey(source))
+  # operation on items
+  op = parse_op(s)
 
-print(source.text[:100])
-P.new_line(source)
-print(source.text[:100])
+  return op
+
+# print(parse_monkey(source)(13))
+
+
 
 
 
