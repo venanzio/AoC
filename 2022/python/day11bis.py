@@ -56,90 +56,23 @@ def parse_monkey(s):
 
   # operation on items
   op = parse_op(s)
+  P.newline(s)
 
-  return op
+  # test on items
+  P.word('Test: divisible by',s)
+  test = P.num(s)
+  P.newline(s)
+  P.word('If true: throw to monkey',s)
+  throwT = P.num(s)
+  P.newline(s)
+  P.word('If false: throw to monkey',s)
+  throwF = P.num(s)
 
-print(parse_monkey(source)(7))
-
-
-
-
-
-
-'''
-def parse_num(s):
-  s = s.strip()
-  sn = ''
-  i = 0
-  while s[i:]!='' and s[i].isdigit():
-    sn += s[i]
-    i += 1
-  return((int(sn),s[i:].strip()))
-
-def parse_list(s,parser):
-  ls = s.split(',')
-  l = []
-  for xs in ls:
-    (x,s) = parser(xs)
-    l.append(x)
-  return (l,s)
-
-def parse_word(s,w):
-  s = s.strip()
-  n = len(w)
-  (w1,s) = (s[:n],s[n:])
-  if w1==w:
-    return (w,s.strip())
-  else:
-    return None
-
-def parse_arg(s):
-  s = s.strip()
-  if s[:3] == 'old':
-    return (lambda x:x, s[3:].strip())
-  else:
-    (n,s) = parse_num(s)
-    return (lambda x: n, s)
-
-def parse_op(s):
-  s = s.strip()
-  (_,s) = parse_word(s,'Operation: new =')
-  (f1,s) = parse_arg(s)
-  ops = s[0]
-  (f2,s) = parse_arg(s[1:])
-  if ops == '*':
-    return (lambda x: f1(x) * f2(x), s)
-  elif ops == '+':
-    return (lambda x: f1(x) + f2(x), s)
-  else:
-    return None
-
-def parse_test(s):
-  s = s.strip()
-  (_,s) = parse_word(s,'Test: divisible by')
-  (n,s) = parse_num(s)
-  return (n, s)
-
-def parse_monkey(ss):
-  s = ss[0]
-  (_,s) = parse_word(s,'Monkey')
-  (n,s) = parse_num(s)
-  s = ss[1]
-  (_,s) = parse_word(s,'Starting items:')
-  (its,_) = parse_list(s,parse_num)
-  s = ss[2]
-  (op,s) = parse_op(s)
-  s = ss[3]
-  (test,s) = parse_test(s)
-  s = ss[4]
-  (_,s) = parse_word(s,'If true: throw to monkey')
-  (throwT,s) = parse_num(s)
-  s = ss[5]
-  (_,s) = parse_word(s,'If false: throw to monkey')
-  (throwF,s) = parse_num(s)
   return Monkey(its,op,test,throwT,throwF)
 
-monkeys = [parse_monkey(input[i:i+6]) for i in range(0,len(input),7)]
+monkeys = [parse_monkey(source)]
+
+print(monkeys[0].items)
 
 # Part 1
 
@@ -191,4 +124,3 @@ mas.sort(reverse=True)
 print('Part 2: ')
 print(mas[0] * mas[1])
 
-'''
