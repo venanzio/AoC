@@ -47,33 +47,37 @@ def parse_monkey(s):
   # monkey number (not needed)
   P.word('Monkey',s)
   n = P.num(s)
-  P.newline(s)
+  P.word(':',s)
 
   # list of items
   P.word('Starting items:',s)
   its = P.list(s,P.num)
-  P.newline(s)
 
   # operation on items
   op = parse_op(s)
-  P.newline(s)
 
   # test on items
   P.word('Test: divisible by',s)
   test = P.num(s)
-  P.newline(s)
   P.word('If true: throw to monkey',s)
   throwT = P.num(s)
-  P.newline(s)
   P.word('If false: throw to monkey',s)
   throwF = P.num(s)
 
   return Monkey(its,op,test,throwT,throwF)
 
-monkeys = [parse_monkey(source)]
+m0 = parse_monkey(source)
+print(m0.items)
 
-print(monkeys[0].items)
 
+print(P.list(P.Source('2,3,4'),P.num))
+
+m1 = parse_monkey(source)
+
+
+
+
+'''
 # Part 1
 
 all_items = [m.items.copy() for m in monkeys] # to restore them in part 2
@@ -124,3 +128,4 @@ mas.sort(reverse=True)
 print('Part 2: ')
 print(mas[0] * mas[1])
 
+'''
