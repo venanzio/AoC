@@ -5,8 +5,10 @@ class Source:
 
 # parse tokens
 
+# empty space: returns True if source is empty
 def space(s):
   s.text = s.text.strip()
+  return (s.text == '')
 
 def token(pr,s):
   space(s)

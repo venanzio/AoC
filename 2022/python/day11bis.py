@@ -66,12 +66,11 @@ def parse_monkey(s):
 
   return Monkey(its,op,test,throwT,throwF)
 
+monkeys = []
+while not P.space(source):
+  monkeys.append(parse_monkey(source))
 
 
-
-
-
-'''
 # Part 1
 
 all_items = [m.items.copy() for m in monkeys] # to restore them in part 2
@@ -122,4 +121,4 @@ mas.sort(reverse=True)
 print('Part 2: ')
 print(mas[0] * mas[1])
 
-'''
+
