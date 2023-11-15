@@ -54,8 +54,11 @@ def num(s):
 
 def newline(s):
   n = s.text.find('\n')
-  s.text = s.text[n+1:]
-  return None
+  if n==-1:
+    return False
+  else:
+    s.text = s.text[n+1:]
+    return True
 
 # parse a list of items, each parsed by pr
 
