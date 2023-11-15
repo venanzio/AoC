@@ -3,16 +3,23 @@ class Source:
     self.text = s
     self.error = ''
 
+# parse tokens
+
 def space(s):
   s.text = s.text.strip()
+
+def token(pr,s):
+  space(s)
+  return pr(s)
 
 def char(s):
   c = s.text[0]
   s.text = s.text[1:]
   return c
 
-def word(s,w):
-  space(s)
+# parsing a given string 
+
+def tok_word(w,s):
   n = len(w)
   if s.text[:n] == w:
     s.text = s.text[n:]
@@ -21,8 +28,12 @@ def word(s,w):
     s.error += "no parsing of '"+w+"'"
     return False
 
-def num(s):
-  space(s)
+def word(w,s):
+  return token(lambda s: tok_word(w,s),s)
+
+# parsing a natural number
+
+def tok_num(s):
   sn = ''
   i = 0
   while s.text[i:]!='' and s.text[i].isdigit():
@@ -35,13 +46,20 @@ def num(s):
   else:
     return int(sn)
 
+def num(s):
+  space(s)
+  return tok_num(s)
+
+# skip to the next line (if there is any)
+
 def newline(s):
   n = s.text.find('\n')
   s.text = s.text[n+1:]
   return None
 
+# parse a list of items, each parsed by pr
+
 def list(s,pr):
-  space(s)
   l = [pr(s)]
   while s.text != '' and s.text[0] == ',':
     word(s,',')

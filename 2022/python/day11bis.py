@@ -24,14 +24,14 @@ class Monkey:
 
 def parse_arg(s):
   P.space(s)
-  if P.word(s,'old'):
+  if P.word('old',s):
     return (lambda x:x)
   else:
     n = P.num(s)
     return (lambda x: n)
 
 def parse_op(s):
-  P.word(s,'Operation: new =')
+  P.word('Operation: new =',s)
   f1 = parse_arg(s)
   P.space(s)  
   ops = P.char(s)
@@ -45,12 +45,12 @@ def parse_op(s):
 
 def parse_monkey(s):
   # monkey number (not needed)
-  P.word(s,'Monkey')
+  P.word('Monkey',s)
   n = P.num(s)
   P.newline(s)
 
   # list of items
-  P.word(s,'Starting items:')
+  P.word('Starting items:',s)
   its = P.list(s,P.num)
   P.newline(s)
 
