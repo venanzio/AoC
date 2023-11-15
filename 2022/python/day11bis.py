@@ -51,7 +51,7 @@ def parse_monkey(s):
 
   # list of items
   P.word('Starting items:',s)
-  its = P.list(s,P.num)
+  its = P.list(P.num,s)
 
   # operation on items
   op = parse_op(s)
@@ -66,13 +66,7 @@ def parse_monkey(s):
 
   return Monkey(its,op,test,throwT,throwF)
 
-m0 = parse_monkey(source)
-print(m0.items)
 
-
-print(P.list(P.Source('2,3,4'),P.num))
-
-m1 = parse_monkey(source)
 
 
 

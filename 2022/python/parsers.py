@@ -60,12 +60,11 @@ def newline(s):
     s.text = s.text[n+1:]
     return True
 
-# parse a list of items, each parsed by pr
+# parse a (non-empty) list of items, each parsed by pr
 
-def list(s,pr):
+def list(pr,s):
   l = [pr(s)]
-  while s.text != '' and s.text[0] == ',':
-    word(s,',')
+  while word(',',s):
     l.append(pr(s))
   return l
 
