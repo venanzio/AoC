@@ -33,11 +33,9 @@ def parse_arg(s):
 def parse_op(s):
   P.word(s,'Operation: new =')
   f1 = parse_arg(s)
-  print(f1(13))
+  P.space(s)  
   ops = P.char(s)
-  print(ops)
   f2 = parse_arg(s)
-  print(f2(13))
   if ops == '*':
     return (lambda x: f1(x) * f2(x))
   elif ops == '+':
@@ -61,7 +59,7 @@ def parse_monkey(s):
 
   return op
 
-# print(parse_monkey(source)(13))
+print(parse_monkey(source)(7))
 
 
 

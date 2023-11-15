@@ -29,7 +29,6 @@ def num(s):
     sn += s.text[i]
     i += 1
   s.text = s.text[i:]
-  space(s)
   if sn == '':
     s.error = 'failed to parse a number'
     return None
