@@ -15,6 +15,8 @@ def token(pr,s):
   return pr(s)
 
 def char(s):
+  if s.text == '':
+    return None
   c = s.text[0]
   s.text = s.text[1:]
   return c
@@ -25,10 +27,9 @@ def tok_word(w,s):
   n = len(w)
   if s.text[:n] == w:
     s.text = s.text[n:]
-    return True
+    return w
   else:
-    s.error += "no parsing of '"+w+"'"
-    return False
+    return None
 
 def word(w,s):
   return token(lambda s: tok_word(w,s),s)
@@ -43,7 +44,6 @@ def tok_num(s):
     i += 1
   s.text = s.text[i:]
   if sn == '':
-    s.error = 'failed to parse a number'
     return None
   else:
     return int(sn)
@@ -66,8 +66,13 @@ def newline(s):
 
 def list(pr,s):
   l = [pr(s)]
-  while word(',',s):
+  while word(',',s)==',':
     l.append(pr(s))
   return l
 
 
+
+
+s = Source(' bla ')
+print(list(num,s))
+print(s.text)
