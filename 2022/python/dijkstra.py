@@ -19,10 +19,9 @@ def dijkstra(gr,s,t):
     (u,du) = min_dic(vertices)
     visited[u] = vertices.pop(u) 
     for v in set(vertices) & set(gr[u]):
-      pass
-  return None
+      if vertices[v] == None:
+        vertices[v] = du+1
+      else:
+        vertices[v] = min(vertices[v],du+1)
+  return visited[t]
 
-
-gr = {1:[2,3,4], 2:[1,4], 3:[], 4:[2]}
-
-print(dijkstra(gr,1,4))
