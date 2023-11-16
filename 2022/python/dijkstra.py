@@ -11,7 +11,7 @@ def min_dic(dic):
   x = min(l, key = lambda vd: vd[1])
   return x
 
-def dijkstra(gr,s,t):
+def shortest(gr,s,t):
   vertices = {v:None for v in gr.keys()}
   vertices[s] = 0
   visited = { }
