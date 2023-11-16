@@ -7,17 +7,18 @@
 # minimum of a dictionary with None values
 
 def min_dic(dic):
-  x = min(dic, key=dic.get)
-  return (x, dic[x])
+  l = [(v,dic[v]) for v in dic if dic[v] != None]
+  x = min(l, key = lambda vd: vd[1])
+  return x
 
 def dijkstra(gr,s,t):
   vertices = {v:None for v in gr.keys()}
   vertices[s] = 0
   visited = { }
   while vertices:
-    u = min_dic(vertices)
+    (u,du) = min_dic(vertices)
     visited[u] = vertices.pop(u) 
-    for v in (v for v in vertices if adjecent(gr,u,v)):
+    for v in set(vertices) & set(gr[u]):
       pass
   return None
 
