@@ -17,17 +17,33 @@ m = len(input[0])
 def neighbours(i,j):
   return {(i-1,j),(i+1,j),(i,j-1),(i,j+1)}.difference({(-1,j),(n,j),(i,-1),(i,m)})
 
+def height(i,j):
+  c = input[i][j]
+  if c == 'S':
+    return ord('a')
+  elif c == 'E':
+    return ord('z')
+  else:
+    return ord(c)
+
 gr = { }
 for i in range(0,len(input)):
   for j in range(0,len(input[i])):
-    gr[(i,j)] = [(i0,j0) in [(i-1
+    if input[i][j] == 'S':
+      S = (i,j)
+    elif input[i][j] == 'E':
+      E = (i,j)
+    gr[(i,j)] = [(i0,j0) for (i0,j0) in neighbours(i,j) 
+                         if height(i0,j0) <= height(i,j)+1]
 
+print(S)
+print(E)
 
 
 # Part 1
 
 print("Part 1: ")
-
+print(dijkstra.shortest(gr,S,E))
 
 # Part 2
 
