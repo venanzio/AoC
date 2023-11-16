@@ -36,9 +36,6 @@ for i in range(0,len(input)):
     gr[(i,j)] = [(i0,j0) for (i0,j0) in neighbours(i,j) 
                          if height(i0,j0) <= height(i,j)+1]
 
-print(S)
-print(E)
-
 
 # Part 1
 
