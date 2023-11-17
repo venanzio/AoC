@@ -27,3 +27,16 @@ def shortest(gr,s,t):
         vertices[v] = min(vertices[v],du+1)
   return visited[t]
 
+def all_shortest(gr,s):
+  vertices = {v:None for v in gr.keys()}
+  vertices[s] = 0
+  visited = { }
+  while min_dic(vertices) != None:
+    (u,du) = min_dic(vertices)
+    visited[u] = vertices.pop(u) 
+    for v in set(vertices) & set(gr[u]):
+      if vertices[v] == None:
+        vertices[v] = du+1
+      else:
+        vertices[v] = min(vertices[v],du+1)
+  return visited
