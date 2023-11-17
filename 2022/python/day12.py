@@ -44,6 +44,8 @@ print(dijkstra.shortest(gr,E,S))
 
 # Part 2
 
+vs = dijkstra.all_shortest(gr,E)
+
 print("Part 2: ")
-  
+print(min([vs[(i,j)] for (i,j) in vs.keys if height(i,j)==ord('a')]))
 
