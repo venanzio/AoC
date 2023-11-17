@@ -39,12 +39,14 @@ for i in range(0,len(input)):
 
 # Part 1
 
+vs = dijkstra.all_shortest(gr,E)
+
 print("Part 1: ")
-print(dijkstra.shortest(gr,E,S))
+print(vs[S])
 
 # Part 2
 
-vs = dijkstra.all_shortest(gr,E)
+
 from_a = [(i,j) for (i,j) in vs.keys() if height(i,j)==ord('a')]
 
 print("Part 2: ")
