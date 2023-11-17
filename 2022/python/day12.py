@@ -34,13 +34,13 @@ for i in range(0,len(input)):
     elif input[i][j] == 'E':
       E = (i,j)
     gr[(i,j)] = [(i0,j0) for (i0,j0) in neighbours(i,j) 
-                         if height(i0,j0) <= height(i,j)+1]
+                         if height(i0,j0)+1 >= height(i,j)]
 
 
 # Part 1
 
 print("Part 1: ")
-print(dijkstra.shortest(gr,S,E))
+print(dijkstra.shortest(gr,E,S))
 
 # Part 2
 
