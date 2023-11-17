@@ -26,6 +26,7 @@ def height(i,j):
   else:
     return ord(c)
 
+# graph represented backwards: edges go the opposite direction as possible steps
 gr = { }
 for i in range(0,len(input)):
   for j in range(0,len(input[i])):
@@ -39,6 +40,7 @@ for i in range(0,len(input)):
 
 # Part 1
 
+# shortest path to E from every point in the grid
 vs = dijkstra.all_shortest(gr,E)
 
 print("Part 1: ")
