@@ -13,19 +13,7 @@ def min_dic(dic):
   x = min(l, key = lambda vd: vd[1])
   return x
 
-def shortest(gr,s,t):
-  vertices = {v:None for v in gr.keys()}
-  vertices[s] = 0
-  visited = { }
-  while min_dic(vertices) != None:
-    (u,du) = min_dic(vertices)
-    visited[u] = vertices.pop(u) 
-    for v in set(vertices) & set(gr[u]):
-      if vertices[v] == None:
-        vertices[v] = du+1
-      else:
-        vertices[v] = min(vertices[v],du+1)
-  return visited[t]
+
 
 def all_shortest(gr,s):
   vertices = {v:None for v in gr.keys()}
@@ -40,3 +28,20 @@ def all_shortest(gr,s):
       else:
         vertices[v] = min(vertices[v],du+1)
   return visited
+
+def shortest(gr,s,t):
+  return all_shortest(gr,s)[t]
+'''
+  vertices = {v:None for v in gr.keys()}
+  vertices[s] = 0
+  visited = { }
+  while min_dic(vertices) != None:
+    (u,du) = min_dic(vertices)
+    visited[u] = vertices.pop(u) 
+    for v in set(vertices) & set(gr[u]):
+      if vertices[v] == None:
+        vertices[v] = du+1
+      else:
+        vertices[v] = min(vertices[v],du+1)
+  return visited[t]
+'''
