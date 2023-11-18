@@ -97,14 +97,12 @@ def seq(lpr,s):
 def list(pr,s):
   l = []
   x = pr(s)
-  while x != None and next(s)==',':
+  while x != None:
     l.append(x)
-    x = pr(s)
-  if x == None:
-    s.text = txt
-    return None
-  else:
-    l.append(x)
-    return l
+    cx = seq([lambda s: word(',',s), pr],s)
+    if cx != None:
+      x = cx[1]
+    else:
+      x = None
+  return l
 
-print(seq([lambda s: word('wow',s),num],Source('  wow   22')))
