@@ -42,16 +42,20 @@ def packet_ord(p1,p2):
     if type(p1) == type(0):
       return p1<p2
     else:
-      return lexicographic(p1,p2)
+      return lexicographic(packet_ord,p1,p2)
   else:
     if type(p1) == type(0):
       return packet_ord([p1],p2)
     else:
       return packet_ord(p1,[p2])
 
+s=0
+for i in range(0,len(packets),2):
+  if packet_ord(packets[i],packets[i+1]):
+    s += i+1
 
 print("Part 1: ")
-
+print(s)
 
 # Part 2
 
