@@ -22,11 +22,15 @@ def rock_line(p1,p2):
   else:
     return None
 
-print(rock_line((498,6),(496,6)))
-
 def rock_path(s):
-  return P.lst_sep(lambda s: P.pair(P.num,P.num,s), '->',s)
-  
+  rks = P.lst_sep(lambda s: P.pair(P.num,P.num,s), '->',s)
+  r0 = rks[0]
+  path = { r0 }
+  for r1 in rks[1:]:
+    path = path.union(rock_line(r0,r1))
+    r0 = r1
+  return path
+
 
 
 # Part 1
