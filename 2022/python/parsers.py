@@ -110,6 +110,21 @@ def lst(pr,s):
       x = None
   return l
 
+
+# parse a potentially empty list with given separator
+def lst_sep(pr,sep,s):
+  l = []
+  x = pr(s)
+  while x != None:
+    l.append(x)
+    cx = seq([lambda s: word(sep,s), pr],s)
+    if cx != None:
+      x = cx[1]
+    else:
+      x = None
+  return l
+
+
 def pair(pr1,pr2,s):
   txt = s.text
   l = seq([lambda s: word('(',s),
