@@ -18,14 +18,14 @@ def parse_packet(s):
   if x != None:
     return x
   elif s.next() == '[':
-    P.word('[',s),
-    l = P.lst(parse_packet,s),
+    P.word('[',s)
+    l = P.lst(parse_packet,s)
     P.word(']',s)
-    return l[0]  # I don't understand why I must do this
+    return l
   else:
     return None
 
-print(parse_packet(P.Source('[0,3,7]')))
+print(parse_packet(P.Source('[[0,3,7], 2]')))
 
 print("Part 1: ")
 
