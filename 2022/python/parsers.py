@@ -110,3 +110,15 @@ def lst(pr,s):
       x = None
   return l
 
+def pair(pr1,pr2,s):
+  txt = s.text
+  l = seq([lambda s: word('(',s),
+           pr1,
+           lambda s: word(',',s),
+           pr2,
+           lambda s: word(')',s)],s)
+  if l == None:
+    return None
+  else:
+    return (l[1],l[3])
+
