@@ -17,13 +17,15 @@ def parse_packet(s):
   x = P.num(s)
   if x != None:
     return x
-  else:
-    P.word('[',s)
-    l = P.list(parse_packet,s)
+  elif s.next() == '[':
+    P.word('[',s),
+    l = P.list(parse_packet,s),
     P.word(']',s)
     return l
+  else:
+    return None
 
-# print(parse_packet(P.Source('[]')))
+print(parse_packet(P.Source('[[4,5,7],9]')))
 
 print("Part 1: ")
 

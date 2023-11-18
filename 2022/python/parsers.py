@@ -3,8 +3,11 @@ class Source:
     self.text = s
     self.error = ''
 
-  def next(self,s):
-    return self.text[0]
+  def next(self):
+    if self.text == '':
+      return None
+    else:
+      return self.text.strip()[0]
 
 # parse tokens
 
@@ -98,6 +101,7 @@ def list(pr,s):
   l = []
   x = pr(s)
   while x != None:
+    print(x)
     l.append(x)
     cx = seq([lambda s: word(',',s), pr],s)
     if cx != None:
