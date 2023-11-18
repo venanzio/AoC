@@ -35,7 +35,7 @@ def lexicographic(ord,l1,l2):
   elif l1[0] == l2[0]:
     return lexicographic(ord,l1[1:],l2[1:])
   else:
-    return l1<l2
+    return ord(l1[0],l2[0])
 
 def packet_ord(p1,p2):
   if type(p1)==type(p2):
@@ -48,6 +48,10 @@ def packet_ord(p1,p2):
       return packet_ord([p1],p2)
     else:
       return packet_ord(p1,[p2])
+
+
+print(packet_ord([1,1,3,1,1],[1,1,5,1,1]))
+
 
 s=0
 for i in range(0,len(packets),2):
