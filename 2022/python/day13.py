@@ -11,8 +11,6 @@ f.close()
 
 # Parsing the input
 
-# Part 1
-
 def parse_packet(s):
   x = P.num(s)
   if x != None:
@@ -25,7 +23,14 @@ def parse_packet(s):
   else:
     return None
 
-print(parse_packet(P.Source('[[0,3,7], 2]')))
+packets = [parse_packet(l) for l in input if l.text!='']
+
+print(packets)
+
+# Part 1
+
+
+
 
 print("Part 1: ")
 
