@@ -11,8 +11,6 @@ f.close()
 
 # Parsing the input
 
-print(input)
-
 # Part 1
 
 def parse_packet(s):
@@ -25,7 +23,7 @@ def parse_packet(s):
     P.word(']',s)
     return l
 
-print(parse_packet(P.Source('[]')))
+# print(parse_packet(P.Source('[]')))
 
 print("Part 1: ")
 

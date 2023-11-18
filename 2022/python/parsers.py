@@ -81,10 +81,23 @@ def ne_list(pr,s):
     l.append(x)
     return l
 
+# parsing with a sequence of parsers
+def seq(lpr,s):
+  txt = s.text
+  l = []
+  for pr in lpr:
+    x = pr(s)
+    if x == None:
+      s.text = txt
+      return None
+    else:
+      l.append(x)
+  return l
+
 def list(pr,s):
   l = []
   x = pr(s)
-  while x != None and word(',',s)==',':
+  while x != None and next(s)==',':
     l.append(x)
     x = pr(s)
   if x == None:
@@ -93,3 +106,5 @@ def list(pr,s):
   else:
     l.append(x)
     return l
+
+print(seq([lambda s: word('wow',s),num],Source('  wow   22')))
