@@ -97,11 +97,11 @@ def seq(lpr,s):
       l.append(x)
   return l
 
-def list(pr,s):
+# parse a potentially empty list
+def lst(pr,s):
   l = []
   x = pr(s)
   while x != None:
-    print(x)
     l.append(x)
     cx = seq([lambda s: word(',',s), pr],s)
     if cx != None:
