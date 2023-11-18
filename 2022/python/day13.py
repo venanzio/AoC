@@ -50,13 +50,10 @@ def packet_ord(p1,p2):
       return packet_ord(p1,[p2])
 
 
-print(packet_ord([1,1,3,1,1],[1,1,5,1,1]))
-
-
 s=0
 for i in range(0,len(packets),2):
   if packet_ord(packets[i],packets[i+1]):
-    s += i+1
+    s += i//2+1
 
 print("Part 1: ")
 print(s)
