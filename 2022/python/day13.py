@@ -2,6 +2,7 @@
 #   Venanzio Capretta
 
 import parsers as P
+import functools as fun
 
 print("Advent of Code 2022, Day 13")
 
@@ -60,6 +61,11 @@ print(s)
 
 # Part 2
 
+packets.append([[2]])
+packets.append([[6]])
+
+packets.sort(key=fun.cmp_to_key(packet_ord))
+
 print("Part 2: ")
-  
+print((packets.index([[2]])+1) * (packets.index([[6]])+1))
 
