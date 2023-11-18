@@ -6,7 +6,7 @@ import functools as fun
 
 print("Advent of Code 2022, Day 13")
 
-f = open("../input13")
+f = open("../input13test")
 input = [P.Source(l) for l in f.read().splitlines()]
 f.close()
 
@@ -64,8 +64,13 @@ print(s)
 packets.append([[2]])
 packets.append([[6]])
 
-packets.sort(key=fun.cmp_to_key(packet_ord))
+def compare(p1,p2):
+  if packet_ord(p1,p2):
+    return -1
+  else:
+    return 1
+
+packets.sort(key=fun.cmp_to_key(compare))
 
 print("Part 2: ")
 print((packets.index([[2]])+1) * (packets.index([[6]])+1))
-
