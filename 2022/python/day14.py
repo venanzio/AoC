@@ -31,7 +31,9 @@ def rock_path(s):
     r0 = r1
   return path
 
-
+rock_map = set()
+for p in input:
+  rock_map = rock_map.union(rock_path(p))
 
 # Part 1
 
