@@ -25,11 +25,29 @@ def parse_packet(s):
 
 packets = [parse_packet(l) for l in input if l.text!='']
 
-print(packets)
-
 # Part 1
 
+def lexicographic(ord,l1,l2):
+  if l1 == []:
+    return True
+  elif l2 == []:
+    return False
+  elif l1[0] == l2[0]:
+    return lexicographic(ord,l1[1:],l2[1:])
+  else:
+    return l1<l2
 
+def packet_ord(p1,p2):
+  if type(p1)==type(p2):
+    if type(p1) == type(0):
+      return p1<p2
+    else:
+      return lexicographic(p1,p2)
+  else:
+    if type(p1) == type(0):
+      return packet_ord([p1],p2)
+    else:
+      return packet_ord(p1,[p2])
 
 
 print("Part 1: ")
