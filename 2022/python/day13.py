@@ -6,7 +6,7 @@ import functools as fun
 
 print("Advent of Code 2022, Day 13")
 
-f = open("../input13test")
+f = open("../input13")
 input = [P.Source(l) for l in f.read().splitlines()]
 f.close()
 
