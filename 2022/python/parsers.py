@@ -127,13 +127,13 @@ def lst_sep(pr,sep,s):
 
 def pair(pr1,pr2,s):
   txt = s.text
-  l = seq([lambda s: word('(',s),
-           pr1,
+  l = seq([pr1,
            lambda s: word(',',s),
-           pr2,
-           lambda s: word(')',s)],s)
+           pr2],s)
   if l == None:
     return None
   else:
-    return (l[1],l[3])
+    return (l[0],l[2])
+
+
 

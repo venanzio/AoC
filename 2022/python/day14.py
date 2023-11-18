@@ -14,7 +14,6 @@ def rock_path(s):
   return P.lst_sep(lambda s: P.pair(P.num,P.num,s), '->',s)
   
 
-print(rock_path(input[0]))
 
 # Part 1
 
