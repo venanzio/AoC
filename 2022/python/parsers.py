@@ -3,6 +3,9 @@ class Source:
     self.text = s
     self.error = ''
 
+  def next(self,s):
+    return self.text[0]
+
 # parse tokens
 
 # empty space: returns True if source is empty
@@ -64,7 +67,7 @@ def newline(s):
 
 # parse a (non-empty) list of items separated by commas, each parsed by pr
 
-def list(pr,s):
+def ne_list(pr,s):
   txt = s.text
   l = []
   x = pr(s)
@@ -78,3 +81,15 @@ def list(pr,s):
     l.append(x)
     return l
 
+def list(pr,s):
+  l = []
+  x = pr(s)
+  while x != None and word(',',s)==',':
+    l.append(x)
+    x = pr(s)
+  if x == None:
+    s.text = txt
+    return None
+  else:
+    l.append(x)
+    return l
