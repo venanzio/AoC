@@ -37,6 +37,13 @@ for p in input:
 
 # Part 1
 
+bottom = max([y for (x,y) in rock_map])+1
+
+print(bottom)
+
+def sand_fall(x,y):
+  return None
+
 print("Part 1: ")
 
 # Part 2
