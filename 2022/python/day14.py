@@ -39,12 +39,34 @@ for p in input:
 
 bottom = max([y for (x,y) in rock_map])+1
 
-print(bottom)
-
 def sand_fall(x,y):
-  return None
+  u,v = x,y
+  while v <= bottom:
+    if (u,v+1) in rock_map:
+      if (u-1,v+1) in rock_map:
+        if (u+1,v+1) in rock_map:
+          return (u,v)  # come to rest
+        else:
+          u += 1
+          v += 1
+      else:
+          u -= 1
+          v += 1
+    else:
+      v +=1
+  return (u,v)
+
+
+sand_grain = 0
+(x,y) = sand_fall(500,0)
+while y <= bottom:
+  rock_map.add((x,y))
+  sand_grain += 1
+  (x,y) = sand_fall(500,0)
+
 
 print("Part 1: ")
+print(sand_grain)
 
 # Part 2
 
