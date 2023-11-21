@@ -77,8 +77,30 @@ print(no_beacon)
 
 # Part 2
 
+lx,hx = 0,4000000
 
+def not_in_range(range):
+  l,h = lx,hx
+  for (l0,h0) in range:
+    if l<l0:
+      return l
+    elif h<=h0:
+      return None
+    else:
+      l = max(l,h0+1)
+  return l
+
+y = -1
+x = None
+while x == None:
+  y += 1
+  range = nob_range(y)
+  range.sort()
+  print('y = ',y,', range = ',range)
+  x = not_in_range(range)
+
+print('x = ',x,', y = ',y)
 
 print("Part 2: ")
-  
+print(x*4000000+y)  
 
