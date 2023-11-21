@@ -33,13 +33,24 @@ for l in input:
   sensors.add((sx,sy,manhattan(sx,sy,bx,by)))
   beacons.add((bx,by))
 
-print(sensors)
-print(beacons)
-
 # Part 1
 
-print("Part 1: ")
+y = 2000000
+nob_ranges = []   # ranges
+for (sx,sy,d) in sensors:
+  if abs(sy-y) <= d:
+    pass
 
+no_beacon = 0
+for (l,h) in nob_ranges:
+  no_beacon += h-l+1
+
+for (bx,by) in beacons:
+  if by == y:
+    no_beacon -= 1
+
+print("Part 1: ")
+print(no_beacon)
 
 # Part 2
 
