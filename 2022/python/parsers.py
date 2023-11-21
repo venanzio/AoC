@@ -65,9 +65,6 @@ def integer(s):
   else:
     return (-num(s))
 
-s = Source(' +  15  ')
-print(integer(s))
-
 # skip to the next line (if there is any)
 
 def newline(s):
