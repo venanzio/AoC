@@ -35,6 +35,9 @@ for l in input:
 
 # Part 1
 
+def merge_ranges(x0,y0,x1,y1):
+  if y0<x1 or y1<x0 # no overlap
+
 y = 2000000
 nob_ranges = []   # ranges
 for (sx,sy,d) in sensors:
