@@ -25,15 +25,16 @@ def sensor_beacon(s):
 def manhattan(x0,y0,x1,y1):  #Manhattan distance
   return abs(x0-x1)+abs(y0-y1)
 
-s = P.Source('Sensor at x=17, y=20: closest beacon is at x=21, y=22')
-sx,sy,bx,by = sensor_beacon(s)
-print(manhattan(sx,sy,bx,by))
-
-
 sensors = set()
 beacons = set()
+for l in input:
+  s = P.Source(l)
+  sx,sy,bx,by = sensor_beacon(s)
+  sensors.add((sx,sy,manhattan(sx,sy,bx,by)))
+  beacons.add((bx,by))
 
 print(sensors)
+print(beacons)
 
 # Part 1
 
