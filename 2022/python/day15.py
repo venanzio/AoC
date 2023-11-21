@@ -35,21 +35,29 @@ for l in input:
 
 # Part 1
 
-def merge_ranges(x0,y0,x1,y1):
-  if y0<x1 or y1<x0 # no overlap
+def merge_ranges(l0,h0,l1,h1):
+  if h0<l1 or h1<l0:   # no overlap
+    return None
+  else:
+    return (min(l0,l1),max(h0,h1))
 
-y = 2000000
+rowy = 2000000
 nob_ranges = []   # ranges
 for (sx,sy,d) in sensors:
-  if abs(sy-y) <= d:
-    pass
+  radius = d-abs(sy-rowy)
+  if radius >=0 :
+    l,h = sx-radius, sx+radius
+    for (l0,h0) in nob_ranges:
+      mr = merge_ranges(l0,h0,l,h)
+      if mr == None
+...
 
 no_beacon = 0
 for (l,h) in nob_ranges:
   no_beacon += h-l+1
 
 for (bx,by) in beacons:
-  if by == y:
+  if by == rowy:
     no_beacon -= 1
 
 print("Part 1: ")
