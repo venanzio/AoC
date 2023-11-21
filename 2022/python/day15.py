@@ -42,17 +42,21 @@ def merge_ranges(l0,h0,l1,h1):
     return (min(l0,l1),max(h0,h1))
 
 rowy = 2000000
-nob_ranges = []   # ranges
+nob_ranges = new_nob_ranges = []   # ranges
 for (sx,sy,d) in sensors:
   radius = d-abs(sy-rowy)
   if radius >= 0 :
     l,h = sx-radius, sx+radius
     for (l0,h0) in nob_ranges:
+      new_nob_ranges = []
       mr = merge_ranges(l0,h0,l,h)
-      if mr != None:
-        nob_ranges.remove((l0,h0))
+      if mr == None:
+        new_nob_ranges.append((l0,h0))
+      else:
         l,h = mr[0],mr[1]
+    nob_ranges = new_nob_ranges
     nob_ranges.append((l,h))
+
 
 # compute the size of all ranges
 no_beacon = 0
