@@ -96,10 +96,7 @@ while x == None:
   y += 1
   range = nob_range(y)
   range.sort()
-  print('y = ',y,', range = ',range)
   x = not_in_range(range)
-
-print('x = ',x,', y = ',y)
 
 print("Part 2: ")
 print(x*4000000+y)  
