@@ -58,6 +58,16 @@ def num(s):
   space(s)
   return tok_num(s)
 
+def integer(s):
+  if word('-',s) == None:
+    word('+',s)  # ignored if not there
+    return num(s)
+  else:
+    return (-num(s))
+
+s = Source(' +  15  ')
+print(integer(s))
+
 # skip to the next line (if there is any)
 
 def newline(s):
