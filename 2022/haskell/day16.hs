@@ -22,6 +22,7 @@ puzzle :: String -> IO ()
 puzzle fileName = do
   input <- readFile fileName
   let cave = parseAll pInput input
+  putStrLn (show (pressure cave ["DD","BB","JJ","HH","EE","CC"]))
   putStrLn ("Part 1: " ++ show (part1 cave))
   putStrLn ("Part 2: " ++ show (part2 cave))
 
@@ -73,7 +74,16 @@ dijkstra cave s t = dijkstra_aux ((s,0):[(v,infinite) | v <- M.keys cave, v /= s
                else dijkstra_aux [(y, relax d v y dy) | (y,dy) <- queue']
         relax d v y dy = if y `elem` vTunnels v then min (d+1) dy else dy
 
+-- pressure released by visiting valves in a given order
 
+pressure :: Cave -> [String] -> Int
+pressure cave xs = pressure_step 0 "AA" xs
+  where pressure_step _ _ [] = 0
+        pressure_step 30 _ _ = 0
+        pressure_step step x (y:ys) =
+           let step' = step + dijkstra cave x y + 1
+               Just yv = M.lookup y cave
+           in (30-step')*(vFlowRate yv) + pressure_step step' y ys
 
 
 
