@@ -21,9 +21,9 @@ main = do
 puzzle :: String -> IO ()
 puzzle fileName = do
   input <- readFile fileName
-  let xs = parseAll pInput input
-  putStrLn ("Part 1: " ++ show (part1 xs))
-  putStrLn ("Part 2: " ++ show (part2 xs))
+  let cave = parseAll pInput input
+  putStrLn ("Part 1: " ++ show (part1 cave))
+  putStrLn ("Part 2: " ++ show (part2 cave))
 
 -- Parsing the input
 
@@ -58,8 +58,20 @@ pInput = do vs <- pLines pData
 
 -- Part 1
 
+{- Visit the valves with non-zero flow in all possible sequences
+   use dijkstra to determine the shortest path to them.
+-}
 
+infinite = 30*100
 
+dijkstra :: Cave -> String -> String -> Int
+dijkstra cave s t = dijkstra_aux ((s,0):[(v,infinite) | v <- M.keys cave, v /= s])
+  where dijkstra_aux queue =
+          let (x,d):queue' = sortOn snd queue
+              Just v = M.lookup x cave
+          in if x==t then d
+               else dijkstra_aux [(y, relax d v y dy) | (y,dy) <- queue']
+        relax d v y dy = if y `elem` vTunnels v then min (d+1) dy else dy
 
 
 
