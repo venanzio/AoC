@@ -67,14 +67,21 @@ pInput = do vs <- pLines pData
 
 type VQueue = [(String,Bool,Int)]
 
-mostPressure :: VQueue -> (String,Bool,Int,VQueue)
-mostPressure queue =
+-- the Int is the pressure that would be released if we go to that valve next time
+
+
+mostPressure :: Int -> VQueue -> (String,Bool,Int,VQueue)
+mostPressure min queue =
   let (v,b,p):queue' = sortOn (\(_,_,p)->p) queue
-  -- relax the remaining elements
-  in (v,b,p,queue')
+  in (v,b,p, pRelax queue' (v,b,p))
+
+
+pRelax :: Cave -> (String,Bool,Int) -> Cave
+pRelax cave (v,b,p) = undefined
 
 initQueue :: Cave -> VQueue
-initQueue cave = concat [[(v,False,0),(v,True,0)] | v <- M.keys cave]
+initQueue cave = concat [[(v,False,0),(v,True,30*(vFlowRate valve))] |
+                         (v,valve) <- M.toList cave]
 
 {- Almost all flow rate are 0, we should optimize for that:
    Find the shortest path between any two valves
