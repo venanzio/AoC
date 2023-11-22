@@ -11,6 +11,8 @@ spanBy p (x:xs) = let (ys,zs) = spanBy p xs
                   in if p x then (x:ys,zs)
                             else (ys,x:zs)
 
+-- LISTS
+
 -- Minimum with a highest bound (for empty list)
 minimumBound :: Ord a => a -> [a] -> a
 minimumBound x = minimum . (x:)

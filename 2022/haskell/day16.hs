@@ -22,7 +22,7 @@ puzzle :: String -> IO ()
 puzzle fileName = do
   input <- readFile fileName
   let xs = parseAll pInput input
-  putStrLn (show (M.lookup "VJ" xs))
+  putStrLn (show (initQueue xs))
   putStrLn ("Part 1: " ++ show (part1 xs))
   putStrLn ("Part 2: " ++ show (part2 xs))
 
@@ -65,14 +65,16 @@ pInput = do vs <- pLines pData
    use Dijkstra to get maxmum "distance"
 -}
 
-type VStatus = (String,Bool)
-type VQueue = M.Map VStatus Int
+type VQueue = [(String,Bool,Int)]
 
-mostPressure :: VQueue -> (VStatus,VQueue)
-mostPressure = undefined
+mostPressure :: VQueue -> (String,Bool,Int,VQueue)
+mostPressure queue =
+  let (v,b,p):queue' = sortOn (\(_,_,p)->p) queue
+  -- relax the remaining elements
+  in (v,b,p,queue')
 
-
-
+initQueue :: Cave -> VQueue
+initQueue cave = concat [[(v,False,0),(v,True,0)] | v <- M.keys cave]
 
 {- Almost all flow rate are 0, we should optimize for that:
    Find the shortest path between any two valves
