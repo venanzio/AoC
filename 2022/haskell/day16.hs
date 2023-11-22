@@ -22,7 +22,7 @@ puzzle :: String -> IO ()
 puzzle fileName = do
   input <- readFile fileName
   let cave = parseAll pInput input
-  putStrLn ("Part 1: " ++ show (part1 cave))
+  -- putStrLn ("Part 1: " ++ show (part1 cave))
   putStrLn ("Part 2: " ++ show (part2 cave))
 
 -- Parsing the input
@@ -75,15 +75,6 @@ dijkstra cave s t = dijkstra_aux ((s,0):[(v,infinite) | v <- M.keys cave, v /= s
 
 -- pressure released by visiting valves in a given order
 
-pressure :: Cave -> [String] -> Int
-pressure cave xs = pressure_step 0 "AA" xs
-  where pressure_step _ _ [] = 0
-        pressure_step 30 _ _ = 0
-        pressure_step step x (y:ys) =
-           let step' = step + dijkstra cave x y + 1
-               Just yv = M.lookup y cave
-           in (30-step')*(vFlowRate yv) + pressure_step step' y ys
-
 goodValves :: Cave -> [String]
 goodValves cave = [x | (x,v) <- M.toList cave, vFlowRate v /= 0]
 
@@ -105,5 +96,19 @@ part1 cave = bestRoute cave (goodValves cave)
 
 -- Part 2
 
+bestElephant :: Cave -> [String] -> Int
+bestElephant cave gvs = bestElephant_aux 26 "AA" 26 "AA" gvs
+  where bestElephant_aux _ _ _ _ [] = 0
+        bestElephant_aux me mex el elx gvs =
+            maximum [let me' = me - dijkstra cave mex y - 1
+                         el' = el - dijkstra cave elx y - 1
+                         Just yv = M.lookup y cave
+                         gvs' = delete y gvs
+                     in if me' <= 0 && el' <= 0 then 0
+                          else if me' >= el'
+                            then (me' * vFlowRate yv) + bestElephant_aux me' y el elx gvs'
+                            else (el' * vFlowRate yv) + bestElephant_aux me mex el' y gvs'
+                    | y <- gvs]
+          
 part2 :: Cave -> Int
-part2 _ = 2
+part2 cave = bestElephant cave (goodValves cave)
