@@ -22,7 +22,6 @@ puzzle :: String -> IO ()
 puzzle fileName = do
   input <- readFile fileName
   let cave = parseAll pInput input
-  putStrLn (show (goodValves cave))
   putStrLn ("Part 1: " ++ show (part1 cave))
   putStrLn ("Part 2: " ++ show (part2 cave))
 
@@ -88,17 +87,9 @@ pressure cave xs = pressure_step 0 "AA" xs
 goodValves :: Cave -> [String]
 goodValves cave = [x | (x,v) <- M.toList cave, vFlowRate v /= 0]
 
-
-
-
-
-
-
-
-
-
 part1 :: Cave -> Int
-part1 cave = 1
+part1 cave = maximum $ map (pressure cave) (permutations $ goodValves cave)
+        
 
 -- Part 2
 
