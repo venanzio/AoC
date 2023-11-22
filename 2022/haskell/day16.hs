@@ -22,7 +22,6 @@ puzzle :: String -> IO ()
 puzzle fileName = do
   input <- readFile fileName
   let xs = parseAll pInput input
-  putStrLn (show (initQueue xs))
   putStrLn ("Part 1: " ++ show (part1 xs))
   putStrLn ("Part 2: " ++ show (part2 xs))
 
@@ -59,51 +58,24 @@ pInput = do vs <- pLines pData
 
 -- Part 1
 
-{- see the cave as a graph with nodes
-   (v,b): v = valve, b = open or closed
-   "distance" is the pressure release
-   use Dijkstra to get maxmum "distance"
--}
-
-type VQueue = [(String,Bool,Int)]
-
--- the Int is the pressure that would be released if we go to that valve next time
 
 
-mostPressure :: Int -> VQueue -> (String,Bool,Int,VQueue)
-mostPressure min queue =
-  let (v,b,p):queue' = sortOn (\(_,_,p)->p) queue
-  in (v,b,p, pRelax queue' (v,b,p))
 
 
-pRelax :: Cave -> (String,Bool,Int) -> Cave
-pRelax cave (v,b,p) = undefined
 
-initQueue :: Cave -> VQueue
-initQueue cave = concat [[(v,False,0),(v,True,30*(vFlowRate valve))] |
-                         (v,valve) <- M.toList cave]
 
-{- Almost all flow rate are 0, we should optimize for that:
-   Find the shortest path between any two valves
-   then only consider higher-level paths between the valves
-   that have non-zero flow rate, using the previous results
-   to move between them (subtract the length of the path from the time)
--}
 
-pressure :: Int -> String -> Cave -> (Int,[String])
-pressure time vName cave = if time <= 1 then (0,[vName]) else
-  let valve = cave M.! vName
-      fr = if vOpen valve then 0 else vFlowRate valve
-      (time',cave') =
-        if fr == 0 then (time-1, cave)
-                   else (time-2, M.insert vName (valve {vOpen = True}) cave)
-      vns = vTunnels valve
-      (_,(_,path),maxP) = maximumF fst ((0,[]):[pressure time' vn cave'| vn <- vns])
-  in (fr * (time-1) + maxP, vName:path)
---      maximum (0:[pressure time' vn cave'| vn <- vns])
-              
-part1 :: Cave -> (Int,[String])
-part1 cave = pressure 14 "AA" cave
+
+
+
+
+
+
+
+
+
+part1 :: Cave -> Int
+part1 cave = 1
 
 -- Part 2
 
