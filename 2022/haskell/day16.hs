@@ -22,7 +22,6 @@ puzzle :: String -> IO ()
 puzzle fileName = do
   input <- readFile fileName
   let cave = parseAll pInput input
-  test cave
   putStrLn ("Part 1: " ++ show (part1 cave))
   putStrLn ("Part 2: " ++ show (part2 cave))
 
@@ -88,21 +87,22 @@ pressure cave xs = pressure_step 0 "AA" xs
 goodValves :: Cave -> [String]
 goodValves cave = [x | (x,v) <- M.toList cave, vFlowRate v /= 0]
 
-part1 :: Cave -> Int
-part1 cave = 0 -- maximum $ map (pressure cave) (permutations $ goodValves cave)
+-- best route among a list of valves
 
-test :: Cave -> IO()
-test cave = let gvs = goodValves cave
-                perms = permutations gvs
-                -- tot = length perms
-            in do putStrLn ("good valves: " ++ show gvs)
-                  -- putStrLn (show tot ++ " permutations")
-                  test_all 0 (take 10 perms)
-  where test_all n [] = putStrLn "end"
-        test_all n (p:ps) =
-          do putStrLn ((show n) ++ " : " ++ (show p))
-             putStrLn (show (pressure cave p))
-             test_all (n+1) ps
+bestRoute :: Cave -> [String] -> Int
+bestRoute cave gvs = bestRoute_aux 30 "AA" gvs
+  where bestRoute_aux _ _ [] = 0
+        bestRoute_aux steps x gvs =
+          maximum [let steps' = steps - dijkstra cave x y - 1
+                       Just yv = M.lookup y cave
+                       flow = steps' * vFlowRate yv
+                       gvs' = delete y gvs
+                   in if steps' <= 0 then 0 else flow + bestRoute_aux steps' y gvs'
+                  | y <- gvs]
+                       
+part1 :: Cave -> Int
+part1 cave = bestRoute cave (goodValves cave)
+
 -- Part 2
 
 part2 :: Cave -> Int
