@@ -22,7 +22,7 @@ puzzle :: String -> IO ()
 puzzle fileName = do
   input <- readFile fileName
   let cave = parseAll pInput input
-  -- putStrLn ("Part 1: " ++ show (part1 cave))
+  putStrLn ("Part 1: " ++ show (part1 cave))
   putStrLn ("Part 2: " ++ show (part2 cave))
 
 -- Parsing the input
@@ -90,14 +90,35 @@ bestRoute cave gvs = bestRoute_aux 30 "AA" gvs
                        gvs' = delete y gvs
                    in if steps' <= 0 then 0 else flow + bestRoute_aux steps' y gvs'
                   | y <- gvs]
-                       
+
+-- Always choose the valve that gives the highest pressure release
+
+greedyRoute :: Cave -> [String] -> Int
+greedyRoute cave gvs = gRoute cave 30 "AA" gvs 
+
+gRoute :: Cave -> Int -> String -> [String] -> Int
+gRoute cave min vs gvs =
+  let (_,vt,flow) = maximumF (vFlow cave min vs) gvs
+      min' = min - dijkstra cave vs vt - 1   -- this is computed twice
+      gvs' = delete vt gvs
+  in if min' <= 0 then 0 else flow + gRoute cave min' vt gvs'
+
+-- We move from vs to vt and open the valve
+
+vFlow :: Cave -> Int -> String -> String -> Int
+vFlow cave min vs vt =
+  let steps = dijkstra cave vs vt
+      fmin = min - steps -1  -- minutes the valve will be open
+      Just valve = M.lookup vt cave
+  in fmin * (vFlowRate valve)
+          
 part1 :: Cave -> Int
-part1 cave = bestRoute cave (goodValves cave)
+part1 cave = greedyRoute cave (goodValves cave)
 
 -- Part 2
 
 bestElephant :: Cave -> [String] -> Int
-bestElephant cave gvs = bestElephant_aux 26 "AA" 26 "AA" gvs
+bestElephant cave gvs = bestElephant_aux 9 "AA" 9 "AA" gvs
   where bestElephant_aux _ _ _ _ [] = 0
         bestElephant_aux me mex el elx gvs =
             maximum [let me' = me - dijkstra cave mex y - 1
@@ -111,4 +132,4 @@ bestElephant cave gvs = bestElephant_aux 26 "AA" 26 "AA" gvs
                     | y <- gvs]
           
 part2 :: Cave -> Int
-part2 cave = bestElephant cave (goodValves cave)
+part2 cave = undefined -- bestElephant cave (goodValves cave)
