@@ -110,19 +110,31 @@ bestRouteFrom cave steps x gvs =
                in if steps' <= 0 then (0,gvs) else (flow + flow_gvs',gvs'')
               | y <- gvs]
 
--- Always choose the valve that gives the highest pressure releas
+-- Greedy algorithm: Always choose the valve that gives the highest pressure releas
 -- Gives incorrect answer
 
-greedyRoute :: Cave -> [String] -> Int
+greedyRoute :: Cave -> [String] -> (Int,[String])
 greedyRoute cave gvs = gRoute cave 30 "AA" gvs 
 
-gRoute :: Cave -> Int -> String -> [String] -> Int
+gRoute :: Cave -> Int -> String -> [String] -> (Int,[String])
 gRoute cave min vs gvs =
-  let (_,vt,flow) = maximumF (vFlow cave min vs) gvs
-      min' = min - dijkstra cave vs vt - 1   -- this is computed twice
-      gvs' = delete vt gvs
-  in if min' <= 0 then 0 else flow + gRoute cave min' vt gvs'
+  let (_,vt,flow0) = maximumF (vFlow cave min vs) gvs
+      min0 = min - dijkstra cave vs vt - 1   -- this is computed twice
+      gvs0 = delete vt gvs
+      (flow1,gvs1) = gRoute cave min0 vt gvs0
+  in if min0 <= 0 then (0,[]) else (flow0 + flow1, vt:gvs1)
 
+
+-- We move from vs to vt and open the valve
+
+vFlow :: Cave -> Int -> String -> String -> Int
+vFlow cave min vs vt =
+  let steps = dijkstra cave vs vt
+      fmin = min - steps -1  -- minutes the valve will be open
+      Just valve = M.lookup vt cave
+  in fmin * (vFlowRate valve)
+
+  
 -- swapping elements to improve flow
 
 swap :: [a] -> Int -> Int -> [a]
@@ -153,17 +165,12 @@ swRoute cave gvs =
 
 
 
--- We move from vs to vt and open the valve
 
-vFlow :: Cave -> Int -> String -> String -> Int
-vFlow cave min vs vt =
-  let steps = dijkstra cave vs vt
-      fmin = min - steps -1  -- minutes the valve will be open
-      Just valve = M.lookup vt cave
-  in fmin * (vFlowRate valve)
           
 part1 :: Cave -> Int
-part1 cave = swRoute cave (goodValves cave)
+part1 cave =
+  let (_,gvs) = greedyRoute cave (goodValves cave)
+  in swRoute cave gvs
 
 -- Part 2
 
