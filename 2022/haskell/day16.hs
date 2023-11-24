@@ -79,6 +79,7 @@ goodValves :: Cave -> [String]
 goodValves cave = [x | (x,v) <- M.toList cave, vFlowRate v /= 0]
 
 -- Pressure released on a given path thwrough "good" valves
+
 pressure :: Cave -> [String] -> Int
 pressure cave gvs = pressureFrom cave 30 "AA" gvs
 
@@ -122,12 +123,33 @@ gRoute cave min vs gvs =
       gvs' = delete vt gvs
   in if min' <= 0 then 0 else flow + gRoute cave min' vt gvs'
 
--- "bubbling" the elements in a path to imrove flow
+-- swapping elements to improve flow
 
-bubbleRoute :: Cave -> Int -> String -> [String] -> (Int,String)
-bubbleRoute cave min s gvs = undefined
+swap :: [a] -> Int -> Int -> [a]
+swap l i j =
+  let (li,xi:lir) = splitAt i l
+      (lij,xj:lj) = splitAt (j-i-1) lir
+  in li ++ xj:lij ++ xi:lj
 
+allSwaps :: [a] -> [[a]]
+allSwaps l = [swap l i j | (i,j) <- indexPairs (length l)]
 
+indexPairs :: Int -> [(Int,Int)]
+indexPairs n = [(i,j) | i <- [0..n-1], j <- [0..n-1], i < j]
+
+-- try to improve a sequence by swapping elements
+swapRoute :: Cave -> [String] -> (Int,[String])
+swapRoute cave gvs =
+    let (_,vs,flow) = maximumF (pressure cave)  (allSwaps gvs)
+    in (flow,vs)
+    
+swRoute :: Cave -> [String] -> Int
+swRoute cave gvs =
+  let flow0 = pressure cave gvs
+      (flow1,vs) = swapRoute cave gvs
+  in if flow0 >= flow1 then flow0
+                       else swRoute cave vs
+      
 
 
 
@@ -141,7 +163,7 @@ vFlow cave min vs vt =
   in fmin * (vFlowRate valve)
           
 part1 :: Cave -> Int
-part1 cave = bestRoute cave (goodValves cave)
+part1 cave = swRoute cave (goodValves cave)
 
 -- Part 2
 
