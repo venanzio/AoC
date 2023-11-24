@@ -22,7 +22,7 @@ puzzle :: String -> IO ()
 puzzle fileName = do
   input <- readFile fileName
   let cave = parseAll pInput input
-  putStrLn ("Part 1: " ++ show (part1 cave))
+  -- putStrLn ("Part 1: " ++ show (part1 cave))
   putStrLn ("Part 2: " ++ show (part2 cave))
 
 -- Parsing the input
@@ -78,20 +78,33 @@ dijkstra cave s t = dijkstra_aux ((s,0):[(v,infinite) | v <- M.keys cave, v /= s
 goodValves :: Cave -> [String]
 goodValves cave = [x | (x,v) <- M.toList cave, vFlowRate v /= 0]
 
+-- Pressure released on a given path thwrough "good" valves
+pressure :: Cave -> [String] -> Int
+pressure cave gvs = pressureFrom cave 30 "AA" gvs
+
+pressureFrom :: Cave -> Int -> String -> [String] -> Int
+pressureFrom cave min s gvs = undefined
+
+
+
 -- best route among a list of valves
 
 bestRoute :: Cave -> [String] -> Int
-bestRoute cave gvs = bestRoute_aux 30 "AA" gvs
-  where bestRoute_aux _ _ [] = 0
-        bestRoute_aux steps x gvs =
-          maximum [let steps' = steps - dijkstra cave x y - 1
-                       Just yv = M.lookup y cave
-                       flow = steps' * vFlowRate yv
-                       gvs' = delete y gvs
-                   in if steps' <= 0 then 0 else flow + bestRoute_aux steps' y gvs'
-                  | y <- gvs]
+bestRoute cave gvs = fst $ bestRouteFrom cave 30 "AA" gvs
 
--- Always choose the valve that gives the highest pressure release
+bestRouteFrom :: Cave -> Int -> String -> [String] -> (Int,[String])
+bestRouteFrom cave _ _ [] = (0,[])
+bestRouteFrom cave steps x gvs =
+      maximum [let steps' = steps - dijkstra cave x y - 1
+                   Just yv = M.lookup y cave
+                   flow = steps' * vFlowRate yv
+                   gvs' = delete y gvs
+                   (flow_gvs', gvs'') = bestRouteFrom cave steps' y gvs'
+               in if steps' <= 0 then (0,gvs) else (flow + flow_gvs',gvs'')
+              | y <- gvs]
+
+-- Always choose the valve that gives the highest pressure releas
+-- Gives incorrect answer
 
 greedyRoute :: Cave -> [String] -> Int
 greedyRoute cave gvs = gRoute cave 30 "AA" gvs 
@@ -113,7 +126,7 @@ vFlow cave min vs vt =
   in fmin * (vFlowRate valve)
           
 part1 :: Cave -> Int
-part1 cave = greedyRoute cave (goodValves cave)
+part1 cave = bestRoute cave (goodValves cave)
 
 -- Part 2
 
@@ -132,4 +145,4 @@ bestElephant cave gvs = bestElephant_aux 9 "AA" 9 "AA" gvs
                     | y <- gvs]
           
 part2 :: Cave -> Int
-part2 cave = undefined -- bestElephant cave (goodValves cave)
+part2 cave = fst $ bestRouteFrom cave 26 "AA" (goodValves cave) -- bestElephant cave (goodValves cave)
