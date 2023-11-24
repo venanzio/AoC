@@ -83,7 +83,13 @@ pressure :: Cave -> [String] -> Int
 pressure cave gvs = pressureFrom cave 30 "AA" gvs
 
 pressureFrom :: Cave -> Int -> String -> [String] -> Int
-pressureFrom cave min s gvs = undefined
+pressureFrom cave min x [] = 0
+pressureFrom cave min x (y:gvs) =
+  let Just yv = M.lookup y cave
+      flow = vFlowRate yv
+      dist = dijkstra cave x y
+      min0 = min - dist - 1
+  in if min0 <= 0 then 0 else min0 * flow + pressureFrom cave min0 y gvs
 
 
 
@@ -115,6 +121,15 @@ gRoute cave min vs gvs =
       min' = min - dijkstra cave vs vt - 1   -- this is computed twice
       gvs' = delete vt gvs
   in if min' <= 0 then 0 else flow + gRoute cave min' vt gvs'
+
+-- "bubbling" the elements in a path to imrove flow
+
+bubbleRoute :: Cave -> Int -> String -> [String] -> (Int,String)
+bubbleRoute cave min s gvs = undefined
+
+
+
+
 
 -- We move from vs to vt and open the valve
 
