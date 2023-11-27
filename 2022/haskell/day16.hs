@@ -79,19 +79,21 @@ goodValves :: Cave -> [String]
 goodValves cave = [x | (x,v) <- M.toList cave, vFlowRate v /= 0]
 
 -- Pressure released on a given path thwrough "good" valves
+--   also returns remaining minutes
 
-pressure :: Cave -> [String] -> Int
+pressure :: Cave -> [String] -> (Int,Int)
 pressure cave gvs = pressureFrom cave 30 "AA" gvs
 
-pressureFrom :: Cave -> Int -> String -> [String] -> Int
-pressureFrom cave min x [] = 0
+pressureFrom :: Cave -> Int -> String -> [String] -> (Int,Int)
+pressureFrom cave min x [] = (0,min)
 pressureFrom cave min x (y:gvs) =
   let Just yv = M.lookup y cave
       flow = vFlowRate yv
       dist = dijkstra cave x y
       min0 = min - dist - 1
-  in if min0 <= 0 then 0 else min0 * flow + pressureFrom cave min0 y gvs
-
+  in if min0 <= 0 then (0,min)
+                  else let (p,min1) = pressureFrom cave min0 y gvs
+                       in (min0 * flow + p, min1)
 
 
 -- best route among a list of valves brute force search
