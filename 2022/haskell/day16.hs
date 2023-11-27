@@ -156,7 +156,7 @@ evaluateRoute cave gvs = let (gfl,gr) = greedyRoute cave gvs
                          in evRoute cave gvs ([],0,30) [(v,pathRoute cave [v]) | v <- gvs]
 
 evRoute :: Cave -> [String] -> Route -> [(String,Route)] -> Route
-evRoute cave r0 rs = undefined
+evRoute cave gvs r0 queue = undefined
 
   
 

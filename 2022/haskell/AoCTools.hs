@@ -61,6 +61,9 @@ maximumF f (x:xs) =
                            if w>v then (j,z,w) else (i,y,v))
         (0,x,f x) (zip [1..] xs)
 
+maxF :: Ord b => (a->b) -> [a] -> (a,b)
+maxF f xs = let (_,e,max) = maximumF f xs in (e,max)
+
 -- Index and value of maximum
 imax :: Ord a => [a] -> (Int,a)
 imax xs = let (i,m,_) = maximumF id xs in (i,m)
