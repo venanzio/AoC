@@ -141,6 +141,7 @@ vFlow cave min vs vt =
 
 
 -- an A*-like algorithm: use as evaluation function the greedy algorithm
+-- Not good: incorrect result
 
 type Route = ([String],Int,Int,[String])
 -- a route with its pressure release and remaining minutes and unused valves
@@ -183,7 +184,10 @@ evRoute cave queue =
   in evRoute cave queue'
   
 
+-- Inserting valves one at a time?
 
+insertions :: a -> [a] -> [[a]]
+insertions x xs = [xs0++x:xs1 | (xs0,xs1) <- [splitAt i xs | i <- [0..length xs]]]
 
           
 part1 :: Cave -> Int
