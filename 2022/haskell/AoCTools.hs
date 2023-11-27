@@ -56,6 +56,7 @@ minimumF f (x:xs) =
 
 -- Maximize a function over a list and return: index, element, function value
 maximumF :: Ord b => (a->b) -> [a] -> (Int,a,b)
+maximumF f [] = error "Can't compute the maximum of an empty list"
 maximumF f (x:xs) =
   foldl (\(i,y,v) (j,z) -> let w = f z in
                            if w>v then (j,z,w) else (i,y,v))

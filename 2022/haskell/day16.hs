@@ -119,8 +119,9 @@ greedyRoute :: Cave -> [String] -> (Int,[String])
 greedyRoute cave gvs = gRoute cave 30 "AA" gvs 
 
 gRoute :: Cave -> Int -> String -> [String] -> (Int,[String])
+gRoute cave min vs [] = (0,[])
 gRoute cave min vs gvs =
-  let (_,vt,flow0) = maximumF (vFlow cave min vs) gvs
+  let (vt,flow0) = maxF (vFlow cave min vs) gvs
       min0 = min - dijkstra cave vs vt - 1   -- this is computed twice
       gvs0 = delete vt gvs
       (flow1,gvs1) = gRoute cave min0 vt gvs0
@@ -141,23 +142,45 @@ vFlow cave min vs vt =
 
 -- an A*-like algorithm: use as evaluation function the greedy algorithm
 
-type Route = ([String],Int,Int)
--- a route with its pressure release and remaining minutes
+type Route = ([String],Int,Int,[String])
+-- a route with its pressure release and remaining minutes and unused valves
+
+rPath :: Route -> [String]
+rPath (path,_,_,_) = path
 
 rPressure :: Route -> Int
-rPressure (_,p,_) = p
+rPressure (_,p,_,_) = p
 
-pathRoute :: Cave -> [String] -> Route
-pathRoute cave gvs = let (p,min) = pressure cave gvs
-                     in (gvs,p,min)
+rMin :: Route -> Int
+rMin (_,_,min,_) = min
+
+rUnused :: Route -> [String]
+rUnused (_,_,_,gvs) = gvs
+
+pathRoute :: Cave -> [String] -> [String] -> Route
+pathRoute cave path gvs =
+  let (p,min) = pressure cave path
+      (p',_) = gRoute cave min (last path) gvs
+  in (gvs,p+p',min,gvs)
 
 evaluateRoute :: Cave -> [String] -> Route
-evaluateRoute cave gvs = let (gfl,gr) = greedyRoute cave gvs
-                         in evRoute cave gvs ([],0,30) [(v,pathRoute cave [v]) | v <- gvs]
+evaluateRoute cave gvs =
+  let (gfl,gr) = greedyRoute cave gvs
+  in evRoute cave [(v,pathRoute cave [v] (delete v gvs)) | v <- gvs]
 
-evRoute :: Cave -> [String] -> Route -> [(String,Route)] -> Route
-evRoute cave gvs r0 queue = undefined
-
+evRoute :: Cave -> [(String,Route)] -> Route
+evRoute cave [] = error "This shouldn't be empty"
+evRoute cave [(_,r)] = r
+evRoute cave queue =
+  let ((v0,r0),p0) = maxF (\(_,r) -> rPressure r) queue
+      queue' = map update (delete (v0,r0) queue)
+      update (v,r) = let path = rPath r0 ++ [v]
+                         unused = delete v $ rUnused r0
+                         r' = pathRoute cave path unused
+                     in if rPressure r < rPressure r'
+                     then (v,r')
+                     else (v,r)
+  in evRoute cave queue'
   
 
 
