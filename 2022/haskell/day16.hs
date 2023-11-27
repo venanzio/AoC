@@ -22,8 +22,8 @@ puzzle :: String -> IO ()
 puzzle fileName = do
   input <- readFile fileName
   let cave = parseAll pInput input
-  -- putStrLn ("Part 1: " ++ show (part1 cave))
-  putStrLn ("Part 2: " ++ show (part2 cave))
+  putStrLn ("Part 1: " ++ show (part1 cave))
+  -- putStrLn ("Part 2: " ++ show (part2 cave))
 
 -- Parsing the input
 
@@ -94,7 +94,7 @@ pressureFrom cave min x (y:gvs) =
 
 
 
--- best route among a list of valves
+-- best route among a list of valves brute force search
 
 bestRoute :: Cave -> [String] -> Int
 bestRoute cave gvs = fst $ bestRouteFrom cave 30 "AA" gvs
@@ -135,42 +135,33 @@ vFlow cave min vs vt =
   in fmin * (vFlowRate valve)
 
   
--- swapping elements to improve flow
 
-swap :: [a] -> Int -> Int -> [a]
-swap l i j =
-  let (li,xi:lir) = splitAt i l
-      (lij,xj:lj) = splitAt (j-i-1) lir
-  in li ++ xj:lij ++ xi:lj
 
-allSwaps :: [a] -> [[a]]
-allSwaps l = [swap l i j | (i,j) <- indexPairs (length l)]
+-- an A*-like algorithm: use as evaluation function the greedy algorithm
 
-indexPairs :: Int -> [(Int,Int)]
-indexPairs n = [(i,j) | i <- [0..n-1], j <- [0..n-1], i < j]
+type Route = ([String],Int,Int)
+-- a route with its pressure release and remaining minutes
 
--- try to improve a sequence by swapping elements
-swapRoute :: Cave -> [String] -> (Int,[String])
-swapRoute cave gvs =
-    let (_,vs,flow) = maximumF (pressure cave)  (allSwaps gvs)
-    in (flow,vs)
-    
-swRoute :: Cave -> [String] -> Int
-swRoute cave gvs =
-  let flow0 = pressure cave gvs
-      (flow1,vs) = swapRoute cave gvs
-  in if flow0 >= flow1 then flow0
-                       else swRoute cave vs
-      
+rPressure :: Route -> Int
+rPressure (_,p,_) = p
 
+pathRoute :: [String] -> Route
+pathRoute = undefined
+
+evaluateRoute :: Cave -> [String] -> Route
+evaluateRoute cave gvs = let (gfl,gr) = greedyRoute cave gvs
+                         in evRoute cave gvs ([],0,30) [(v,pathRoute [v]) | v <- gvs]
+
+evRoute :: Cave -> [String] -> Route -> [(String,Route)] -> Route
+evRoute cave r0 rs = undefined
+
+  
 
 
 
           
 part1 :: Cave -> Int
-part1 cave =
-  let (_,gvs) = greedyRoute cave (goodValves cave)
-  in swRoute cave gvs
+part1 cave = rPressure $ evaluateRoute cave (goodValves cave)
 
 -- Part 2
 
