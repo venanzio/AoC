@@ -189,9 +189,19 @@ evRoute cave queue =
 insertions :: a -> [a] -> [[a]]
 insertions x xs = [xs0++x:xs1 | (xs0,xs1) <- [splitAt i xs | i <- [0..length xs]]]
 
+bestInsertion :: Cave -> String -> [String] -> ([String],Int)
+bestInsertion cave v vs = maxF (fst . pressure cave) (insertions v vs)
+
+insRoute :: Cave -> [String] -> ([String],Int)
+insRoute cave [] = ([],0)
+insRoute cave (v:vs) =
+  let (bvs,_) = insRoute cave vs
+  in bestInsertion cave v bvs
+
+  
           
 part1 :: Cave -> Int
-part1 cave = rPressure $ evaluateRoute cave (goodValves cave)
+part1 cave = snd $ insRoute cave (goodValves cave)
 
 -- Part 2
 
