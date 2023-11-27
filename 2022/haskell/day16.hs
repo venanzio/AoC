@@ -76,7 +76,10 @@ dijkstra cave s t = dijkstra_aux ((s,0):[(v,infinite) | v <- M.keys cave, v /= s
 -- pressure released by visiting valves in a given order
 
 goodValves :: Cave -> [String]
-goodValves cave = [x | (x,v) <- M.toList cave, vFlowRate v /= 0]
+goodValves cave =
+  reverse $ map fst $ sortOn (vFlowRate . snd) $ filter (\(_,v) -> vFlowRate v > 0) (M.toList cave) 
+
+--  [(x,vx | (x,v) <- M.toList cave, vFlowRate v /= 0]
 
 -- Pressure released on a given path thwrough "good" valves
 --   also returns remaining minutes
