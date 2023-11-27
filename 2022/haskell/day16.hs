@@ -147,12 +147,13 @@ type Route = ([String],Int,Int)
 rPressure :: Route -> Int
 rPressure (_,p,_) = p
 
-pathRoute :: [String] -> Route
-pathRoute = undefined
+pathRoute :: Cave -> [String] -> Route
+pathRoute cave gvs = let (p,min) = pressure cave gvs
+                     in (gvs,p,min)
 
 evaluateRoute :: Cave -> [String] -> Route
 evaluateRoute cave gvs = let (gfl,gr) = greedyRoute cave gvs
-                         in evRoute cave gvs ([],0,30) [(v,pathRoute [v]) | v <- gvs]
+                         in evRoute cave gvs ([],0,30) [(v,pathRoute cave [v]) | v <- gvs]
 
 evRoute :: Cave -> [String] -> Route -> [(String,Route)] -> Route
 evRoute cave r0 rs = undefined
