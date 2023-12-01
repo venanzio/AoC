@@ -1,12 +1,7 @@
 # Advent of Code
 
-I've been solving the Advent of Code puzzles in the last two years:
+Haskell solutions of the Advent of Code puzzles in the last few years:
   https://adventofcode.com/
 
-I originally solve them in Haskell, as quickly as I can.
-Then I go over them again and try to come up with better solutions.
-
-I also use AoC to learn new programming languages.
-
-In the folders you'll find my original *quick* solutions in Haskell, the better *slow* solutions, still in Haskell, and the solutions in a different programming language.
-
+Each folder contains the solutions for that year in Haskell.
+Sometimes there is a forlder of some solutions in a different language that I'm learning (Python or Julia).
