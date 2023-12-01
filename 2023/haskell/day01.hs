@@ -9,14 +9,6 @@ import Data.Char
 
 import System.Environment
 
-
-
--- import Control.Applicative
--- import qualified Data.Map as M
-
--- import FunParser
--- import AoCTools
-
 main :: IO ()
 main = do
   args <- getArgs
@@ -45,37 +37,21 @@ part1 = sum . map calibration
 
 -- Part 2
 
-wDigits = ["one", "two", "three", "four", "five", "six", "seven", "eight", "nine"]
+wDigits = ["zero","one", "two", "three", "four", "five", "six", "seven", "eight", "nine"]
 
+getWDigit :: String -> Maybe Int
+getWDigit "" = Nothing
+getWDigit s = case findIndex (\w -> take (length w) s == w) wDigits of
+  Just n -> Just n
+  Nothing -> getDigit (s!!0)
 
-readDigit :: String -> Int
-readDigit w = (unJust $ elemIndex w wDigits) + 1
-
-
-
-bDigit :: String -> Maybe Int
-bDigit = bDigitAux wDigits
-
-bDigitAux :: [String] -> String -> Maybe Int
-bDigitAux [] s = if isDigit (s!!0) then Just (read [s!!0]) else Nothing
-bDigitAux (d:ds) s = if take (length d) s == d
-            then Just (readDigit d)
-            else bDigitAux ds s
-
-wordDigits :: String -> [Int]
-wordDigits [] = []
-wordDigits xs = case bDigit xs of
-  Just n -> n : wordDigits (tail xs)
-  Nothing -> wordDigits (tail xs)
-
-first xs = xs!!0
-
--- last xs = xs!!(length xs - 1)
+getAllDigits :: String -> [Int]
+getAllDigits = mapMaybe getWDigit . tails
 
 wCalibration :: String -> Int
 wCalibration s =
-  let digs = wordDigits s
-  in (first digs) * 10 + (last digs)
+  let digs = getAllDigits s
+  in (digs!!0) * 10 + (last digs)
   
 
 part2 :: [String] -> Int
