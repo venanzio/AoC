@@ -3,7 +3,7 @@
 Advent of Code 2020: https://adventofcode.com/
 
 I originally solved the puzzles of Advent of Code for the year 2020 in Haskell.
-My solutions were quick, just enough to get the answer write, and often not very elemgant or optimized.
+My solutions were quick, just enough to get the correct answer, and often not very elemgant or optimized.
 
 Afterwards, I went through them with more time and tried to write clearer and nicer code.
 I also took the opportunity to use AoC to learn Python.
