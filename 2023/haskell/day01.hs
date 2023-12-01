@@ -21,17 +21,9 @@ main = do
 puzzle :: String -> IO ()
 puzzle fileName = do
   input <- readFile fileName
-  let xs = parseAll pInput input
+  let xs = lines input
   putStrLn ("Part 1: " ++ show (part1 xs))
   putStrLn ("Part 2: " ++ show (part2 xs))
-
--- Parsing the input
-
-pData :: Parser String
-pData = word
-
-pInput :: Parser [String]
-pInput = pLines pData
 
 -- Part 1
 

@@ -13,6 +13,14 @@ spanBy p (x:xs) = let (ys,zs) = spanBy p xs
 
 -- LISTS
 
+findMaybe :: (a -> Maybe b) -> [a] -> [b]
+findMaybe f [] = []
+findMaybe f (x:xs) = let fxs = findMaybe f xs in
+  case (f x) of
+    Just y -> y : fxs
+    Nothing -> fxs
+
+
 -- Minimum with a highest bound (for empty list)
 minimumBound :: Ord a => a -> [a] -> a
 minimumBound x = minimum . (x:)
