@@ -3,15 +3,19 @@
 
 module Main where
 
-import System.Environment
+import Data.Maybe (mapMaybe)
 import Data.List
 import Data.Char
 
-import Control.Applicative
-import qualified Data.Map as M
+import System.Environment
 
-import FunParser
-import AoCTools
+
+
+-- import Control.Applicative
+-- import qualified Data.Map as M
+
+-- import FunParser
+-- import AoCTools
 
 main :: IO ()
 main = do
@@ -27,12 +31,14 @@ puzzle fileName = do
 
 -- Part 1
 
-calibration :: String -> Int
-calibration s = firstDigit s * 10 + firstDigit (reverse s)
+getDigit :: Char -> Maybe Int
+getDigit c = if isDigit c then Just (read [c]) else Nothing
 
-firstDigit :: String -> Int
-firstDigit (x:xs) = if isDigit x then (read [x])
-                                 else firstDigit xs
+allDigits :: String -> [Int]
+allDigits = mapMaybe getDigit
+
+calibration :: String -> Int
+calibration s = let ds = allDigits s in (ds!!0) * 10 + last ds
 
 part1 :: [String] -> Int
 part1 = sum . map calibration

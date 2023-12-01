@@ -13,6 +13,8 @@ spanBy p (x:xs) = let (ys,zs) = spanBy p xs
 
 -- LISTS
 
+-- already exists: mapMaybe in Data.Maybe
+
 findMaybe :: (a -> Maybe b) -> [a] -> [b]
 findMaybe f [] = []
 findMaybe f (x:xs) = let fxs = findMaybe f xs in
