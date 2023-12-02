@@ -21,4 +21,4 @@ For each extraction, some colours may not be present and they are not in the sam
 We start with a triple of colours with three 0s, and change the corresponding number for every extracted colour.
 
 For Part 1, I initinally checked that every extraction was possible.
-But since we have to calculate the minimum number of each colour cubes in Part 2, I changed also part one to only check the triple of minimums.
+But since we have to calculate the minimum number of each colour cubes in Part 2, I changed also Part 1 to only check the triple of minimums.
