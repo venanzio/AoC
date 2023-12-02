@@ -1,5 +1,5 @@
 {- Functional Parser Library
-   Venanzio Capretta, 2023
+   Venanzio Capretta, 2020-2023
 
 based on chapter 13 of "Programming in Haskell" (2nd edition)
 Graham Hutton, Cambridge University Press, 2016.
