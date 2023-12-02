@@ -1,6 +1,6 @@
 # Advent of Code 2023
 
-## Day 1
+## Day 1: Trebuchet?!
 
 I use a list of strings with the names of the digits to search digits spelled in letters:
 
@@ -10,7 +10,7 @@ I started with "zero", even if the specification only requires digits 1 to 9: si
 
 For every line: create a list of matching digits and select the first and last to compute the calibration.
 
-## Day 2
+## Day 2: Cube Conundrum
 
 Parsing of the input was slghtly challenging.
 Once we parsed it into a data structure (list of games, where each game is a list of triples of number of coloured cubes), the solutions are easy.
