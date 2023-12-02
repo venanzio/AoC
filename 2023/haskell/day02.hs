@@ -79,8 +79,14 @@ possible = possibleAux 1 0 where
     then possibleAux (n+1) (s+n) gs
     else possibleAux (n+1) s gs
 
+possibleSum :: Int -> Int -> [Colours] -> Int
+possibleSum s n [] = s
+possibleSum s n (g:gs) =
+  if possibleCols g then possibleSum (s+n) (n+1) gs
+                    else possibleSum s (n+1) gs
+
 part1 :: [[Colours]] -> Int
-part1 = possible
+part1 = possibleSum 0 1 . map minColours 
 
 -- Part 2
 
