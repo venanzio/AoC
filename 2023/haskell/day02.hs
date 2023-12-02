@@ -22,18 +22,20 @@ puzzle :: String -> IO ()
 puzzle fileName = do
   input <- readFile fileName
   let xs = parseAll pInput input
+  putStrLn (show (xs!!0))
   putStrLn ("Part 1: " ++ show (part1 xs))
   putStrLn ("Part 2: " ++ show (part2 xs))
 
 -- Parsing the input
 
-data Colours = Colours {
+data Colours = Colours
   { cRed :: Int
   , cGreen :: Int
   , cBlue :: Int
   }
+  deriving Show
 
-noColours = Colour {cRed = 0, cGreen = 0, cBlue = 0}
+noColours = Colours {cRed = 0, cGreen = 0, cBlue = 0}
 
 setColour :: Colours -> String -> Int -> Colours
 setColour cols c x = case c of
@@ -41,39 +43,62 @@ setColour cols c x = case c of
       "green" -> cols {cGreen = x}
       "blue" -> cols {cBlue = x}
 
-extraction :: Parser [(String,Int)]
-extaction = someSep (do col <- word
-                        n <- natural
-                        return (col,n))
-                    (symbol ",")
+pExtraction :: Parser [(String,Int)]
+pExtraction = someSep (do n <- natural
+                          col <- word
+                          return (col,n))
+                      (symbol ",")
   
 pColours :: Parser Colours
-pColours = do cs <- extraction
-                return setColoursAux noColours cs
+pColours = do cs <- pExtraction
+              return (setColoursAux noColours cs)
   where setColoursAux cols [] = cols
-        setColoursAux cols (c,x):cs = setColoursAux (setColour cols c x) cs
+        setColoursAux cols ((c,x):cs) = setColoursAux (setColour cols c x) cs
   
-pCube :: String -> Parser Int
-pCube color = undefined
+pGame :: Parser [Colours]
+pGame = someSep pColours (symbol ";")
 
-pCubes :: Parser (Int,Int,Int)
-pCubes = undefined
-
-pGame :: Parser [(Int,Int,Int)]
-pGame = undefined
-
-pData :: Parser ()
-pData = return ()
-
-pInput :: Parser [()]
-pInput = pLines pData
+pInput :: Parser [[Colours]]
+pInput= many (do symbol "Game"
+                 natural
+                 symbol ":"
+                 pGame)
 
 -- Part 1
 
-part1 :: [()] -> Int
-part1 _ = 1
+maxRed = 12
+maxGreen = 13
+maxBlue = 14
+
+possibleCols :: Colours -> Bool
+possibleCols c = (cRed c <= maxRed) && (cGreen c <= maxGreen) && (cBlue c <= maxBlue)
+
+possibleGame :: [Colours] -> Bool
+possibleGame = all possibleCols
+
+possible :: [[Colours]] -> Int
+possible = possibleAux 1 0 where
+  possibleAux n s [] = s
+  possibleAux n s (g:gs) =
+    if (possibleGame g)
+    then possibleAux (n+1) (s+n) gs
+    else possibleAux (n+1) s gs
+
+part1 :: [[Colours]] -> Int
+part1 = possible
 
 -- Part 2
 
-part2 :: [()] -> Int
-part2 _ = 2
+minColours :: [Colours] -> Colours
+minColours [] = noColours
+minColours (c:cs) = let c0 = minColours cs in
+  Colours { cRed = max (cRed c) (cRed c0)
+          , cGreen = max (cGreen c) (cGreen c0)
+          , cBlue = max (cBlue c) (cBlue c0)
+          }
+
+power :: Colours -> Int
+power c = (cRed c)*(cGreen c)*(cBlue c)
+
+part2 :: [[Colours]] -> Int
+part2 = sum . map (power . minColours)
