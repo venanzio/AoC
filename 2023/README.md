@@ -22,3 +22,12 @@ We start with a triple of colours with three 0s, and change the corresponding nu
 
 For Part 1, I initinally checked that every extraction was possible.
 But since we have to calculate the minimum number of each colour cubes in Part 2, I changed also Part 1 to only check the triple of minimums.
+
+## Day 3: Gear Ratios
+
+The parsing was again the only challenging part.
+It would be easier if the parsing library automatically kept track of position in the source input (line and character). This should be an improvement to make to FunParser.hs.
+
+Missig that, I did the parsing "by hand", creating lists of the parts numbers with coordinates, and lists for all symbols and for just the gear symbols.
+
+With these lists, solutions are easy.

@@ -24,10 +24,9 @@ puzzle fileName = do
   let ls = lines input
       pnums = partNums ls
       symbs = symbols ls
-  putStrLn (show pnums)
-  putStrLn (show symbs)
+      gs = gears ls
   putStrLn ("Part 1: " ++ show (part1 pnums symbs))
-  putStrLn ("Part 2: " ++ show (part2 pnums symbs))
+  putStrLn ("Part 2: " ++ show (part2 pnums gs))
 
 -- Parsing the input
 
@@ -71,5 +70,16 @@ part1 pnums symbs = sum [numN num | num <- pnums, nearSym num symbs]
 
 -- Part 2
 
-part2 :: [(Int,Int,Int)]-> [(Int,Int)] -> Int
-part2 pnums symbs = 2
+gears :: [String] -> [(Int,Int)]
+gears ls = gearCoords 0 0 where
+  gearCoords x y | y >= length ls      = []
+                 | x >= length (ls!!y) = gearCoords 0 (y+1)
+                 | ls!!y!!x == '*'     = (x,y) : gearCoords (x+1) y
+                 | otherwise           = gearCoords (x+1) y
+
+gearRatio :: (Int,Int) -> [(Int,Int,Int)] -> Int
+gearRatio gr nums = let ns = [numN num | num <- nums, gr `elem` neighbours num] in
+  if length ns == 2 then product ns else 0
+
+part2 :: [(Int,Int,Int)] -> [(Int,Int)] -> Int
+part2 pnums gears = sum [gearRatio g pnums | g <- gears]
