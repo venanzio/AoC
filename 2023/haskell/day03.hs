@@ -30,8 +30,21 @@ puzzle fileName = do
 
 -- Parsing the input
 
+-- log in base 10 to compute number of digits
+numDigits :: Int -> Int
+numDigits x | x < 10 = 1
+            | otherwise = 1 + numDigits (x `div` 10)
+
+readNum :: String -> Int
+readNum = read . takeWhile isDigit
+
 partNums :: [String] -> [(Int,Int,Int)]
-partNums = undefined
+partNums ls = pnCoords 0 0 where
+  pnCoords x y | y >= length ls      = []
+               | x >= length (ls!!y) = pnCoords 0 (y+1)
+               | isDigit (ls!!y!!x)  = let n = readNum (drop x (ls!!y))
+                                       in (n,x,y) : pnCoords (x+numDigits x) y
+               | otherwise           = pnCoords (x+1) y
     
 symbols :: [String] -> [(Int,Int)]
 symbols ls = symCoords 0 0 where
