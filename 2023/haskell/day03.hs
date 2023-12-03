@@ -25,6 +25,7 @@ puzzle fileName = do
       pnums = partNums ls
       symbs = symbols ls
   putStrLn (show pnums)
+  putStrLn (show symbs)
   putStrLn ("Part 1: " ++ show (part1 pnums symbs))
   putStrLn ("Part 2: " ++ show (part2 pnums symbs))
 
@@ -43,7 +44,7 @@ partNums ls = pnCoords 0 0 where
   pnCoords x y | y >= length ls      = []
                | x >= length (ls!!y) = pnCoords 0 (y+1)
                | isDigit (ls!!y!!x)  = let n = readNum (drop x (ls!!y))
-                                       in (n,x,y) : pnCoords (x+numDigits x) y
+                                       in (n,x,y) : pnCoords (x+numDigits n) y
                | otherwise           = pnCoords (x+1) y
     
 symbols :: [String] -> [(Int,Int)]
@@ -56,8 +57,17 @@ symbols ls = symCoords 0 0 where
 
 -- Part 1
 
+neighbours :: (Int,Int,Int) -> [(Int,Int)]
+neighbours (n,x,y) = let d = numDigits n in
+  (x-1,y) : (x+d,y) : [(x+i,y-1) | i <- [-1..d]] ++ [(x+i,y+1) | i <- [-1..d]]  
+
+nearSym :: (Int,Int,Int) -> [(Int,Int)] -> Bool
+nearSym num ss = or [xy `elem` ss | xy <- neighbours num]
+
+numN (n,_,_) = n
+
 part1 :: [(Int,Int,Int)] -> [(Int,Int)] -> Int
-part1 pnums symbs = 1
+part1 pnums symbs = sum [numN num | num <- pnums, nearSym num symbs]
 
 -- Part 2
 
