@@ -28,6 +28,8 @@ But since we have to calculate the minimum number of each colour cubes in Part 2
 The parsing was again the only challenging part.
 It would be easier if the parsing library automatically kept track of position in the source input (line and character). This should be an improvement to make to FunParser.hs.
 
-Missig that, I did the parsing "by hand", creating lists of the parts numbers with coordinates, and lists for all symbols and for just the gear symbols.
+Missig that, I did the parsing "by hand", checking each coordinate in the input,
+creating lists of the parts numbers with coordinates, and lists for all symbols and for just the gear symbols.
+This is not very efficient but its sufficient for the puzzle.
 
 With these lists, solutions are easy.
