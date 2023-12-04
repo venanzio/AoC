@@ -36,7 +36,7 @@ With these lists, solutions are easy.
 
 ## Day 4: Scratchcards
 
-Part 1 is straightforwards.
+Part 1 is straightforward.
 
-Part 2: Actually duplicating the cards would result in combiatorial explosiong.
-Instead, construct a list of number of copies of each card.
+Part 2: Actually duplicating the cards would result in a combiatorial explosion.
+Instead, construct a list of numbers of copies of each card.
