@@ -4,14 +4,9 @@
 module Main where
 
 import System.Environment
-import Data.List
-import Data.Char
-
-import Control.Applicative
-import qualified Data.Map as M
-
 import FunParser
-import AoCTools
+import Control.Applicative
+import AoCTools (zipWithLong)
 
 main :: IO ()
 main = do
@@ -29,8 +24,6 @@ puzzle fileName = do
 -- Parsing the input
 
 type Card = ([Int],[Int])
-cWinning = fst
-cValues  = snd
 
 pData :: Parser Card
 pData = do symbol "Card" >> natural >> symbol ":"
@@ -48,11 +41,10 @@ wins :: Card -> Int
 wins (ws,vs) = length (filter (\v -> v `elem` ws) vs)
 
 worth :: Int -> Int
-worth w = if w>0 then 2^(w - 1) else 0
+worth w = if w > 0 then 2^(w - 1) else 0
 
 part1 :: [Int] -> Int
 part1 = sum . map worth
-
 
 -- Part 2
 
