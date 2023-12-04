@@ -56,13 +56,12 @@ part1 = sum . map worth
 
 -- Part 2
 
-copyCards :: [Int] -> Int -> Int -> [Int]
-copyCards l w c = let (l0,l1) = splitAt w l in
-  (map (+ c) l0) ++ l1
+copyCards :: Int -> Int -> [Int] -> [Int]
+copyCards w c = zipWithLong (+) (take w (repeat c))
 
 winCopy :: [([Int],[Int])] -> Int -> [Int] -> Int
 winCopy xs s [] = s
-winCopy (x:xs) s (c:cards) = winCopy xs (s+c) (copyCards cards (wins x) c)
+winCopy (x:xs) s (c:cards) = winCopy xs (s+c) (copyCards (wins x) c cards)
     
 part2 :: [([Int],[Int])] -> Int
 part2 xs = winCopy xs 0 (take (length xs) (repeat 1))
