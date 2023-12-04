@@ -22,30 +22,36 @@ puzzle :: String -> IO ()
 puzzle fileName = do
   input <- readFile fileName
   let xs = parseAll pInput input
-  putStrLn ("Part 1: " ++ show (part1 xs))
+      ws = map wins xs
+  putStrLn ("Part 1: " ++ show (part1 ws))
   putStrLn ("Part 2: " ++ show (part2 xs))
 
 -- Parsing the input
 
-pData :: Parser ([Int],[Int])
-pData = do symbol "Card"
-           natural
-           symbol ":"
+type Card = ([Int],[Int])
+cWinning = fst
+cValues  = snd
+
+pData :: Parser Card
+pData = do symbol "Card" >> natural >> symbol ":"
            winning <- many natural
            symbol "|"
            values <- many natural
            return (winning,values)
            
-pInput :: Parser [([Int],[Int])]
+pInput :: Parser [Card]
 pInput = pLines pData
 
 -- Part 1
 
-wins :: ([Int],[Int]) -> Int
+wins :: Card -> Int
 wins (ws,vs) = length (filter (\v -> v `elem` ws) vs)
 
-part1 :: [([Int],[Int])] -> Int
-part1 xs = sum [2^(wins x - 1) | x <- xs, wins x > 0]
+worth :: Int -> Int
+worth w = if w>0 then 2^(w - 1) else 0
+
+part1 :: [Int] -> Int
+part1 = sum . map worth
 
 -- Part 2
 
