@@ -24,7 +24,7 @@ puzzle fileName = do
   let xs = parseAll pInput input
       ws = map wins xs
   putStrLn ("Part 1: " ++ show (part1 ws))
-  putStrLn ("Part 2: " ++ show (part2 xs))
+  putStrLn ("Part 2: " ++ show (part2 ws))
 
 -- Parsing the input
 
@@ -59,9 +59,9 @@ part1 = sum . map worth
 copyCards :: Int -> Int -> [Int] -> [Int]
 copyCards w c = zipWithLong (+) (take w (repeat c))
 
-winCopy :: [([Int],[Int])] -> Int -> [Int] -> Int
-winCopy xs s [] = s
-winCopy (x:xs) s (c:cards) = winCopy xs (s+c) (copyCards (wins x) c cards)
+winCopy :: [Int] -> Int -> [Int] -> Int
+winCopy ws s [] = s
+winCopy (w:ws) s (c:cards) = winCopy ws (s+c) (copyCards w c cards)
     
-part2 :: [([Int],[Int])] -> Int
-part2 xs = winCopy xs 0 (take (length xs) (repeat 1))
+part2 :: [Int] -> Int
+part2 ws = winCopy ws 0 (take (length ws) (repeat 1))
