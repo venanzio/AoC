@@ -33,3 +33,10 @@ creating lists of the parts numbers with coordinates, and lists for all symbols 
 This is not very efficient but its sufficient for the puzzle.
 
 With these lists, solutions are easy.
+
+## Day 4: Scratchcards
+
+Part 1 is straightforwards.
+
+Part 2: Actually duplicating the cards would result in combiatorial explosiong.
+Instead, construct a list of number of copies of each card.
