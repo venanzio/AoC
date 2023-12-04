@@ -53,6 +53,7 @@ worth w = if w>0 then 2^(w - 1) else 0
 part1 :: [Int] -> Int
 part1 = sum . map worth
 
+
 -- Part 2
 
 copyCards :: [Int] -> Int -> Int -> [Int]

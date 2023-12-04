@@ -13,6 +13,16 @@ spanBy p (x:xs) = let (ys,zs) = spanBy p xs
 
 -- LISTS
 
+-- apply a binary function element-wise
+
+zipWithLong :: (a -> a -> a) -> [a] -> [a] -> [a] 
+zipWithLong f [] ys = ys
+zipWithLong f xs [] = xs
+zipWithLong f (x:xs) (y:ys) = f x y : zipWithLong f xs ys
+
+
+
+
 -- already exists: mapMaybe in Data.Maybe
 
 findMaybe :: (a -> Maybe b) -> [a] -> [b]
