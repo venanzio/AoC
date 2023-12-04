@@ -27,18 +27,36 @@ puzzle fileName = do
 
 -- Parsing the input
 
-pData :: Parser ()
-pData = return ()
-
-pInput :: Parser [()]
+pData :: Parser ([Int],[Int])
+pData = do symbol "Card"
+           natural
+           symbol ":"
+           winning <- many natural
+           symbol "|"
+           values <- many natural
+           return (winning,values)
+           
+pInput :: Parser [([Int],[Int])]
 pInput = pLines pData
 
 -- Part 1
 
-part1 :: [()] -> Int
-part1 _ = 1
+wins :: ([Int],[Int]) -> Int
+wins (ws,vs) = length (filter (\v -> v `elem` ws) vs)
+
+part1 :: [([Int],[Int])] -> Int
+part1 xs = sum [2^(wins x - 1) | x <- xs, wins x > 0]
 
 -- Part 2
 
-part2 :: [()] -> Int
-part2 _ = 2
+copyCards :: [Int] -> Int -> Int -> [Int]
+copyCards l w c = let (l0,l1) = splitAt w l in
+  (map (+ c) l0) ++ l1
+
+winCopy :: [([Int],[Int])] -> Int
+winCopy xs = let n = (length xs) in wcAux xs 0 (take n (repeat 1)) where
+  wcAux xs s [] = s
+  wcAux (x:xs) s (c:cards) = wcAux xs (s+c) (copyCards cards (wins x) c)
+    
+part2 :: [([Int],[Int])] -> Int
+part2 = winCopy
