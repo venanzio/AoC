@@ -53,10 +53,9 @@ copyCards :: [Int] -> Int -> Int -> [Int]
 copyCards l w c = let (l0,l1) = splitAt w l in
   (map (+ c) l0) ++ l1
 
-winCopy :: [([Int],[Int])] -> Int
-winCopy xs = let n = (length xs) in wcAux xs 0 (take n (repeat 1)) where
-  wcAux xs s [] = s
-  wcAux (x:xs) s (c:cards) = wcAux xs (s+c) (copyCards cards (wins x) c)
+winCopy :: [([Int],[Int])] -> Int -> [Int] -> Int
+winCopy xs s [] = s
+winCopy (x:xs) s (c:cards) = winCopy xs (s+c) (copyCards cards (wins x) c)
     
 part2 :: [([Int],[Int])] -> Int
-part2 = winCopy
+part2 xs = winCopy xs 0 (take (length xs) (repeat 1))
