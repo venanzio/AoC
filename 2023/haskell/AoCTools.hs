@@ -14,14 +14,15 @@ spanBy p (x:xs) = let (ys,zs) = spanBy p xs
 -- LISTS
 
 -- apply a binary function element-wise
-
 zipWithLong :: (a -> a -> a) -> [a] -> [a] -> [a] 
 zipWithLong f [] ys = ys
 zipWithLong f xs [] = xs
 zipWithLong f (x:xs) (y:ys) = f x y : zipWithLong f xs ys
 
-
-
+-- compose (forward) a list of functions
+fsCompose :: [a -> a] -> a -> a 
+fsCompose [] x = x
+fsCompose (f:fs) x = fsCompose fs (f x)
 
 -- already exists: mapMaybe in Data.Maybe
 

@@ -56,18 +56,18 @@ pInput = do symbol "seeds:"
             
 -- Part 1
 
+rangeMap :: (Int,Int,Int) -> Int -> Int
+rangeMap (d,s,r) x = d+x-s
+
 fMap :: CMap -> Int -> Int
 fMap [] x = x
-fMap ((d,s,r):ms) x = if s <= x && x < s+r then d+x-s else fMap ms x
-
-lCompose :: [a -> a] -> a -> a
-lCompose [] x = x
-lCompose (f:fs) x = lCompose fs (f x)
-
+fMap ((d,s,r):ms) x = if s <= x && x < s+r
+                      then rangeMap (d,s,r) x
+                      else fMap ms x
 
 part1 :: [Int] -> [CMap] -> Int
 part1 sns ms = let fs = map fMap ms
-                   f = lCompose fs
+                   f = fsCompose fs
                in minimum (map f sns)
 
 -- Part 2
@@ -86,9 +86,6 @@ iSplit (r0:rs0) r1 =
   in (i0++is0, i1++is1)
 
 
-rangeMap :: (Int,Int,Int) -> Int -> Int
-rangeMap (d,s,r) x = d+x-s
-
 rMap :: CMap -> Ranges -> Ranges
 rMap [] rs = rs
 rMap ((d,s,l):ms) rs =
@@ -104,6 +101,6 @@ seedRanges (s:l:sls) = rangeL s l : seedRanges sls
 part2 :: [Int] -> [CMap]-> Int
 part2 sns ms = 
   let fs = map rMap ms
-      f = lCompose fs
+      f = fsCompose fs
   in rMinimum (f (seedRanges sns))
 
