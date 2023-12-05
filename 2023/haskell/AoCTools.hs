@@ -51,16 +51,31 @@ replace i x l =
 
 type Interval = (Int,Int)
 
-intEmpty :: Interval -> Bool
-intEmpty (x,y) = y < x
+iStart :: Interval -> Int
+iStart = fst
+
+iEnd :: Interval -> Int
+iEnd = snd
+
+iEmpty :: Interval -> Bool
+iEmpty (x,y) = y < x
 
 -- a range is ann ordered list of non-overlapping intervals
 
-
 type Range = [Interval]
 
+addInterval :: Interval -> Range -> Range
+addInterval i [] = []
+addInterval i@(x,y) r@(i0@(x0,y0):r1)
+  | iEmpty i = r
+  | y + 1 < x0 = i : r
+  | y0 + 1 < x = i0 : addInterval i r1
+  | otherwise = addInterval (min x x0, max y y0) r1
+
+
+
 neRange :: Range -> Range
-neRange = filter (not.intEmpty)
+neRange = filter (not.iEmpty)
 
 -- create a range given first element and length
 rangeL :: Int -> Int -> Interval
