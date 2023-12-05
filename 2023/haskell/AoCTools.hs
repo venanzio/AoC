@@ -80,6 +80,7 @@ addInterval i@(x,y) r@(i0@(x0,y0):r1)
 intsRange :: [Interval] -> Range
 intsRange = foldr addInterval emptyR
 
+-- This should never be needed, if the range is correct
 neRange :: Range -> Range
 neRange = filter (not.iEmpty)
 
@@ -90,6 +91,9 @@ rangeL s l = (s,s+l-1)
 -- Intersection
 rIntersect :: Interval -> Interval -> Interval
 rIntersect (x0,y0) (x1,y1) = (max x0 x1, min y0 y1)
+
+
+-- ALL FOLLOWING to be changed to preseve order
 
 rIntersection :: Range -> Range -> Range
 rIntersection rs0 rs1 = [rIntersect r0 r1 | r0 <- rs0, r1 <- rs1]
@@ -108,6 +112,12 @@ rMinimum = minimum . map fst . neRange
 
 
 
+
+
+
+
+
+-- MAYBE operations
 
 -- Remove Just from a Maybe valus
 unJust :: Maybe a -> a
