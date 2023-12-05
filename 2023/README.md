@@ -43,7 +43,7 @@ Instead, construct a list of numbers of copies of each card.
 
 ## Day 5: If You Give A Seed A Fertilizer
 
-**Part 1**: apply every map sequentially to each seed number and then take the minimum.
+**Part 1**: Apply every map sequentially to each seed number and then take the minimum.
 
 **Part 2**: It's impossible to apply the maps element-wise to each seed number: the ranges are too big.
 Instead we must work with ranges themselves, expressed as pairs **(x,y)** denoting **[x..y]**.
