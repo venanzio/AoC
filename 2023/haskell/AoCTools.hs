@@ -43,6 +43,45 @@ replace i x l =
   let (front,back) = splitAt i l
   in front ++ x:(tail back)
 
+-- RANGES
+-- a range is a pair (x,y) denoting [x..y]
+-- if y<x, the reange is empty
+
+type Range = (Int,Int)
+type Ranges = [Range]
+
+rIsEmpty :: Range -> Bool
+rIsEmpty (x,y) = y < x
+
+neRanges :: Ranges -> Ranges
+neRanges = filter (not.rIsEmpty)
+
+-- create a range given first element and length
+rangeL :: Int -> Int -> Range
+rangeL s l = (s,s+l-1)
+
+-- Intersection
+rIntersect :: Range -> Range -> Range
+rIntersect (x0,y0) (x1,y1) = (max x0 x1, min y0 y1)
+
+rIntersection :: Range -> Ranges -> Ranges
+rIntersection rs0 rs1 = [rIntersect r0 r1 | r0 <- rs0, r1 <- rs1]
+
+-- Difference
+rDiff :: Range -> Range -> Ranges
+rDiff (x0,y0) (x1,y1) = neRanges [(x0,min y0 (x1-1)),(max x0 (y1+1),y0)]
+
+-- Union
+
+rUnion :: [Ranges] -> Ranges
+rUnion = concat
+
+rMinimum :: Ranges -> Int
+rMinimum = minimum . map fst . neRanges
+
+
+
+
 -- Remove Just from a Maybe valus
 unJust :: Maybe a -> a
 unJust (Just x) = x
