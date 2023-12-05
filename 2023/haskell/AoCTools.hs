@@ -1,4 +1,5 @@
 -- Advent of Code: Useful Functions
+--  Venanzio Capretta 2020 - 2023
 
 module AoCTools where
 

@@ -20,8 +20,8 @@ I use my own simple parser library: FunParser, based on Ch.13 of Graham Hutton's
 For each extraction, some colours may not be present and they are not in the same order every time.
 We start with a triple of colours with three 0s, and change the corresponding number for every extracted colour.
 
-For Part 1, I initinally checked that every extraction was possible.
-But since we have to calculate the minimum number of each colour cubes in Part 2, I changed also Part 1 to only check the triple of minimums.
+For **Part 1**, I initinally checked that every extraction was possible.
+But since we have to calculate the minimum number of each colour cubes in **Part 2**, I changed also Part 1 to only check the triple of minimums.
 
 ## Day 3: Gear Ratios
 
@@ -36,7 +36,18 @@ With these lists, solutions are easy.
 
 ## Day 4: Scratchcards
 
-Part 1 is straightforward.
+**Part 1** is straightforward.
 
-Part 2: Actually duplicating the cards would result in a combiatorial explosion.
+**Part 2**: Actually duplicating the cards would result in a combiatorial explosion.
 Instead, construct a list of numbers of copies of each card.
+
+## Day 5: If You Give A Seed A Fertilizer
+
+**Part 1**: apply every map sequentially to each seed number and then take the minimum.
+
+**Part 2**: It's impossible to apply the maps element-wise to each seed number: the ranges are too big.
+Instead we must work with ranges themselves, expressed as pairs **(x,y)** denoting **[x..y]**.
+I defined a few auxiliary functions to work with lists of ranges (these can still be improved, for example ensuring that the ranges are ordered and without duplications): intersection, union, difference, minimum.
+They are in the library *AoCTools.hs*.
+With these I could define how the maps operate on ranges.
+Then the solution is very similar to Part 1.

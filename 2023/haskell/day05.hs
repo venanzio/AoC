@@ -4,12 +4,7 @@
 module Main where
 
 import System.Environment
-import Data.List
-import Data.Char
-
 import Control.Applicative
-import qualified Data.Map as M
-
 import FunParser
 import AoCTools
 
@@ -72,6 +67,7 @@ part1 sns ms = let fs = map fMap ms
 
 -- Part 2
 
+-- split a range between the intersection with another range and the rest
 interSplit :: Range -> Range -> (Ranges,Ranges)
 interSplit r0 r1 =
   let mr = rIntersect r0 r1
@@ -85,7 +81,6 @@ iSplit (r0:rs0) r1 =
       (is0,is1) = iSplit rs0 r1
   in (i0++is0, i1++is1)
 
-
 rMap :: CMap -> Ranges -> Ranges
 rMap [] rs = rs
 rMap ((d,s,l):ms) rs =
@@ -96,7 +91,6 @@ rMap ((d,s,l):ms) rs =
 seedRanges :: [Int] -> Ranges
 seedRanges [] = []
 seedRanges (s:l:sls) = rangeL s l : seedRanges sls
-
 
 part2 :: [Int] -> [CMap]-> Int
 part2 sns ms = 
