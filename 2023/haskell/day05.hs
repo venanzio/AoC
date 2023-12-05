@@ -68,33 +68,33 @@ part1 sns ms = let fs = map fMap ms
 -- Part 2
 
 -- split a range between the intersection with another range and the rest
-interSplit :: Range -> Range -> (Ranges,Ranges)
+interSplit :: Interval -> Interval -> (Range,Range)
 interSplit r0 r1 =
   let mr = rIntersect r0 r1
-  in if rIsEmpty mr then ([],[r0])
+  in if intEmpty mr then ([],[r0])
                     else ([mr], rDiff r0 mr)
 
-iSplit :: Ranges -> Range -> (Ranges,Ranges)
+iSplit :: Range -> Interval -> (Range,Range)
 iSplit [] r1 = ([],[])
 iSplit (r0:rs0) r1 =
   let (i0,i1) = interSplit r0 r1
       (is0,is1) = iSplit rs0 r1
   in (i0++is0, i1++is1)
 
-rMap :: CMap -> Ranges -> Ranges
+rMap :: CMap -> Range -> Range
 rMap [] rs = rs
 rMap ((d,s,l):ms) rs =
   let (mrs,irs) = iSplit rs (rangeL s l)
   in map (\(x,y) -> (rangeMap (d,s,l) x, rangeMap (d,s,l) y)) mrs ++
      rMap ms irs
 
-seedRanges :: [Int] -> Ranges
-seedRanges [] = []
-seedRanges (s:l:sls) = rangeL s l : seedRanges sls
+seedRange :: [Int] -> Range
+seedRange [] = []
+seedRange (s:l:sls) = rangeL s l : seedRange sls
 
 part2 :: [Int] -> [CMap]-> Int
 part2 sns ms = 
   let fs = map rMap ms
       f = fsCompose fs
-  in rMinimum (f (seedRanges sns))
+  in rMinimum (f (seedRange sns))
 

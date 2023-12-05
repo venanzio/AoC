@@ -46,40 +46,44 @@ replace i x l =
   in front ++ x:(tail back)
 
 -- RANGES
--- a range is a pair (x,y) denoting [x..y]
--- if y<x, the reange is empty
+-- an interval is a pair (x,y) denoting [x..y]
+-- if y<x, the interval is empty
 
-type Range = (Int,Int)
-type Ranges = [Range]
+type Interval = (Int,Int)
 
-rIsEmpty :: Range -> Bool
-rIsEmpty (x,y) = y < x
+intEmpty :: Interval -> Bool
+intEmpty (x,y) = y < x
 
-neRanges :: Ranges -> Ranges
-neRanges = filter (not.rIsEmpty)
+-- a range is ann ordered list of non-overlapping intervals
+
+
+type Range = [Interval]
+
+neRange :: Range -> Range
+neRange = filter (not.intEmpty)
 
 -- create a range given first element and length
-rangeL :: Int -> Int -> Range
+rangeL :: Int -> Int -> Interval
 rangeL s l = (s,s+l-1)
 
 -- Intersection
-rIntersect :: Range -> Range -> Range
+rIntersect :: Interval -> Interval -> Interval
 rIntersect (x0,y0) (x1,y1) = (max x0 x1, min y0 y1)
 
-rIntersection :: Ranges -> Ranges -> Ranges
+rIntersection :: Range -> Range -> Range
 rIntersection rs0 rs1 = [rIntersect r0 r1 | r0 <- rs0, r1 <- rs1]
 
 -- Difference
-rDiff :: Range -> Range -> Ranges
-rDiff (x0,y0) (x1,y1) = neRanges [(x0,min y0 (x1-1)),(max x0 (y1+1),y0)]
+rDiff :: Interval -> Interval -> Range
+rDiff (x0,y0) (x1,y1) = neRange [(x0,min y0 (x1-1)),(max x0 (y1+1),y0)]
 
 -- Union
 
-rUnion :: [Ranges] -> Ranges
+rUnion :: [Range] -> Range
 rUnion = concat
 
-rMinimum :: Ranges -> Int
-rMinimum = minimum . map fst . neRanges
+rMinimum :: Range -> Int
+rMinimum = minimum . map fst . neRange
 
 
 
