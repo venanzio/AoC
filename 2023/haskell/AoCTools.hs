@@ -64,8 +64,11 @@ iEmpty (x,y) = y < x
 
 type Range = [Interval]
 
+emptyR :: Range
+emptyR = []
+
 addInterval :: Interval -> Range -> Range
-addInterval i [] = []
+addInterval i [] = if iEmpty i then [] else [i]
 addInterval i@(x,y) r@(i0@(x0,y0):r1)
   | iEmpty i = r
   | y + 1 < x0 = i : r
@@ -73,6 +76,9 @@ addInterval i@(x,y) r@(i0@(x0,y0):r1)
   | otherwise = addInterval (min x x0, max y y0) r1
 
 
+-- Create a range from a non-ordered list of intervals
+intsRange :: [Interval] -> Range
+intsRange = foldr addInterval emptyR
 
 neRange :: Range -> Range
 neRange = filter (not.iEmpty)
