@@ -100,8 +100,6 @@ seedRanges :: [Int] -> Ranges
 seedRanges [] = []
 seedRanges (s:l:sls) = rangeL s l : seedRanges sls
 
-rMinimum :: Ranges -> Int
-rMinimum = minimum . map fst . neRanges
 
 part2 :: [Int] -> [CMap]-> Int
 part2 sns ms = 

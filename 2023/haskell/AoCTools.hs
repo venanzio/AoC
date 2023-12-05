@@ -64,7 +64,7 @@ rangeL s l = (s,s+l-1)
 rIntersect :: Range -> Range -> Range
 rIntersect (x0,y0) (x1,y1) = (max x0 x1, min y0 y1)
 
-rIntersection :: Range -> Ranges -> Ranges
+rIntersection :: Ranges -> Ranges -> Ranges
 rIntersection rs0 rs1 = [rIntersect r0 r1 | r0 <- rs0, r1 <- rs1]
 
 -- Difference
