@@ -87,6 +87,10 @@ addInterval i@(x,y) r@(i0@(x0,y0):r1)
   | y0 + 1 < x = i0 : addInterval i r1
   | otherwise = addInterval (min x x0, max y y0) r1
 
+-- Single interval range (just check that it is not empty)
+intRange :: Interval -> Range
+intRange i = addInterval i emptyR
+
 -- Create a range from a non-ordered list of intervals
 intsRange :: [Interval] -> Range
 intsRange = foldr addInterval emptyR
@@ -130,19 +134,6 @@ rComplement i@(x0,y0) ((x1,y1):r)
 -- Difference between two ranges
 rDiff :: Range -> Range -> Range
 rDiff r0 r1 = rIntersection r0 (rComplement (rMinimum r0, rMaximum r0) r1)
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
