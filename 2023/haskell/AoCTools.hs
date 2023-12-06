@@ -107,16 +107,24 @@ rIntersection r0@(i0@(x0,y0):r0') r1@(i1@(x1,y1):r1')
   | y0 < y1 = addInterval (iIntersection i0 i1) (rIntersection r0' r1)
   | otherwise = addInterval (iIntersection i0 i1) (rIntersection r0 r1')
 
+rMinimum :: Range -> Int
+rMinimum [] = error "empty range has no minimum"
+rMinimum r = fst (r!!0)
 
-{-
-rUnion :: [Range] -> Range
-rUnion = intsRange . concat
--}
 
 
 -- Difference between two intervals
-rDiff :: Interval -> Interval -> Range
-rDiff (x0,y0) (x1,y1) = intsRange [(x0,min y0 (x1-1)),(max x0 (y1+1),y0)]
+iDiff :: Interval -> Interval -> Range
+iDiff (x0,y0) (x1,y1) = intsRange [(x0,min y0 (x1-1)),(max x0 (y1+1),y0)]
+
+-- complement of a range inside a give interval
+rComplement :: Interval -> Range -> Range
+rComplement i [] = intsRange [i]
+rComplement i@(x0,y0) ((x1,y1):r)
+  | y0 < x0   = []
+  | y0 < x1   = intsRange [i]
+  | otherwise = addInterval (x0,x1-1) (rComplement (y1+1,y0) r)
+  
 
 
 
@@ -129,43 +137,6 @@ rDiff (x0,y0) (x1,y1) = intsRange [(x0,min y0 (x1-1)),(max x0 (y1+1),y0)]
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-rMinimum :: Range -> Int
-rMinimm [] = error "empty range has no minimum"
-rMinimum r = fst (r!!0)
 
 
 
