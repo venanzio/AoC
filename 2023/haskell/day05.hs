@@ -69,10 +69,7 @@ part1 sns ms = let fs = map fMap ms
 
 -- split an interval between the intersection with another range and the rest
 interSplit :: Interval -> Interval -> (Range,Range)
-interSplit r0 r1 =
-  let mr = iIntersect r0 r1
-  in if iEmpty mr then ([],[r0])
-                  else ([mr], rDiff r0 mr)
+interSplit r0 r1 = let mr = iIntersect r0 r1 in ([mr], rDiff r0 mr)
 
 iSplit :: Range -> Interval -> (Range,Range)
 iSplit [] r1 = ([],[])
