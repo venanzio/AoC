@@ -57,7 +57,9 @@ Then the solution is very similar to Part 1.
 For time **t** and record distance **d**: If you hold the botton for **x** milliseconds, you gain speed **x** and the boat travels for **t - x** milliseconds, so the travelled distance is **x(t-x)**. This should be larger than **d**.
 
 So it all comes down to solving the inequality **x^2 - x t + d < 0**.
-The quadratic solution formula tells us that this happen between the two roots **x1 = (t + sqrt(t^2 - 4 d)** and **x2 = (t + sqrt(t^2 - 4 d)**.
+The quadratic solution formula tells us that this happens between the two roots **x1 = (t - sqrt(t^2 - 4 d))/2** and **x2 = (t + sqrt(t^2 - 4 d))/2**.
 
-The first time that beats the record is **ceiling x1** (plus one if **x1** is integer).
-The las is **floor x2** (minus one if **x2** is integer).
+The first time that beats the record is **ceiling x1** (plus one if **x1** is already integer).
+The last is **floor x2** (minus one if **x2** is integer).
+
+This soves both parts instantly.
