@@ -34,7 +34,6 @@ findMaybe f (x:xs) = let fxs = findMaybe f xs in
     Just y -> y : fxs
     Nothing -> fxs
 
-
 -- Minimum with a highest bound (for empty list)
 minimumBound :: Ord a => a -> [a] -> a
 minimumBound x = minimum . (x:)
@@ -45,10 +44,11 @@ replace i x l =
   let (front,back) = splitAt i l
   in front ++ x:(tail back)
 
--- RANGES
--- an interval is a pair (x,y) denoting [x..y]
--- if y<x, the interval is empty
 
+-- RANGES
+
+-- An interval is a pair (x,y) denoting [x..y]
+--   if y<x, the interval is empty
 type Interval = (Int,Int)
 
 iStart :: Interval -> Int
@@ -69,7 +69,7 @@ iIntersection :: Interval -> Interval -> Interval
 iIntersection (x0,y0) (x1,y1) = (max x0 x1, min y0 y1)
 
 -- A range is an ordered list of non-overlapping intervals
---  operations preserve ordering and non-overlapping property
+--   operations preserve ordering and non-overlapping property
 type Range = [Interval]
 
 emptyR :: Range
@@ -111,7 +111,9 @@ rMinimum :: Range -> Int
 rMinimum [] = error "empty range has no minimum"
 rMinimum r = fst (r!!0)
 
-
+rMaximum :: Range -> Int
+rMaximum [] = error "empty range has no maximum"
+rMaximum r = snd (last r)
 
 -- Difference between two intervals
 iDiff :: Interval -> Interval -> Range
@@ -125,7 +127,9 @@ rComplement i@(x0,y0) ((x1,y1):r)
   | y0 < x1   = intsRange [i]
   | otherwise = addInterval (x0,x1-1) (rComplement (y1+1,y0) r)
   
-
+-- Difference between two ranges
+rDiff :: Range -> Range -> Range
+rDiff r0 r1 = rIntersection r0 (rComplement (rMinimum r0, rMaximum r0) r1)
 
 
 
