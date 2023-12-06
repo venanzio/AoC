@@ -44,7 +44,7 @@ input2 (ts,ds) = (read (concat ts), read (concat ds))
 nextUp :: Double -> Int
 nextUp x = let x1 = floor x
                x2 = ceiling x
-           in if x1==x2 then x1+1 else x2
+           in if x1==x2 then x2+1 else x2
 
 nextDown :: Double -> Int
 nextDown x = let x1 = floor x
