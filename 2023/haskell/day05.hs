@@ -85,8 +85,8 @@ rMap :: CMap -> Range -> Range
 rMap [] rs = rs
 rMap ((d,s,l):ms) rs =
   let (mrs,irs) = iSplit rs (rangeL s l)
-  in map (\(x,y) -> (rangeMap (d,s,l) x, rangeMap (d,s,l) y)) mrs ++
-     rMap ms irs
+  in intsRange (map (\(x,y) -> (rangeMap (d,s,l) x, rangeMap (d,s,l) y)) mrs
+                ++ rMap ms irs)
 
 seedRange :: [Int] -> Range
 seedRange [] = []

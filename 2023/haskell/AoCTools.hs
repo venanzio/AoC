@@ -88,27 +88,28 @@ neRange = filter (not.iEmpty)
 rangeL :: Int -> Int -> Interval
 rangeL s l = (s,s+l-1)
 
--- Intersection
+-- Intersection (may give an empty interval)
 rIntersect :: Interval -> Interval -> Interval
 rIntersect (x0,y0) (x1,y1) = (max x0 x1, min y0 y1)
 
 
--- ALL FOLLOWING to be changed to preseve order
+-- ALL FOLLOWING: find a more efficient implementation
 
 rIntersection :: Range -> Range -> Range
-rIntersection rs0 rs1 = [rIntersect r0 r1 | r0 <- rs0, r1 <- rs1]
+rIntersection rs0 rs1 = intsRange [rIntersect r0 r1 | r0 <- rs0, r1 <- rs1]
 
 -- Difference
 rDiff :: Interval -> Interval -> Range
-rDiff (x0,y0) (x1,y1) = neRange [(x0,min y0 (x1-1)),(max x0 (y1+1),y0)]
+rDiff (x0,y0) (x1,y1) = intsRange [(x0,min y0 (x1-1)),(max x0 (y1+1),y0)]
 
 -- Union
 
 rUnion :: [Range] -> Range
-rUnion = concat
+rUnion = intsRange . concat
 
 rMinimum :: Range -> Int
-rMinimum = minimum . map fst . neRange
+rMinimm [] = error "empty range has no minimum"
+rMinimum r = fst (r!!0)
 
 
 
