@@ -62,4 +62,4 @@ The quadratic solution formula tells us that this happens between the two roots 
 The first time that beats the record is **ceiling x1** (plus one if **x1** is already integer).
 The last is **floor x2** (minus one if **x2** is integer).
 
-This soves both parts instantly.
+This solves both parts instantly.
