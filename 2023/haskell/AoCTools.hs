@@ -60,12 +60,24 @@ iEnd = snd
 iEmpty :: Interval -> Bool
 iEmpty (x,y) = y < x
 
--- a range is ann ordered list of non-overlapping intervals
+-- create anInterval given first element and length
+slInterval :: Int -> Int -> Interval
+slInterval s l = (s,s+l-1)
 
+-- Intersection (may give an empty interval)
+iIntersection :: Interval -> Interval -> Interval
+iIntersection (x0,y0) (x1,y1) = (max x0 x1, min y0 y1)
+
+-- A range is an ordered list of non-overlapping intervals
+--  operations preserve ordering and non-overlapping property
 type Range = [Interval]
 
 emptyR :: Range
 emptyR = []
+
+-- This should never be needed, if the range is correct
+neRange :: Range -> Range
+neRange = filter (not.iEmpty)
 
 addInterval :: Interval -> Range -> Range
 addInterval i [] = if iEmpty i then [] else [i]
@@ -75,48 +87,81 @@ addInterval i@(x,y) r@(i0@(x0,y0):r1)
   | y0 + 1 < x = i0 : addInterval i r1
   | otherwise = addInterval (min x x0, max y y0) r1
 
-
 -- Create a range from a non-ordered list of intervals
 intsRange :: [Interval] -> Range
 intsRange = foldr addInterval emptyR
 
--- This should never be needed, if the range is correct
-neRange :: Range -> Range
-neRange = filter (not.iEmpty)
-
--- create a range given first element and length
-rangeL :: Int -> Int -> Interval
-rangeL s l = (s,s+l-1)
-
--- Intersection (may give an empty interval)
-iIntersect :: Interval -> Interval -> Interval
-iIntersect (x0,y0) (x1,y1) = (max x0 x1, min y0 y1)
-
--- ALL FOLLOWING: find a more efficient implementation
+rUnion :: Range -> Range -> Range
+rUnion [] r1 = r1
+rUnion r0 [] = r0
+rUnion  r0@(i0@(x0,y0):r0') r1@(i1@(x1,y1):r1')
+  | x0 < x1 = addInterval i0 (rUnion r0' r1)
+  | otherwise = addInterval i1 (rUnion r0 r1')
 
 rIntersection :: Range -> Range -> Range
 rIntersection [] _ = []
 rIntersection _ [] = []
-rIntersection r0@((x0,y0):r0') r1@((x1,y1):r1')
+rIntersection r0@(i0@(x0,y0):r0') r1@(i1@(x1,y1):r1')
   | y0 < x1 = rIntersection r0' r1
   | y1 < x0 = rIntersection r0 r1'
-  | y0 < y1 = addInterval (iIntersect (x0,y0) (x1,y1)) (rIntersection r0' r1)
-  | otherwise = addInterval (iIntersect (x0,y0) (x1,y1)) (rIntersection r0 r1')
+  | y0 < y1 = addInterval (iIntersection i0 i1) (rIntersection r0' r1)
+  | otherwise = addInterval (iIntersection i0 i1) (rIntersection r0 r1')
 
 
+{-
+rUnion :: [Range] -> Range
+rUnion = intsRange . concat
+-}
 
 
-
--- rIntersection rs0 rs1 = intsRange [rIntersect r0 r1 | r0 <- rs0, r1 <- rs1]
-
--- Difference
+-- Difference between two intervals
 rDiff :: Interval -> Interval -> Range
 rDiff (x0,y0) (x1,y1) = intsRange [(x0,min y0 (x1-1)),(max x0 (y1+1),y0)]
 
--- Union
 
-rUnion :: [Range] -> Range
-rUnion = intsRange . concat
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 rMinimum :: Range -> Int
 rMinimm [] = error "empty range has no minimum"

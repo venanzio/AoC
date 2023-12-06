@@ -69,7 +69,7 @@ part1 sns ms = let fs = map fMap ms
 
 -- split an interval between the intersection with another range and the rest
 interSplit :: Interval -> Interval -> (Range,Range)
-interSplit r0 r1 = let mr = iIntersect r0 r1 in (addInterval mr [], rDiff r0 mr)
+interSplit r0 r1 = let mr = iIntersection r0 r1 in (addInterval mr [], rDiff r0 mr)
 
 iSplit :: Range -> Interval -> (Range,Range)
 iSplit [] r1 = ([],[])
@@ -81,13 +81,13 @@ iSplit (r0:rs0) r1 =
 rMap :: CMap -> Range -> Range
 rMap [] rs = rs
 rMap ((d,s,l):ms) rs =
-  let (mrs,irs) = iSplit rs (rangeL s l)
+  let (mrs,irs) = iSplit rs (slInterval s l)
   in intsRange (map (\(x,y) -> (rangeMap (d,s,l) x, rangeMap (d,s,l) y)) mrs
                 ++ rMap ms irs)
 
 seedRange :: [Int] -> Range
 seedRange [] = []
-seedRange (s:l:sls) = rangeL s l : seedRange sls
+seedRange (s:l:sls) = slInterval s l : seedRange sls
 
 part2 :: [Int] -> [CMap]-> Int
 part2 sns ms = 
