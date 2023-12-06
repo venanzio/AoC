@@ -89,14 +89,25 @@ rangeL :: Int -> Int -> Interval
 rangeL s l = (s,s+l-1)
 
 -- Intersection (may give an empty interval)
-rIntersect :: Interval -> Interval -> Interval
-rIntersect (x0,y0) (x1,y1) = (max x0 x1, min y0 y1)
-
+iIntersect :: Interval -> Interval -> Interval
+iIntersect (x0,y0) (x1,y1) = (max x0 x1, min y0 y1)
 
 -- ALL FOLLOWING: find a more efficient implementation
 
 rIntersection :: Range -> Range -> Range
-rIntersection rs0 rs1 = intsRange [rIntersect r0 r1 | r0 <- rs0, r1 <- rs1]
+rIntersection [] _ = []
+rIntersection _ [] = []
+rIntersection r0@((x0,y0):r0') r1@((x1,y1):r1')
+  | y0 < x1 = rIntersection r0' r1
+  | y1 < x0 = rIntersection r0 r1'
+  | y0 < y1 = addInterval (iIntersect (x0,y0) (x1,y1)) (rIntersection r0' r1)
+  | otherwise = addInterval (iIntersect (x0,y0) (x1,y1)) (rIntersection r0 r1')
+
+
+
+
+
+-- rIntersection rs0 rs1 = intsRange [rIntersect r0 r1 | r0 <- rs0, r1 <- rs1]
 
 -- Difference
 rDiff :: Interval -> Interval -> Range
