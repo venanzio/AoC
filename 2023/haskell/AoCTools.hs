@@ -6,6 +6,8 @@ module AoCTools where
 import Data.List
 import qualified Data.Map as M
 
+-- LISTS
+
 -- ALREADY EXISTS: partition
 spanBy :: (a->Bool) -> [a] -> ([a],[a])
 spanBy p [] = ([],[])
@@ -13,7 +15,28 @@ spanBy p (x:xs) = let (ys,zs) = spanBy p xs
                   in if p x then (x:ys,zs)
                             else (ys,x:zs)
 
--- LISTS
+-- number of occurrences of an element in a list
+occurrences :: Eq a => a -> [a] -> Int
+occurrences x ys = length (filter (== x) ys)
+
+-- Replace an element of a list (at given index)
+replace :: Int -> a -> [a] -> [a]
+replace i x l =
+  let (front,back) = splitAt i l
+  in front ++ x:(tail back)
+
+allIndices :: Eq a => a -> [a] -> [Int]
+allIndices x ys = case elemIndex x ys of
+  Nothing -> []
+  Just i  -> i : map (+(i+1)) (allIndices x (drop (i+1) ys))
+
+deleteAll :: Eq a => a -> [a] -> [a]
+deleteAll x ys = case elemIndex x ys of
+    Nothing -> ys
+    Just i -> let (ys0,ys1) = splitAt i ys
+              in ys0 ++ deleteAll x (tail ys1)
+
+
 
 -- apply a binary function element-wise
 zipWithLong :: (a -> a -> a) -> [a] -> [a] -> [a] 
@@ -38,24 +61,6 @@ findMaybe f (x:xs) = let fxs = findMaybe f xs in
 -- Minimum with a highest bound (for empty list)
 minimumBound :: Ord a => a -> [a] -> a
 minimumBound x = minimum . (x:)
-
--- Replace an element of a list (at given index)
-replace :: Int -> a -> [a] -> [a]
-replace i x l =
-  let (front,back) = splitAt i l
-  in front ++ x:(tail back)
-
-allIndices :: Eq a => a -> [a] -> [Int]
-allIndices x ys = case elemIndex x ys of
-  Nothing -> []
-  Just i  -> i : map (+(i+1)) (allIndices x (drop (i+1) ys))
-
-deleteAll :: Eq a => a -> [a] -> [a]
-deleteAll x ys = case elemIndex x ys of
-    Nothing -> ys
-    Just i -> let (ys0,ys1) = splitAt i ys
-              in ys0 ++ deleteAll x (tail ys1)
-
 
 
 
