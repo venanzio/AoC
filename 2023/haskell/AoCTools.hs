@@ -3,6 +3,7 @@
 
 module AoCTools where
 
+import Data.List
 import qualified Data.Map as M
 
 -- ALREADY EXISTS: partition
@@ -43,6 +44,20 @@ replace :: Int -> a -> [a] -> [a]
 replace i x l =
   let (front,back) = splitAt i l
   in front ++ x:(tail back)
+
+allIndices :: Eq a => a -> [a] -> [Int]
+allIndices x ys = case elemIndex x ys of
+  Nothing -> []
+  Just i  -> i : map (+(i+1)) (allIndices x (drop (i+1) ys))
+
+deleteAll :: Eq a => a -> [a] -> [a]
+deleteAll x ys = case elemIndex x ys of
+    Nothing -> ys
+    Just i -> let (ys0,ys1) = splitAt i ys
+              in ys0 ++ deleteAll x (tail ys1)
+
+
+
 
 
 -- RANGES
