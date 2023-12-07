@@ -67,7 +67,7 @@ This solves both parts instantly.
 ## Day 7: Camel Cards
 
 I computed **hand types** by just counting occurrences of each card label and putting them in a decreasing list.
-For example **TTT98** has three occurrences of **T**, one of **9**, one of **8**, and zero for all other card types: its hand type is then **[3,1,1,0,0,0,0,0,0,0,0,0,0]**.
+For example **TTT98** has three occurrences of **T**, one of **9**, one of **8**, and zero for all other card labels: its hand type is then **[3,1,1,0,0,0,0,0,0,0,0,0,0]**.
 These types are automatically ordered lexicographically.
 
 In **Part 2**, the hand type is modified by adding the number of occurrences of **J** to the first value of the hand type of the rest of the hand. 
