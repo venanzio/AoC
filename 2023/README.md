@@ -63,3 +63,12 @@ The first time that beats the record is **ceiling x1** (plus one if **x1** is al
 The last is **floor x2** (minus one if **x2** is integer).
 
 This solves both parts instantly.
+
+## Day 7: Camel Cards
+
+I computed **hand typess** by just counting occurrences of each card label and putting them in a decreasing list.
+For example **TTT98** has three occurrences of **T**, one of **9**, one of **8**, and zero for all other card types: its hand type is then **[3,1,1,0,0,0,0,0,0,0,0,0,0]**.
+These types are automatically ordered lexicographically.
+
+In **Part 2**, the hand type is modified by adding the number of occurrences of **J** to the first value of the hand type of the rest of the hand. 
+(No need to try all possible sustitutions for **J**: the highest type is always obtained by substituting it with the card that already has the most occurrences).
