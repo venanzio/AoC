@@ -38,7 +38,7 @@ findMaybe f (x:xs) = let fxs = findMaybe f xs in
 minimumBound :: Ord a => a -> [a] -> a
 minimumBound x = minimum . (x:)
 
--- Replace an element of a list (at given index]
+-- Replace an element of a list (at given index)
 replace :: Int -> a -> [a] -> [a]
 replace i x l =
   let (front,back) = splitAt i l
