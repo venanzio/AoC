@@ -22,8 +22,15 @@ puzzle fileName = do
   input <- readFile fileName
   let xs = parseAll pInput input
       (inst,net) = xs
+  putStrLn ("instructions : " ++ show (length inst))
+  putStrLn ("Zs : " ++ show (endNodes net))
   putStrLn ("Part 1: " ++ show (part1 xs))
-  putStrLn (show (take 10 (allPaths net (ouroboros inst) 0 "AAA" endNode)))
+
+  putStrLn (concat $
+            map (\s -> "Start at " ++ s ++ " : " ++
+                       show (take 5 (allPaths net (ouroboros inst) 0 s endNode)) ++ "\n")
+                (startNodes net))
+
   -- putStrLn ("Part 2: " ++ show (part2 xs))
 
 -- Parsing the input
@@ -74,6 +81,9 @@ part1 (inst,net) = navigate  net (ouroboros inst) 0 "AAA" (=="ZZZ")
 startNodes :: Network -> [String]
 startNodes = filter (\s -> s!!2 == 'A') . M.keys
 
+endNodes  :: Network -> [String]
+endNodes = filter (\s -> s!!2 == 'Z') . M.keys
+
 allZ :: [String] -> Bool
 allZ = all (\s -> s!!2 == 'Z')
 
@@ -90,10 +100,12 @@ lcmL :: (Integral a) => [a] -> a
 lcmL = foldr lcm 1
 
 allPaths :: Network -> Instructions ->
-            Int -> String -> (String -> Bool) -> [Int]
+            Int -> String -> (String -> Bool) -> [(Int,String)]
 allPaths net inst steps s end =
-  let paths = allPaths net (tail inst) (steps+1) (step net (head inst) s) end
-  in if end s then steps : paths else paths
+  if end s
+  then (steps,s) : allPaths net (tail inst) 1 (step net (head inst) s) end
+  else allPaths net (tail inst) (steps+1) (step net (head inst) s) end
+  
   
 
 part2 :: (Instructions,Network) -> Int
