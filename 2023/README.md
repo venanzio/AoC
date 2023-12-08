@@ -96,4 +96,6 @@ This means that from an **A** node, the number of steps to reach any occurrence 
 
 Given this much simplified input, the solution is simply the least common multiple of the numbers for each **A** node.
 
+My Haskell program also prints information on the **Z** nodes reached and the number of steps, to verify the structure of the input.
+
 *I have an idea of how I would solve the general problem, but I will rest content of the simple solution for now!*

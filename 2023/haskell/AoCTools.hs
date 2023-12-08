@@ -36,8 +36,6 @@ deleteAll x ys = case elemIndex x ys of
     Just i -> let (ys0,ys1) = splitAt i ys
               in ys0 ++ deleteAll x (tail ys1)
 
-
-
 -- apply a binary function element-wise
 zipWithLong :: (a -> a -> a) -> [a] -> [a] -> [a] 
 zipWithLong f [] ys = ys
@@ -62,8 +60,17 @@ findMaybe f (x:xs) = let fxs = findMaybe f xs in
 minimumBound :: Ord a => a -> [a] -> a
 minimumBound x = minimum . (x:)
 
+-- greatest common divisor of a list
+gcdL :: (Integral a) => [a] -> a
+gcdL = foldr gcd 0
 
+-- least common multiple of a list
+lcmL :: (Integral a) => [a] -> a
+lcmL = foldr lcm 1
 
+-- repeat a list infinitely many times
+ouroboros :: [a] -> [a]
+ouroboros xs = xs ++ ouroboros xs
 
 -- RANGES
 
