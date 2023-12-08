@@ -90,9 +90,7 @@ From a given **A** node we only repeatedly get to the same **Z**:
 
 etc.
 
-Moreover the number of steps from the **A** node to the **Z** node are multiples of the number of instructions, so we always go from **Z** node on instruction number 1, repeating the same cycle.
-
-Finally, the number of steps from the **A** node to the **Z** and between two consecutive **Z** node visits is the same.
+Moreover the number of steps from the **A** node to the **Z** node and between two consecutive **Z** node are equal and multiples of the number of instructions, so we always go from **Z** node on instruction number 1, repeating the same cycle.
 
 This means that from an **A** node, the number of steps to reach any occurrence of the **Z** node is a multiple of that number.
 
