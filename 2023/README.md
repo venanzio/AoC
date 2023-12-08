@@ -79,12 +79,15 @@ In **Part 2**, the hand type is modified by adding the number of occurrences of 
 
 **Part 2** is in principle much more difficult.
 For any starting **A** node, we may have to go through many **Z** nodes,
-the number of steps from **A** to the first **A** and between two different **Z** nodes along the way may all be different.  And even if you reach the sam **Z** node twice, that doesn't necessarily mean that you found a cycle: You could be at different points in the instruction list and next time you may end somewhere else. This would be challenging to solve ...
+the number of steps from **A** to the first **Z** and between two different **Z** nodes along the way may all be different.  And even if you reach the same **Z** node twice, that doesn't necessarily mean that you found a cycle: You could be at different points in the instruction list and next time you may end somewhere else. This would be challenging to solve ...
 
 However, the imput file I got has a much simpler structure:
 From a given **A** node we only repeatedly get to the same **Z**:
+
 **AAA ...-> ZZZ ...-> ZZZ ...-> ZZZ ...**
+
 **PDA ...-> XBZ ...-> XBZ ...-> XBZ ...**
+
 etc.
 
 Moreover the number of steps from the **A** node to the **Z** node are multiples of the number of instructions, so we always go from **Z** node on instruction number 1, repeating the same cycle.
