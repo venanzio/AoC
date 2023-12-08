@@ -84,15 +84,15 @@ the number of steps from **A** to the first **Z** and between two different **Z*
 However, the imput file I got has a much simpler structure:
 From a given **A** node we only repeatedly get to the same **Z**:
 
-**AAA ...-> ZZZ ...-> ZZZ ...-> ZZZ ...**
+**AAA ---> ZZZ ---> ZZZ ---> ZZZ ...**
 
-**PDA ...-> XBZ ...-> XBZ ...-> XBZ ...**
+**PDA ---> XBZ ---> XBZ ---> XBZ ...**
 
 etc.
 
-Moreover the number of steps from the **A** node to the **Z** node and between two consecutive **Z** node are equal and multiples of the number of instructions, so we always go from **Z** node on instruction number 1, repeating the same cycle.
+Moreover the number of steps from the **A** node to the **Z** node and between two consecutive **Z** nodes are equal and a multiple of the number of instructions, so we always go from the **Z** node on instruction number 1, repeating the same cycle.
 
-This means that from an **A** node, the number of steps to reach any occurrence of the **Z** node is a multiple of that number.
+This means that from an **A** node, the number of steps to reach any occurrence of the **Z** node is a multiple of that number of steps.
 
 Given this much simplified input, the solution is simply the least commom multiple of the numbers for each **A** node.
 
