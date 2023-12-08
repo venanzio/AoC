@@ -13,12 +13,12 @@ For every line: create a list of matching digits and select the first and last t
 ## Day 2: Cube Conundrum
 
 Parsing of the input was slightly challenging.
-Once we parsed it into a data structure (list of games, where each game is a list of triples of number of colored cubes), the solutions are easy.
+Once we parsed it into a data structure (list of games, where each game is a list of triples of number of coloured cubes), the solutions are easy.
 
 I use my own simple parser library: FunParser, based on Ch.13 of Graham Hutton's book.
 
-For each extraction, some colors may not be present and they are not in the same order every time.
-We start with a triple of colors with three 0s, and change the corresponding number for every extracted color.
+For each extraction, some colours may not be present and they are not in the same order every time.
+We start with a triple of colours with three 0s, and change the corresponding number for every extracted colour.
 
 For **Part 1**, I initially checked that every extraction was possible.
 But since we have to calculate the minimum number of each colour cubes in **Part 2**, I changed also Part 1 to only check the triple of minimums.
@@ -54,7 +54,7 @@ Then the solution is very similar to Part 1.
 
 ## Day 6: Wait For It
 
-For time **t** and record distance **d**: If you hold the button for **x** milliseconds, you gain speed **x** and the boat travels for **t - x** milliseconds, so the traveled distance is **x(t-x)**. This should be larger than **d**.
+For time **t** and record distance **d**: If you hold the button for **x** milliseconds, you gain speed **x** and the boat travels for **t - x** milliseconds, so the travelled distance is **x(t-x)**. This should be larger than **d**.
 
 So it all comes down to solving the inequality **x^2 - x t + d < 0**.
 The quadratic solution formula tells us that this happens between the two roots **x1 = (t - sqrt(t^2 - 4 d))/2** and **x2 = (t + sqrt(t^2 - 4 d))/2**.
@@ -75,13 +75,13 @@ In **Part 2**, the hand type is modified by adding the number of occurrences of 
 
 ## Day 8: Haunted Wasteland
 
-**Part 1** consists in just folliwing the nodes until we reach **ZZZ*, counting the steps.
+**Part 1** consists in just following the nodes until we reach **ZZZ*, counting the steps.
 
 **Part 2** is in principle much more difficult.
 For any starting **A** node, we may have to go through many **Z** nodes,
 the number of steps from **A** to the first **Z** and between two different **Z** nodes along the way may all be different.  And even if you reach the same **Z** node twice, that doesn't necessarily mean that you found a cycle: You could be at different points in the instruction list and next time you may end somewhere else. This would be challenging to solve ...
 
-However, the imput file I got has a much simpler structure:
+However, the input file I got has a much simpler structure:
 From a given **A** node we only repeatedly get to the same **Z**:
 
 **AAA ---> ZZZ ---> ZZZ ---> ZZZ ...**
@@ -94,6 +94,6 @@ Moreover the number of steps from the **A** node to the **Z** node and between t
 
 This means that from an **A** node, the number of steps to reach any occurrence of the **Z** node is a multiple of that number of steps.
 
-Given this much simplified input, the solution is simply the least commom multiple of the numbers for each **A** node.
+Given this much simplified input, the solution is simply the least common multiple of the numbers for each **A** node.
 
 *I have an idea of how I would solve the general problem, but I will rest content of the simple solution for now!*
