@@ -31,12 +31,12 @@ puzzle fileName = do
 
 type Instructions = String
 type Node = String
-type Network = M.Map String (String,String)
+type Network = M.Map Node (Node,Node)
 
 pInstructions :: Parser Instructions
 pInstructions = many (char 'L' <|> char 'R')
 
-pNode :: Parser (String,(String,String))
+pNode :: Parser (Node,(Node,Node))
 pNode = do s <- word
            symbol "= ("
            tL <- word
@@ -53,12 +53,12 @@ pInput = pPair pInstructions pNetwork
 
 -- Part 1
 
-step :: Network -> Char -> String -> String
+step :: Network -> Char -> Node -> Node
 step net 'L' s = fst $ unJust $ M.lookup s net
 step net 'R' s = snd $ unJust $ M.lookup s net
 
 navigate :: Network -> Instructions ->
-            Int -> String -> (String -> Bool) -> Int
+            Int -> Node -> (Node -> Bool) -> Int
 navigate net inst steps s end =
   if end s
   then steps
@@ -69,25 +69,24 @@ part1 net inst = navigate  net (ouroboros inst) 0 "AAA" (=="ZZZ")
 
 -- Part 2
 
-startNodes :: Network -> [String]
+startNodes :: Network -> [Node]
 startNodes = filter (\s -> s!!2 == 'A') . M.keys
 
-endNodes  :: Network -> [String]
+endNodes  :: Network -> [Node]
 endNodes = filter (\s -> s!!2 == 'Z') . M.keys
 
-allZ :: [String] -> Bool
+allZ :: [Node] -> Bool
 allZ = all (\s -> s!!2 == 'Z')
 
-endNode :: String -> Bool
+endNode :: Node -> Bool
 endNode s = s!!2 == 'Z'
 
 -- This is the brute force solution for Part 2
-navigate2 :: Network -> Int -> [String] -> Instructions -> Int
+navigate2 :: Network -> Int -> [Node] -> Instructions -> Int
 navigate2 net steps ss inst =
   if allZ ss
   then steps
   else navigate2 net (steps+1) (map (step net (head inst)) ss) (tail inst)
-
 
 -- This solution only works because of the input has a simple structure
 part2 :: Network -> Instructions -> Int
@@ -97,7 +96,7 @@ part2 net inst =
 
 
 stepsZ :: Network -> Instructions ->
-          Int -> String -> (String -> Bool) -> [(Int,String)]
+          Int -> Node -> (Node -> Bool) -> [(Int,Node)]
 stepsZ net inst steps s end =
   if end s
   then (steps,s) : stepsZ net (tail inst) 1 (step net (head inst) s) end
