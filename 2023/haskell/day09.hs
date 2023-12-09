@@ -54,3 +54,4 @@ prevVal l = if all (==0) l then 0
 
 part2 :: [[Int]] -> Int
 part2 = sum . map prevVal
+-- alternative: sum . map (nextVal . reverse)

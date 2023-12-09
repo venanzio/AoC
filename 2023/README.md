@@ -105,3 +105,5 @@ My Haskell program also prints information on the **Z** nodes reached and the nu
 **Part 1**: Compute the next value recursively: if the sequence is all zero, the next value is zero, otherwise add the last element of the sequence to the next value of the sequence of differences.
 
 **Part 2**: Compute the previous value similarly, but in the recursive case, instead of summing it to the last element, subtract it from the first element.
+
+Alternative, you can just apply the solutuon of Part 1 to the reverse of the list (trick by <a href="https://mathstodon.xyz/@jas_hughes@fosstodon.org/111548919078164877">Jasmine Hughes</a>).
