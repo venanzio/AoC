@@ -99,3 +99,9 @@ Given this much simplified input, the solution is simply the least common multip
 My Haskell program also prints information on the **Z** nodes reached and the number of steps, to verify the structure of the input.
 
 *I have an idea of how I would solve the general problem, but I will rest content of the simple solution for now!*
+
+## Day 9: Mirage Maintenance
+
+**Part 1**: Compute the next value recursively: if the sequence is all zero, the next value is zero, otherwise add the last element of the sequence to the next value of the sequence of differences.
+
+**Part 2**: Compute the previous value similarly, but in the recursive case, instead of summing it to the last element, subtract it from the first element.
