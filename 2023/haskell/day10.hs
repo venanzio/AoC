@@ -22,7 +22,7 @@ puzzle fileName = do
       field = areaField area
       start = areaStart area
       l = loop field start
-  putStrLn ("Part 1: " ++ show (length l `div` 2))
+  putStrLn ("Part 1: " ++ show (part1 l))
   putStrLn ("Part 2: " ++ show (part2 m n l))
 
 -- Parsing the input
