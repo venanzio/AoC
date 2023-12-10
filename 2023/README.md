@@ -107,3 +107,13 @@ My Haskell program also prints information on the **Z** nodes reached and the nu
 **Part 2**: Compute the previous value similarly, but in the recursive case, instead of summing it to the last element, subtract it from the first element.
 
 Alternative, you can just apply the solutuon of Part 1 to the reverse of the list (trick by <a href="https://mathstodon.xyz/@jas_hughes@fosstodon.org/111548919078164877">Jasmine Hughes</a>).
+
+## Day 10: Pipe Maze
+
+I contructed a map of the pipes in the field.
+Each tile contaning a pipe is mapped to the two tiles it is connected to.
+For the tile with **S**, just check which surrounding tiles connect to it.
+
+**Part 1**: Construct the loop by following the pipes around starting from **S** until you get back to **S**. The answer to Part 1 is half of the length of the loop.
+
+**Part 2**: The points inside the loop are those that have a non-zero winding number.
