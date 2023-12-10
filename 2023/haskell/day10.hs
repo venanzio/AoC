@@ -59,7 +59,7 @@ areaField area = M.mapMaybeWithKey pipe area where
     'J' -> Just [north p, west p]
     '7' -> Just [south p, west p]
     'F' -> Just [south p, east p]
-    'S' -> Just (neighbours area p) -- Just (filter (\n -> M.member n field) (neighbours p))
+    'S' -> Just (neighbours area p)
     _ -> Nothing
 
 areaStart :: M.Map (Int,Int) Char -> Position
