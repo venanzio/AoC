@@ -72,6 +72,7 @@ lcmL = foldr lcm 1
 ouroboros :: [a] -> [a]
 ouroboros xs = xs ++ ouroboros xs
 
+
 -- RANGES
 
 -- An interval is a pair (x,y) denoting [x..y]
@@ -222,7 +223,7 @@ imap f = imap_aux 0 where
   imap_aux i (x:xs) = f i x : imap_aux (i+1) xs
 
 
--- Indexed maps
+-- INDEXED MAPS
 
 -- list to index map with indices as keys, starting at index i0
 listMap :: Int -> [a] -> M.Map Int a
