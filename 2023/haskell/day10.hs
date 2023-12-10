@@ -5,11 +5,7 @@ module Main where
 
 import System.Environment
 import Data.List
-import Data.Char
-import Control.Applicative
 import qualified Data.Map as M
-
-import FunParser
 import AoCTools
 
 main :: IO ()
@@ -83,36 +79,26 @@ part1 l = length l `div` 2
 
 -- Part 2
 
-cardPoints :: Position -> [Position] -> String
-cardPoints _ [] = []
-cardPoints (x0,y0) ((x1,y1):ps)
-  | x0==x1 || y0>y1 = 'N' : cardPoints (x0,y0) ps
-  | x0==x1 || y0<y1 = 'S' : cardPoints (x0,y0) ps
-  | x0>x1 || y1==y0 = 'W' : cardPoints (x0,y0) ps
-  | x0<x1 || y1==y0 = 'E' : cardPoints (x0,y0) ps
-  | otherwise       = cardPoints (x0,y0) ps
-
-nextCard :: Char -> Char
-nextCard 'N' = 'E'
-nextCard 'E' = 'S'
-nextCard 'S' = 'W'
-nextCard 'W' = 'N'
-
-delReps :: Eq a => [a] -> [a]
-delReps [] = []
-delReps [x] = [x]
-delReps (x0:x1:xs) = if x0==x1 then delReps xs else x0 : delReps (x1:xs)
-  
 winding :: Position -> [Position] -> Int
-winding p l = (length $ delReps $ cardPoints p l) `div` 4
+winding (x0,y0) l = winDir 0 (lastX x0) l where
+  winDir w px [] = w
+  winDir w px qs@((x1,y1):qs1) =
+    if x0==x1 && y0>y1
+    then let (nx,qs') = nextXL qs
+         in winDir (w + (nx-px) `div` 2) x1 qs'
+    else winDir w x1 qs1
 
-enclosed :: [Position] -> [Position] -> Int
-enclosed ground l = length $
-  filter (\p -> winding p l > 0) (ground \\ l)
+  lastX x = head $ filter (/=x) $ reverse $ map fst l
+
+  nextXL [] = (fst $ head l, [])
+  nextXL (qs@((x1,y1):qs')) = if x1 == x0 then nextXL qs' else (x1,qs)
+    
+enclosed :: [Position] -> [Position] -> [Position]
+enclosed ground l = filter (\p -> winding p l /= 0) (ground \\ l)
 
 allPos :: Int -> Int -> [Position]
 allPos m n = [(x,y) | x <- [0..m-1], y <- [0..n-1]]
 
 part2 ::  Int -> Int -> [Position] -> Int
-part2 m n l = enclosed (allPos m n) l
+part2 m n l = length $ enclosed (allPos m n) l
 
