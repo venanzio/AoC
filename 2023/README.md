@@ -116,4 +116,4 @@ For the tile with **S**, just check which surrounding tiles connect to it.
 
 **Part 1**: Construct the loop by following the pipes around starting from **S** until you get back to **S**. The answer to Part 1 is half of the length of the loop.
 
-**Part 2**: The points inside the loop are those that have a non-zero winding number.
+**Part 2**: The points inside the loop are those that have a non-zero winding number. This is the number of times that the loop circles around the point. We can determine it by just looking in one direction, for example north. Every time the loop crosses straight north of the point, add 1 to the winding number if it goes from west to east, subtract 1 if it goes from east to west.
