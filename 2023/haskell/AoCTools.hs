@@ -72,6 +72,10 @@ lcmL = foldr lcm 1
 ouroboros :: [a] -> [a]
 ouroboros xs = xs ++ ouroboros xs
 
+-- all non-ordered pairs of eleemnts of a list
+allPairs :: [a] -> [(a,a)]
+allPairs [] = []
+allPairs (x:xs) = map (\y -> (x,y)) xs ++ allPairs xs
 
 -- RANGES
 
