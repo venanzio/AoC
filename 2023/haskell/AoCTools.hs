@@ -77,6 +77,8 @@ allPairs :: [a] -> [(a,a)]
 allPairs [] = []
 allPairs (x:xs) = map (\y -> (x,y)) xs ++ allPairs xs
 
+
+
 -- RANGES
 
 -- An interval is a pair (x,y) denoting [x..y]

@@ -1,4 +1,4 @@
--- Advent of Code 2023, day 0
+-- Advent of Code 2023, day 11
 
 --  Venanzio Capretta
 
