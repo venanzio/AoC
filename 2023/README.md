@@ -121,7 +121,7 @@ For the tile with **S**, just check which surrounding tiles connect to it.
 ## Day 11: Cosmic Expansion
 
 First find the coordinates of all the galaxies in the original image.
-Then expand their coordinates: Find lists of the rows and columns to expand; add to the x-coordinate the number of columns to expand that are lower than that coordinate, multiplied by the expansion rate (minus one because the single column was already counted in the original coordinate). 
+Then expand their coordinates: Find lists of the rows and columns to expand; add to the x-coordinate the number of columns to expand that are lower than that coordinate, multiplied by the expansion rate (minus one because the single column was already counted in the original coordinate); similarly with the y-coordinate, using the list of rows to expand. 
 
 This words for Parts 1 and 2 with a different expansion rate.
 
