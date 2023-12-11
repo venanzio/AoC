@@ -117,3 +117,12 @@ For the tile with **S**, just check which surrounding tiles connect to it.
 **Part 1**: Construct the loop by following the pipes around starting from **S** until you get back to **S**. The answer to Part 1 is half of the length of the loop.
 
 **Part 2**: The points inside the loop are those that have a non-zero winding number. This is the number of times that the loop circles around the point. We can determine it by just looking in one direction, for example north. Every time the loop crosses straight north of the point, add 1 to the winding number if it goes from west to east, subtract 1 if it goes from east to west.
+
+## Day 11: Cosmic Expansion
+
+First find the coordinates of all the galaxies in the original image.
+Then expand their coordinates: Find lists of the rows and columns to expand; add to the x-coordinate the number of columns to expand that are lower than that coordinate, multiplied by the expansion rate (minus one because the single column was already counted in the original coordinate). 
+
+This words for Parts 1 and 2 with a different expansion rate.
+
+*Don't try to expand the whole image, that would be too big for Part 2!*
