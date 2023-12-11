@@ -25,6 +25,11 @@ puzzle fileName = do
   putStrLn ("Part 1: " ++ show (part1 l))
   putStrLn ("Part 2: " ++ show (part2 m n l))
 
+  {- Alternative solution using the shoelace formula:
+  putStrLn ("Part 2: " ++ show (shoelace l - length l `div` 2))
+     I don't know why, this gives a result that is off by 1
+  -}
+  
 -- Parsing the input
 
 type Position = (Int,Int)
@@ -102,3 +107,14 @@ allPos m n = [(x,y) | x <- [0..m-1], y <- [0..n-1]]
 part2 ::  Int -> Int -> [Position] -> Int
 part2 m n l = length $ enclosed (allPos m n) l
 
+
+
+-- Alternative solution: use the shoelace formula for the area of a polygon
+shoelace :: [Position] -> Int
+shoelace ps = sum [trapezoid p0 p1 | (p0,p1) <- consPairs ps] `div` 2
+
+trapezoid :: Position -> Position -> Int
+trapezoid (x0,y0) (x1,y1) = (y0+y1)*(x0-x1)
+
+consPairs :: [a] -> [(a,a)]
+consPairs xs = zip xs (tail xs ++ [head xs])
