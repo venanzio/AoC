@@ -6,11 +6,6 @@ module Main where
 
 import System.Environment
 import Data.List
-import Data.Char
-import Control.Applicative
-import qualified Data.Map as M
-
-import FunParser
 import AoCTools
 
 main :: IO ()
@@ -30,16 +25,6 @@ puzzle fileName = do
 -- Expanding the image
 
 type Image = [String]
-
-expandR :: Image -> Image
-expandR [] = []
-expandR (r:rs) = if all (=='.') r then r:r:expandR rs else r:expandR rs
-
-expand :: Image -> Image
-expand = transpose . expandR . transpose . expandR
-
--- Part 1
-
 type Position = (Int,Int)
 
 galaxies :: Image -> [Position]
@@ -49,30 +34,32 @@ galaxies image = [(x,y) | y <- [0..length image - 1], x  <- [0..length (image!!y
 distance :: Position -> Position -> Int
 distance (x0,y0) (x1,y1) = abs (x1-x0) + abs (y1-y0)
 
-part1 :: [Int] -> [Int] -> [Position] -> Int
-part1 expRs expCs gs =
-  let gsE = map (galaxyDist 2 expRs expCs) gs
-  in sum [distance g0 g1 | (g0,g1) <- allPairs gsE]
-
--- Part 2
-
 emptyRs :: Image -> [Int]
 emptyRs = findIndices (all (=='.'))
 
 emptyCs :: Image -> [Int]
 emptyCs = emptyRs . transpose
 
+-- expansion of a coordinate (given expansion rate and coordinates to expand)
+expandC :: Int -> [Int] -> Int -> Int
+expandC expRate expXs x =
+  x + (expRate-1)*(length $ filter (<x) expXs)
 
-expandD :: Int -> [Int] -> Int -> Int
-expandD expRate expRs x =
-  x + (expRate-1)*(length $ filter (<x) expRs)
+-- expanding a position given expansion rate and rows and columns to expand
+expand :: Int -> [Int] -> [Int] -> Position -> Position
+expand expRate expRs expCs (x,y) =
+  (expandC expRate expCs x, expandC expRate expRs y)
 
-galaxyDist :: Int -> [Int] -> [Int] -> Position -> Position
-galaxyDist expRate expRs expCs (x,y) =
-  (expandD expRate expCs x, expandD expRate expRs y)
+sumDistances :: [Position] -> Int
+sumDistances gs = sum [distance g0 g1 | (g0,g1) <- allPairs gs]
 
+-- Part 1
+
+part1 :: [Int] -> [Int] -> [Position] -> Int
+part1 expRs expCs gs = sumDistances $ map (expand 2 expRs expCs) gs
+
+-- Part 2
 
 part2 :: [Int] -> [Int] -> [Position] -> Int
-part2 expRs expCs gs =
-  let gsE = map (galaxyDist 1000000 expRs expCs) gs
-  in sum [distance g0 g1 | (g0,g1) <- allPairs gsE]
+part2 expRs expCs gs =  sumDistances $ map (expand 1000000 expRs expCs) gs
+
