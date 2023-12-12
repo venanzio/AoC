@@ -59,12 +59,45 @@ part1 xs = sum [arrangements r gs | (r,gs) <- xs]
 -- Part 2
 
 arrangements2 :: String -> [Int] -> Int
-arrangements2 = arrangements r (delete 0 gs)
+arrangements2 r [] = if all (`elem` ".?") r then 1 else 0
+arrangements2 r gs | length r < sum gs + length gs - 1 = 0
+arrangements2 r gs = arrangeAll r gs -- splitSpring r (delete 0 gs)
+
+splitAtMax :: [Int] -> (Int,[Int],[Int])
+splitAtMax gs = let g = maximum gs
+                    (gsa,gsb) = break (==g) gs
+                in (g,gsa,tail gsb)
 
 
 
 
--- "Optimization" still slowe
+splitString :: String -> Int -> [(String,String)]
+splitString r g =  ssFind 0 ("","",r) where
+  ssFind n (ra,rc,rb) | n==g =
+    ssShift ra rc rb ++
+      let (rb1,rb2) = break (=='.') rb
+      in if rb2 == "" then [] else ssFind 0 (ra++rc++rb1++".","",tail rb2)
+  ssFind n (ra,rc,"") = []
+  ssFind n (ra,rc,c:rb) = if c `elem` "#?" then ssFind (n+1) (ra,rc++[c],rb)
+                                           else ssFind 0 (ra++rc++[c],"",rb)
+
+  ssShift ra rc "" = [(ra,"")]
+  ssShift ra rc (c:rb) = (ra,c:rb) :
+    if c `elem` "#?" then ssShift (ra++[head rc]) (tail rc ++ [c]) rb
+                     else []
+
+-- number of arrangements of the two splittings above
+splitArrange :: ([Int],[Int]) -> (String,String) -> Int
+splitArrange (ga,gb) (ra,rb) =
+  (arrangements2 ra ga) * (arrangements2 rb gb)
+
+arrangeAll :: String -> [Int] -> Int
+arrangeAll r gs = let (g,ga,gb) = splitAtMax gs in
+  sum [splitArrange (ga,gb) (ra,rb) | (ra,rb) <- splitString r g]
+
+
+
+-- "Optimization" still slow
 
 -- Maximum sequence of consecutive #s
 maxSpring :: String -> (Int,String,String)
@@ -104,4 +137,4 @@ unfold :: (String,[Int]) ->  (String,[Int])
 unfold (r,gs) = (concat (r:take 4 (repeat ('?':r))), concat (take 5 (repeat gs)))
 
 part2 :: [(String,[Int])] -> Int
-part2  xs = sum [arrangements r gs | (r,gs) <- map unfold xs]
+part2 xs = sum [arrangements2 r gs | (r,gs) <- map unfold xs]
