@@ -6,12 +6,8 @@ module Main where
 
 import System.Environment
 import Data.List
-import Data.Char
-import Control.Applicative
 import qualified Data.Map as M
-
 import FunParser
-import AoCTools
 
 main :: IO ()
 main = do
@@ -37,27 +33,6 @@ pInput = pLines pData
 
 -- Part 1
 
-arrangements :: String -> [Int] -> Int
-arrangements r gs = sum
-  [arrangements0 (drop n r) gs |
-   n <- [0 .. length (takeWhile (`elem` ".?") r)] ]
-
-arrangements0 :: String -> [Int] -> Int
-arrangements0 r [] = if all (`elem` ".?") r then 1 else 0
-arrangements0 r [0] = if all (`elem` ".?") r then 1 else 0
-arrangements0 r gs | length r < sum gs + length gs - 1 = 0
-arrangements0 r (0:gs) =  sum
-  [arrangements0 (drop n r) gs |
-   n <- [1 .. length (takeWhile (`elem` ".?") r)] ]
-arrangements0 r (g:gs) = if length (takeWhile (`elem` "#?") r) >= g
-  then arrangements0 (drop g r) (0:gs)
-  else 0
-
-part1 :: [(String,[Int])] -> Int
-part1 xs = sum [arrangements2 r gs | (r,gs) <- xs]
-
--- Part 2
-
 groupStart :: String -> [String]
 groupStart r = let (ra,rb) = break (=='#') (dropWhile (=='.') r) in
   [ra'++rb | ra' <- dotGroups ra]
@@ -74,17 +49,22 @@ takeGroup g r = let (ra,rb) = splitAt g r in
           else []
   else []
 
-arrangements2 :: String -> [Int] -> Int
-arrangements2 r gs =
+arrangements :: String -> [Int] -> Int
+arrangements r gs =
   arrMap M.! (r,gs) where
-  arrMap = M.fromList [((r0,gs0),arr2 r0 gs0) | r0 <- tails r, gs0 <- tails gs]
-  arr2 r' [] = if all (`elem` ".?") r' then 1 else 0
-  arr2 r' gs' | length r' < sum gs' + length gs' - 1 = 0
-  arr2 r' (g:gs') = sum $
+  arrMap = M.fromList [((r0,gs0),arr r0 gs0) | r0 <- tails r, gs0 <- tails gs]
+  arr r' [] = if all (`elem` ".?") r' then 1 else 0
+  arr r' gs' | length r' < sum gs' + length gs' - 1 = 0
+  arr r' (g:gs') = sum $
     [arrMap M.! (r1,gs') | r0 <- groupStart r', r1 <- takeGroup g r0]
+
+part1 :: [(String,[Int])] -> Int
+part1 xs = sum [arrangements r gs | (r,gs) <- xs]
+
+-- Part 2
 
 unfold :: (String,[Int]) ->  (String,[Int])
 unfold (r,gs) = (concat (r:take 4 (repeat ('?':r))), concat (take 5 (repeat gs)))
 
 part2 :: [(String,[Int])] -> Int
-part2 xs = sum [arrangements2 r gs | (r,gs) <- map unfold xs]
+part2 xs = sum [arrangements r gs | (r,gs) <- map unfold xs]
