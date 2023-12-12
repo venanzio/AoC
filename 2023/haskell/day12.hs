@@ -54,31 +54,34 @@ arrangements0 r (g:gs) = if length (takeWhile (`elem` "#?") r) >= g
   else 0
 
 part1 :: [(String,[Int])] -> Int
-part1 xs = sum [arrangements r gs | (r,gs) <- xs]
+part1 xs = sum [arrangements2 r gs | (r,gs) <- xs]
 
 -- Part 2
 
-groupStart :: String -> [(Int,String)]
+groupStart :: String -> [String]
 groupStart r = let (ra,rb) = break (=='#') (dropWhile (=='.') r) in
-  [(n,ra'++rb) | (n,ra') <- dotGroups ra]
+  [ra'++rb | ra' <- dotGroups ra]
 
-dotGroups :: String -> [(Int,String)]
+dotGroups :: String -> [String]
 dotGroups r = let (ra,rb) = break (=='?') r in
-  (length ra + 1, rb) : if rb=="" then [] else dotGroups (tail rb)
+  if rb=="" then [rb] else rb : dotGroups (tail rb)
 
 takeGroup :: Int -> String -> [String]
 takeGroup g r = let (ra,rb) = splitAt g r in
   if length ra == g && all (`elem` "#?") ra
   then if rb == "" then [""] else
-        if head rb `elem` ".?" then [(tail rb)]
+        if head rb `elem` ".?" then [dropWhile (=='.') (tail rb)]
           else []
   else []
 
 arrangements2 :: String -> [Int] -> Int
-arrangements2 r [] = if all (`elem` ".?") r then 1 else 0
-arrangements2 r gs | length r < sum gs + length gs - 1 = 0
-arrangements2 r (g:gs) = sum $
-  [n * arrangements r1 gs | (n,r0) <- groupStart r, r1 <- takeGroup g r0]
+arrangements2 r gs =
+  arrMap M.! (r,gs) where
+  arrMap = M.fromList [((r0,gs0),arr2 r0 gs0) | r0 <- tails r, gs0 <- tails gs]
+  arr2 r' [] = if all (`elem` ".?") r' then 1 else 0
+  arr2 r' gs' | length r' < sum gs' + length gs' - 1 = 0
+  arr2 r' (g:gs') = sum $
+    [arrMap M.! (r1,gs') | r0 <- groupStart r', r1 <- takeGroup g r0]
 
 unfold :: (String,[Int]) ->  (String,[Int])
 unfold (r,gs) = (concat (r:take 4 (repeat ('?':r))), concat (take 5 (repeat gs)))
