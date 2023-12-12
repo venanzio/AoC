@@ -59,8 +59,14 @@ part1 xs = sum [arrangements r gs | (r,gs) <- xs]
 -- Part 2
 
 arrangements2 :: String -> [Int] -> Int
-arrangements2 r gs = arrangements r (delete 0 gs)
+arrangements2 = arrangements r (delete 0 gs)
 
+
+
+
+-- "Optimization" still slowe
+
+-- Maximum sequence of consecutive #s
 maxSpring :: String -> (Int,String,String)
 maxSpring "" = (0,"","")
 maxSpring r =
@@ -72,21 +78,26 @@ maxSpring r =
       (n1,r1a,r1b) = maxSpring (drop 1 r0b)
   in if n1 > n0 then (n1,r'++r0a++r1a,r1b) else (n0,r',r0b)
 
-extraSpring :: (Int,String,String) -> (Int,[Int],[Int]) -> Int
-extraSpring (n,ra,rb) (g,ga,gb) = sum
-  [(arrangements2 ra (i:ga)) * (arrangements2 rb (g-n-i:ga))
-  | i <- [0..g-n]]
-  
-splitSpring :: String -> [Int] -> Int
-splitSpring r gs = case maxSpring r of
-  (0,r0,_) -> arrangements r0 gs
-  (n,r0a,r0b) -> undefined
-    
+-- possible splittings of a group at elements with lower bounded size
 splittings :: Int -> [Int] -> [(Int,[Int],[Int])]
 splittings n gs = case break (>=n) gs of
   (gs,[]) -> []
   (gsa,(g:gsb)) ->
     (g,gsa,gsb) : [(g',gsa++g:gsa',gsb') | (g',gsa',gsb') <- splittings n gsb]
+
+-- number of arrangements of the two splittings above
+extraSpring :: (Int,String,String) -> (Int,[Int],[Int]) -> Int
+extraSpring (n,ra,rb) (g,ga,gb) = sum
+  [(arrangements2 ra (i:ga)) * (arrangements2 rb (g-n-i:ga))
+  | i <- [0..g-n]]
+
+-- For all possible splittings of the group
+splitSpring :: String -> [Int] -> Int
+splitSpring r gs = case maxSpring r of
+  (0,r0,_) -> arrangements r0 gs
+  (n,r0a,r0b) -> sum (map (extraSpring (n,r0a,r0b)) (splittings n gs))
+    
+
 
 
 unfold :: (String,[Int]) ->  (String,[Int])
