@@ -69,7 +69,25 @@ splitAtMax gs = let g = maximum gs
                 in (g,gsa,tail gsb)
 
 
+groupStart :: String -> [(String,String)]
+groupStart r = ("",r) : gStart r where
+  gStart r =
+    let (ra,rb) = break (`elem` ".?") r
+    in if rb == "" then []
+       else (ra,tail rb) : map (\(r0a,r0b) -> (ra++(head rb):r0a,r0b))
+                               (gStart (tail rb))
 
+isGroup :: Int -> String -> [String]
+isGroup g r = let (ra,rb) = splitAt g r in
+  if length ra == g && all (`elem` "#?") ra
+  then if rb == "" then [""] else
+        if head rb `elem` ".?" then [(tail rb)]
+          else []
+  else []
+  
+allGroups :: Int -> String -> [(String,String)]
+allGroups g r =
+  [(ra,rb')  | (ra,rb) <- groupStart r, rb' <- isGroup g rb]
 
 splitString :: String -> Int -> [(String,String)]
 splitString r g =  ssFind 0 ("","",r) where
