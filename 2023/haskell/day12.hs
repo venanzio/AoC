@@ -83,7 +83,7 @@ splitSpring r gs = case maxSpring r of
   (n,r0a,r0b) -> undefined
     
 splittings :: Int -> [Int] -> [(Int,[Int],[Int])]
-splittings n gs = case partition (>n) gs of
+splittings n gs = case break (>=n) gs of
   (gs,[]) -> []
   (gsa,(g:gsb)) ->
     (g,gsa,gsb) : [(g',gsa++g:gsa',gsb') | (g',gsa',gsb') <- splittings n gsb]
