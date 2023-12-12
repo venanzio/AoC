@@ -126,3 +126,10 @@ Then expand their coordinates: Find lists of the rows and columns to expand; add
 This works for Parts 1 and 2 with a different expansion rate.
 
 *Don't try to expand the whole image, that would be too big for Part 2!*
+
+## Day 12: Hot Springs
+
+**Part 1** can be solved by just pattern matching the group numbers with the input rows.
+
+**Part 2** is too large to use the simplistic strategy of Part 1.
+Since we are going to recompute the same patterns several times, I used dynamic programming to compute them the first time we encounter and then reuse the result.
