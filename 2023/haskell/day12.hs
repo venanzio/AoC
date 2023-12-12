@@ -79,10 +79,14 @@ extraSpring (n,ra,rb) (g,ga,gb) = sum
   
 splitSpring :: String -> [Int] -> Int
 splitSpring r gs = case maxSpring r of
-  (0,r0,_) -> arrangements2 r0 gs
+  (0,r0,_) -> arrangements r0 gs
   (n,r0a,r0b) -> undefined
     
-
+splittings :: Int -> [Int] -> [(Int,[Int],[Int])]
+splittings n gs = case partition (>n) gs of
+  (gs,[]) -> []
+  (gsa,(g:gsb)) ->
+    (g,gsa,gsb) : [(g',gsa++g:gsa',gsb') | (g',gsa',gsb') <- splittings n gsb]
 
 
 unfold :: (String,[Int]) ->  (String,[Int])
