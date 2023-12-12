@@ -58,9 +58,13 @@ part1 xs = sum [arrangements r gs | (r,gs) <- xs]
 
 -- Part 2
 
-groupStart :: String -> [String]
+groupStart :: String -> [(Int,String)]
 groupStart r = let (ra,rb) = break (=='#') (dropWhile (=='.') r) in
-  map (++rb) (tails ra)
+  [(n,ra'++rb) | (n,ra') <- dotGroups ra]
+
+dotGroups :: String -> [(Int,String)]
+dotGroups r = let (ra,rb) = break (=='?') r in
+  (length ra + 1, rb) : if rb=="" then [] else dotGroups (tail rb)
 
 takeGroup :: Int -> String -> [String]
 takeGroup g r = let (ra,rb) = splitAt g r in
@@ -74,8 +78,7 @@ arrangements2 :: String -> [Int] -> Int
 arrangements2 r [] = if all (`elem` ".?") r then 1 else 0
 arrangements2 r gs | length r < sum gs + length gs - 1 = 0
 arrangements2 r (g:gs) = sum $
-  map (flip arrangements2 gs)
-      (concat $ map (takeGroup g) (groupStart r))
+  [n * arrangements r1 gs | (n,r0) <- groupStart r, r1 <- takeGroup g r0]
 
 unfold :: (String,[Int]) ->  (String,[Int])
 unfold (r,gs) = (concat (r:take 4 (repeat ('?':r))), concat (take 5 (repeat gs)))
