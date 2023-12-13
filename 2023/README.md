@@ -133,3 +133,9 @@ This works for Parts 1 and 2 with a different expansion rate.
 
 **Part 2** is too large to use the simplistic strategy of Part 1.
 Since we are going to recompute the same patterns several times, I used dynamic programming to compute them the first time we encounter and then reuse the result.
+
+## Day 13: Point of Incidence
+
+**Part 1**: Checking a vertical reflection around Row i is done by simply matching the row before i with the reverse of those after. For horizontal reflection, just apply the same operation to the transpose.
+
+**Part 2**: Like part 1, but instead of just checking equality of matching rows (or columns), count the differences: the right line of reflection is the one with just one difference.
