@@ -78,6 +78,21 @@ allPairs [] = []
 allPairs (x:xs) = map (\y -> (x,y)) xs ++ allPairs xs
 
 
+-- ORBITS OF FUNCIONS
+
+orbitCycle :: Eq a => (a->a) -> a -> (Int,Int)
+orbitCycle f x0 = let (xs,ys) = orbit f x0 in (length xs, length ys)
+
+orbit :: Eq a => (a->a) -> a -> ([a],[a])
+orbit f x0 = listOrbit (iterate f x0)
+
+listOrbit :: Eq a => [a] -> ([a],[a])
+listOrbit xs = orb [] xs where
+  orb vs [] = (vs,[])
+  orb vs (x:xs) = let (vs1,vs0) = break (==x) vs
+                   in if vs0 == [] then orb (x:vs) xs
+                      else (reverse (tail vs0), x : reverse vs1)
+
 
 -- RANGES
 

@@ -23,14 +23,12 @@ puzzle fileName = do
   let (round,cube) = pInput input
       sEdge = length input
       eEdge = length (input!!0)
-      roundN = slideNAll cube round
-      roundW = slideWAll cube roundN
-      roundS = slideSAll sEdge cube roundW
       round1 = spinCycle sEdge eEdge cube round
-  putStrLn (showRocks sEdge eEdge cube roundN)
-  putStrLn (showRocks sEdge eEdge cube roundW)
-  putStrLn (showRocks sEdge eEdge cube roundS)
+      round2 = spinCycle sEdge eEdge cube round1
+      round3 = spinCycle sEdge eEdge cube round2
   putStrLn (showRocks sEdge eEdge cube round1)
+  putStrLn (showRocks sEdge eEdge cube round2)
+  putStrLn (showRocks sEdge eEdge cube round3)
   putStrLn ("Part 1: " ++ show (part1 round cube sEdge))
   putStrLn ("Part 2: " ++ show (part2 round cube sEdge eEdge))
 
@@ -100,9 +98,10 @@ spinCycle :: Int -> Int -> [Position] -> [Position] -> [Position]
 spinCycle sEdge eEdge cube =
   slideEAll eEdge cube . slideSAll sEdge cube . slideWAll cube . slideNAll cube
 
+
 stableCycle :: Int -> Int -> [Position] -> [Position] -> [Position]
 stableCycle sEdge eEdge cube round =
-  let cRound = spinCycle sEdge eEdge cube round
+  let cRound = sort $ spinCycle sEdge eEdge cube round
   in if cRound == round then round else stableCycle sEdge eEdge cube cRound
 
 part2 :: [Position] -> [Position] -> Int -> Int -> Int
