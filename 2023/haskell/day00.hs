@@ -1,5 +1,4 @@
 -- Advent of Code 2023, day 0
-
 --  Venanzio Capretta
 
 module Main where
