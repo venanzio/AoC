@@ -21,8 +21,9 @@ puzzle :: String -> IO ()
 puzzle fileName = do
   input <- readFile fileName >>= return . lines
   let (round,cube) = pInput input
-      edge = length input
-  putStrLn ("Part 1: " ++ show (part1 round cube edge))
+      sEdge = length input
+      eEdge = length (input!!0)
+  putStrLn ("Part 1: " ++ show (part1 round cube sEdge))
   putStrLn ("Part 2: " ++ show (part2 round cube))
 
 -- Parsing the input
@@ -55,6 +56,13 @@ slideWest :: [Position] -> [Position] -> Position -> Position
 slideWest round cube (x,y) =
   (maximum (-1:[x0 | (x0,y0) <-round++cube, y0==y, x0<x]) + 1, y)
 
+slideSouth :: Int -> [Position] -> [Position] -> Position -> Position
+slideSouth sEdge round cube (x,y) =
+  (x, minimum (sEdge:[y0 | (x0,y0) <-round++cube, x0==x, y0>x]) - 1)
+
+slideEast :: Int -> [Position] -> [Position] -> Position -> Position
+slideEast eEdge round cube (x,y) =
+  (minimum (eEdge:[x0 | (x0,y0) <-round++cube, y0==y, x0>x]) - 1, y)
 
 
 part2 :: [Position] -> [Position] -> Int
