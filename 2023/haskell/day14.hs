@@ -24,8 +24,13 @@ puzzle fileName = do
       sEdge = length input
       eEdge = length (input!!0)
       roundN = slideNAll cube round
-      roundW = slideWAll cube round
+      roundW = slideWAll cube roundN
+      roundS = slideSAll sEdge cube roundW
+      round1 = spinCycle sEdge eEdge cube round
+  putStrLn (showRocks sEdge eEdge cube roundN)
   putStrLn (showRocks sEdge eEdge cube roundW)
+  putStrLn (showRocks sEdge eEdge cube roundS)
+  putStrLn (showRocks sEdge eEdge cube round1)
   putStrLn ("Part 1: " ++ show (part1 round cube sEdge))
   putStrLn ("Part 2: " ++ show (part2 round cube sEdge eEdge))
 
@@ -72,24 +77,24 @@ slideWest cube round (x,y) =
   (maximum (-1:[x0 | (x0,y0) <-cube++round, y0==y, x0<x]) + 1, y)
 
 slideWAll :: [Position] -> [Position] -> [Position] 
-slideWAll cube round = foldl (\rs p -> (slideWest rs cube p) : rs) []
-             (sortOn (\(x,y) -> (y,x)) cube)
+slideWAll cube round = foldl (\rs p -> (slideWest cube rs p) : rs) []
+             (sortOn (\(x,y) -> (y,x)) round)
 
 slideSouth :: Int -> [Position] -> [Position] -> Position -> Position
 slideSouth sEdge cube round (x,y) =
-  (x, minimum (sEdge:[y0 | (x0,y0) <-cube++round, x0==x, y0>x]) - 1)
+  (x, minimum (sEdge:[y0 | (x0,y0) <-cube++round, x0==x, y0>y]) - 1)
 
 slideSAll :: Int -> [Position] -> [Position] -> [Position] 
-slideSAll sEdge cube round = foldl (\rs p -> (slideSouth sEdge rs cube p) : rs) []
-             (reverse $ sort cube)
+slideSAll sEdge cube round = foldl (\rs p -> (slideSouth sEdge cube rs p) : rs) []
+             (reverse $ sort round)
 
 slideEast :: Int -> [Position] -> [Position] -> Position -> Position
 slideEast eEdge cube round (x,y) =
   (minimum (eEdge:[x0 | (x0,y0) <-cube++round, y0==y, x0>x]) - 1, y)
 
 slideEAll :: Int -> [Position] -> [Position] -> [Position] 
-slideEAll eEdge cube round = foldl (\rs p -> (slideEast eEdge rs cube p) : rs) []
-             (reverse $ sortOn (\(x,y) -> (y,x)) cube)
+slideEAll eEdge cube round = foldl (\rs p -> (slideEast eEdge cube rs p) : rs) []
+             (reverse $ sortOn (\(x,y) -> (y,x)) round)
 
 spinCycle :: Int -> Int -> [Position] -> [Position] -> [Position]
 spinCycle sEdge eEdge cube =
