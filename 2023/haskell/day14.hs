@@ -23,13 +23,25 @@ puzzle fileName = do
   let (round,cube) = pInput input
       sEdge = length input
       eEdge = length (input!!0)
+      roundN = slideNAll cube round
+      roundW = slideWAll cube round
+  putStrLn (showRocks sEdge eEdge cube roundW)
   putStrLn ("Part 1: " ++ show (part1 round cube sEdge))
-  putStrLn ("Part 2: " ++ show (part2 round cube))
+  putStrLn ("Part 2: " ++ show (part2 round cube sEdge eEdge))
 
 -- Parsing the input
 
 type Position = (Int,Int)
 
+showRocks :: Int -> Int -> [Position] -> [Position] -> String
+showRocks sEdge eEdge cube round = unlines
+  [[posRock (x,y) | x <- [0 .. eEdge -1]]
+  | y <- [0 .. sEdge - 1]]
+  where posRock pos =
+          if pos `elem` cube then '#'
+            else if pos `elem` round then 'O'
+                   else '.'
+    
 pInput :: [String] -> ([Position],[Position])
 pInput input = foldr addPos ([],[]) allPos where
   addPos (x,y) (round,cube) = case input!!y!!x of
@@ -44,26 +56,49 @@ slideNorth :: [Position] -> [Position] -> Position -> Position
 slideNorth round cube (x,y) =
   (x, maximum (-1:[y0 | (x0,y0) <-round++cube, x0==x, y0<y]) + 1)
 
-slideAll :: [Position] -> [Position] -> [Position] 
-slideAll round cube = foldl (\rs p -> (slideNorth rs cube p) : rs) [] (sort round)
-                          
+slideNAll :: [Position] -> [Position] -> [Position] 
+slideNAll cube round = foldl (\rs p -> (slideNorth rs cube p) : rs) [] (sort round)
+
+load :: [Position] -> [Position] -> Int -> Int
+load round cube edge = sum [edge - y | (_,y) <- slideNAll cube round]
+                       
 part1 :: [Position] -> [Position] -> Int -> Int
-part1 round cube edge = sum [edge - y | (_,y) <- slideAll round cube]
+part1 = load
 
 -- Part 2
 
 slideWest :: [Position] -> [Position] -> Position -> Position
-slideWest round cube (x,y) =
-  (maximum (-1:[x0 | (x0,y0) <-round++cube, y0==y, x0<x]) + 1, y)
+slideWest cube round (x,y) =
+  (maximum (-1:[x0 | (x0,y0) <-cube++round, y0==y, x0<x]) + 1, y)
+
+slideWAll :: [Position] -> [Position] -> [Position] 
+slideWAll cube round = foldl (\rs p -> (slideWest rs cube p) : rs) []
+             (sortOn (\(x,y) -> (y,x)) cube)
 
 slideSouth :: Int -> [Position] -> [Position] -> Position -> Position
-slideSouth sEdge round cube (x,y) =
-  (x, minimum (sEdge:[y0 | (x0,y0) <-round++cube, x0==x, y0>x]) - 1)
+slideSouth sEdge cube round (x,y) =
+  (x, minimum (sEdge:[y0 | (x0,y0) <-cube++round, x0==x, y0>x]) - 1)
+
+slideSAll :: Int -> [Position] -> [Position] -> [Position] 
+slideSAll sEdge cube round = foldl (\rs p -> (slideSouth sEdge rs cube p) : rs) []
+             (reverse $ sort cube)
 
 slideEast :: Int -> [Position] -> [Position] -> Position -> Position
-slideEast eEdge round cube (x,y) =
-  (minimum (eEdge:[x0 | (x0,y0) <-round++cube, y0==y, x0>x]) - 1, y)
+slideEast eEdge cube round (x,y) =
+  (minimum (eEdge:[x0 | (x0,y0) <-cube++round, y0==y, x0>x]) - 1, y)
 
+slideEAll :: Int -> [Position] -> [Position] -> [Position] 
+slideEAll eEdge cube round = foldl (\rs p -> (slideEast eEdge rs cube p) : rs) []
+             (reverse $ sortOn (\(x,y) -> (y,x)) cube)
 
-part2 :: [Position] -> [Position] -> Int
-part2 _ _ = 2
+spinCycle :: Int -> Int -> [Position] -> [Position] -> [Position]
+spinCycle sEdge eEdge cube =
+  slideEAll eEdge cube . slideSAll sEdge cube . slideWAll cube . slideNAll cube
+
+stableCycle :: Int -> Int -> [Position] -> [Position] -> [Position]
+stableCycle sEdge eEdge cube round =
+  let cRound = spinCycle sEdge eEdge cube round
+  in if cRound == round then round else stableCycle sEdge eEdge cube cRound
+
+part2 :: [Position] -> [Position] -> Int -> Int -> Int
+part2 round cube sEdge eEdge = load (stableCycle sEdge eEdge cube round) cube sEdge
