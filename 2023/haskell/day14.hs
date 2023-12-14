@@ -23,14 +23,9 @@ puzzle fileName = do
   let (round,cube) = pInput input
       sEdge = length input
       eEdge = length (input!!0)
-      round1 = spinCycle sEdge eEdge cube round
-      round2 = spinCycle sEdge eEdge cube round1
-      round3 = spinCycle sEdge eEdge cube round2
-  putStrLn (showRocks sEdge eEdge cube round1)
-  putStrLn (showRocks sEdge eEdge cube round2)
-  putStrLn (showRocks sEdge eEdge cube round3)
+  putStrLn (show $ orbitCycle (sort . spinCycle sEdge eEdge cube) round)
   putStrLn ("Part 1: " ++ show (part1 round cube sEdge))
-  putStrLn ("Part 2: " ++ show (part2 round cube sEdge eEdge))
+  putStrLn ("Part 2: " ++ show (part2 sEdge eEdge cube round))
 
 -- Parsing the input
 
@@ -99,10 +94,15 @@ spinCycle sEdge eEdge cube =
   slideEAll eEdge cube . slideSAll sEdge cube . slideWAll cube . slideNAll cube
 
 
-stableCycle :: Int -> Int -> [Position] -> [Position] -> [Position]
+stableCycle :: Int -> Int -> [Position] -> [Position] -> ([[Position]],[[Position]])
 stableCycle sEdge eEdge cube round =
-  let cRound = sort $ spinCycle sEdge eEdge cube round
-  in if cRound == round then round else stableCycle sEdge eEdge cube cRound
+  orbit (sort . spinCycle sEdge eEdge cube) round
 
-part2 :: [Position] -> [Position] -> Int -> Int -> Int
-part2 round cube sEdge eEdge = load (stableCycle sEdge eEdge cube round) cube sEdge
+
+  
+part2 :: Int -> Int -> [Position] -> [Position] -> Int
+part2 sEdge eEdge cube round =
+  let (xs,ys) = stableCycle sEdge eEdge cube round
+      l = length xs
+      n = length ys
+  in load (ys!!((1000000000 - l) `rem` n)) cube sEdge
