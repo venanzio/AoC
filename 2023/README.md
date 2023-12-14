@@ -139,3 +139,10 @@ Since we are going to recompute the same patterns several times, I used dynamic 
 **Part 1**: Checking a vertical reflection around **Row i** is done by simply matching the rows before i with the reverse of those after. For horizontal reflection, just apply the same operation to the transpose.
 
 **Part 2**: Like Part 1, but instead of just checking equality of matching rows (or columns), count the differences: The right line of reflection is the one with just one difference.
+
+## Day 14: Parabolic Reflector Dish
+
+**Part 1**: Simply slide the round rocks north one by one in the right order.
+
+**Part 2**: Define the sliding the the other three direction and one cycle of sliding in all for directions. Then we're suppose to repeat the cycle a billion times, which is computationally impossible.
+But the repetition will get into a loop quite early: from the length of the orbit leading to the loop and the size of the loop itself, you can compute which configuration the rocks will be in after a billion cycles.
