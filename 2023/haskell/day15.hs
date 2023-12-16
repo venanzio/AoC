@@ -75,5 +75,8 @@ step s = let (l,op) = stepLO s
 boxPower :: Int -> Box -> Int
 boxPower n box = sum $ map (\((_,fl),slot) -> n*fl*slot) (zip box [1..])
 
+boxesPower :: Boxes -> Int
+boxesPower boxes = sum $ map (\(n,box) -> boxPower n box) (zip [1..] boxes)
+
 part2 :: [String] -> Int
 part2 _ = 2
