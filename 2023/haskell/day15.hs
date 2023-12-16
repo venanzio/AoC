@@ -72,5 +72,8 @@ step :: String -> Boxes -> Boxes
 step s = let (l,op) = stepLO s
          in replaceF (hash l) (stepB l op)
 
+boxPower :: Int -> Box -> Int
+boxPower n box = sum $ map (\((_,fl),slot) -> n*fl*slot) (zip box [1..])
+
 part2 :: [String] -> Int
 part2 _ = 2
