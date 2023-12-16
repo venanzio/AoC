@@ -43,5 +43,14 @@ part1 = sum . map hash
 
 -- Part 2
 
+type Box = [(String,Int)]
+type Boxes = [Box]
+
+iboxes :: Boxes
+iboxes = take 256 (repeat [])
+
+step :: String -> Boxes -> Boxes
+step = undefined
+
 part2 :: [String] -> Int
 part2 _ = 2
