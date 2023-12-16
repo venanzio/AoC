@@ -31,16 +31,16 @@ puzzle fileName = do
 type Point = (Int,Int)
 type Contraption = M.Map Point Char
 
-pData :: Parser ()
-pData = return ()
-
-pInput :: Parser [()]
-pInput = pLines pData
-
 pContraption :: [String] -> Contraption
-pContraption = undefined
+pContraption = mMapF (\c -> if c `elem` "/\\-|" then Just c else Nothing)
 
 -- Part 1
+
+data Direction - Up | Down | Left | Right
+type Energized = M.Map Point [Direction]
+
+beam :: Point -> Direction -> Energized
+beam p d = undefined
 
 part1 :: Int -> Int -> Contraption -> Int
 part1 width height contraption = 1
