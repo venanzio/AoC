@@ -18,8 +18,8 @@ puzzle fileName = do
   let sEdge = length input
       eEdge = length (input!!0)
       (cube,round) = pInput input
-  putStrLn ("Part 1: " ++ show (part1 sEdge cube round))
-  putStrLn ("Part 2: " ++ show (part2 sEdge eEdge cube round))
+  putStrLn ("Part 1: " ++ show (part1 sEdge cube round)) --test 136; 110821
+  putStrLn ("Part 2: " ++ show (part2 sEdge eEdge cube round))  -- test:64; 83516 
 
 -- Parsing the input
 
@@ -84,16 +84,11 @@ slideEAll eEdge cube round = foldl (\rs p -> (slideEast eEdge cube rs p) : rs) [
              (reverse $ sortOn (\(x,y) -> (y,x)) round)
 
 spinCycle :: Int -> Int -> [Position] -> [Position] -> [Position]
-spinCycle sEdge eEdge cube =
+spinCycle sEdge eEdge cube = sort .
   slideEAll eEdge cube . slideSAll sEdge cube . slideWAll cube . slideNAll cube
-
-stableCycle :: Int -> Int -> [Position] -> [Position] -> ([[Position]],[[Position]])
-stableCycle sEdge eEdge cube round =
-  orbit (sort . spinCycle sEdge eEdge cube) round
 
 part2 :: Int -> Int -> [Position] -> [Position] -> Int
 part2 sEdge eEdge cube round =
-  let (xs,ys) = stableCycle sEdge eEdge cube round
-      l = length xs
-      n = length ys
-  in load sEdge cube (ys!!((1000000000 - l) `rem` n))
+  load sEdge cube $ loopf (spinCycle sEdge eEdge cube) round 1000000000
+
+

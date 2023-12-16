@@ -83,15 +83,32 @@ allPairs (x:xs) = map (\y -> (x,y)) xs ++ allPairs xs
 orbitCycle :: Eq a => (a->a) -> a -> (Int,Int)
 orbitCycle f x0 = let (xs,ys) = orbit f x0 in (length xs, length ys)
 
+-- iterate a function until it enters a repeating loop
+-- returns the values before the loop and the loop itself
 orbit :: Eq a => (a->a) -> a -> ([a],[a])
 orbit f x0 = listOrbit (iterate f x0)
 
+-- find the first repetition of an element in a list
+-- return the part of the list before the first occurrence of
+-- the repeated element and the part from that element to the second occurrence excluded
 listOrbit :: Eq a => [a] -> ([a],[a])
 listOrbit xs = orb [] xs where
   orb vs [] = (vs,[])
   orb vs (x:xs) = let (vs1,vs0) = break (==x) vs
                    in if vs0 == [] then orb (x:vs) xs
                       else (reverse (tail vs0), x : reverse vs1)
+
+-- find the nth iteration of f starting at x0
+-- when we know that the iterations will loop
+-- (for values of n much larger that the loop)
+loopf :: Eq a => (a->a) -> a -> Int -> a
+loopf f x0 n =
+  let (xs,ys) = orbit f x0
+      lead = length xs
+      loop = length ys
+  in if n < lead then xs!!n else ys!!((n-lead) `rem` loop)
+
+
 
 
 -- RANGES
