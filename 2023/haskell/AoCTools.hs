@@ -15,6 +15,11 @@ spanBy p (x:xs) = let (ys,zs) = spanBy p xs
                   in if p x then (x:ys,zs)
                             else (ys,x:zs)
 
+-- total tail: returns [] on []
+tailT :: [a] -> [a]
+tailT [] = []
+tailT xs = tail xs
+
 -- number of occurrences of an element in a list
 occurrences :: Eq a => a -> [a] -> Int
 occurrences x ys = length (filter (== x) ys)

@@ -43,15 +43,16 @@ part1 = sum . map hash
 
 -- Part 2
 
-type Box = M.Map String Int
+type Box = [(String,Int)]
 type Boxes = [Box]
 
 stepLO :: String -> (String,String)
 stepLO = break (`elem` "-=")
 
 removeLens :: String -> Box -> Box
-removeLens l b = undefined
-
+removeLens l box =
+  let (ls0,ls1) = break ((==l) . fst) box
+  in ls0 ++ tailT ls1
 
 iboxes :: Boxes
 iboxes = take 256 (repeat [])
