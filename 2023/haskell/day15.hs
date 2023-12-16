@@ -57,8 +57,12 @@ removeLens l box =
 iboxes :: Boxes
 iboxes = take 256 (repeat [])
 
+stepB :: String -> String -> Box -> Box
+stepB = undefined
+
 step :: String -> Boxes -> Boxes
-step = undefined
+step s = let (l,op) = stepLO s
+         in replaceF (hash l) (stepB l op)
 
 part2 :: [String] -> Int
 part2 _ = 2

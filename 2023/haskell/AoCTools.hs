@@ -30,6 +30,13 @@ replace i x l =
   let (front,back) = splitAt i l
   in front ++ x:(tail back)
 
+-- apply a function to an element of a list
+replaceF :: Int -> (a -> a) -> [a] -> [a]
+replaceF i f l =
+  let (front,back) = splitAt i l
+  in front ++ (f (head back)):(tail back)
+  
+
 allIndices :: Eq a => a -> [a] -> [Int]
 allIndices x ys = case elemIndex x ys of
   Nothing -> []
