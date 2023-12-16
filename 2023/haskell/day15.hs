@@ -58,7 +58,9 @@ removeLens l box =
   in ls0 ++ tailT ls1
 
 replaceLens :: String -> Int -> Box -> Box
-replaceLens = undefined
+replaceLens l fl box =
+  let (l0,l1) = break ((==l) . fst) box
+  in l0 ++ (l,fl):tailT l1
 
 stepB :: String -> String -> Box -> Box
 stepB l op = case head op of
