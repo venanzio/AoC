@@ -19,12 +19,17 @@ main = do
 
 puzzle :: String -> IO ()
 puzzle fileName = do
-  input <- readFile fileName
-  let xs = parseAll pInput input
-  putStrLn ("Part 1: " ++ show (part1 xs))
-  putStrLn ("Part 2: " ++ show (part2 xs))
+  input <- readFile fileName >>= return.lines
+  let width = length (input!!0)
+      height = length input
+      contraption = pContraption input
+  putStrLn ("Part 1: " ++ show (part1 width height contraption))
+  putStrLn ("Part 2: " ++ show (part2 width height contraption))
 
 -- Parsing the input
+
+type Point = (Int,Int)
+type Contraption = M.Map Point Char
 
 pData :: Parser ()
 pData = return ()
@@ -32,12 +37,15 @@ pData = return ()
 pInput :: Parser [()]
 pInput = pLines pData
 
+pContraption :: [String] -> Contraption
+pContraption = undefined
+
 -- Part 1
 
-part1 :: [()] -> Int
-part1 _ = 1
+part1 :: Int -> Int -> Contraption -> Int
+part1 width height contraption = 1
 
 -- Part 2
 
-part2 :: [()] -> Int
-part2 _ = 2
+part2 :: Int -> Int -> Contraption -> Int
+part2 width height contraption = 2

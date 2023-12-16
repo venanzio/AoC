@@ -220,6 +220,11 @@ rDiff r0 r1 = rIntersection r0 (rComplement (rMinimum r0, rMaximum r0) r1)
 
 -- MAYBE operations
 
+-- list of Just values of a Maybe element (at most one)
+justL :: Maybe a -> [a]
+justL (Just x) = [x]
+justL Nothing = []
+
 -- Remove Just from a Maybe valus
 unJust :: Maybe a -> a
 unJust (Just x) = x
@@ -243,6 +248,15 @@ filterIndices p xs = fIndAux 0 xs where
 -- Keeping the Just values from a list of Maybe
 filterJust :: [Maybe a] -> [a]
 filterJust l = [x | Just x <- l]
+
+
+
+
+
+
+
+
+
 
 -- Minimize a function over a list and return: index, element, function value
 minimumF :: Ord b => (a->b) -> [a] -> (Int,a,b)
@@ -290,6 +304,17 @@ matrixMap (i0,j0) xss = M.fromList [((i0+i,j0+j), xss!!j!!i) |
                         
 mMap :: [[a]] -> M.Map (Int,Int) a
 mMap = matrixMap (0,0)
+
+matrixMapF :: (Int,Int) -> (a -> Maybe b) -> [[a]] -> M.Map (Int,Int) b
+matrixMapF (i0,j0) f xss =
+  M.fromList [((i0+i,j0+j), b)
+             | j <- [0 .. length xss - 1]
+             , i <- [0 .. length (xss!!j) - 1]
+             , b <- justL (f (xss!!j!!i))
+             ]
+mMapF :: (a -> Maybe b) -> [[a]] -> M.Map (Int,Int) b
+mMapF = matrixMapF (0,0)
+
 
 
 
