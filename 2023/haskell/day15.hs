@@ -46,6 +46,9 @@ part1 = sum . map hash
 type Box = [(String,Int)]
 type Boxes = [Box]
 
+iboxes :: Boxes
+iboxes = take 256 (repeat [])
+
 stepLO :: String -> (String,String)
 stepLO = break (`elem` "-=")
 
@@ -54,11 +57,14 @@ removeLens l box =
   let (ls0,ls1) = break ((==l) . fst) box
   in ls0 ++ tailT ls1
 
-iboxes :: Boxes
-iboxes = take 256 (repeat [])
+replaceLens :: String -> Int -> Box -> Box
+replaceLens = undefined
 
 stepB :: String -> String -> Box -> Box
-stepB = undefined
+stepB l op = case head op of
+  '-' -> removeLens l
+  '=' -> replaceLens l (read (tail op))
+  _   -> error "unknown operation"
 
 step :: String -> Boxes -> Boxes
 step s = let (l,op) = stepLO s
