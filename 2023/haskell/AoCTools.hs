@@ -332,3 +332,28 @@ divide x l = case break (==x) l of
 
 maximumB :: Ord a => a -> [a] -> a
 maximumB x xs = maximum (x:xs)
+
+
+
+
+
+infinite = 1000 -- maxBound `div` 2 :: Int
+
+type Graph a = M.Map a [(a,Int)]
+
+dist :: Ord a => Graph a -> a -> a -> Int
+dist graph v0 v1 =
+  case find ((==v1) . fst) (graph M.! v0) of
+    Just (_,d) -> d
+    Nothing -> infinite
+
+dijkstra :: Ord a => Graph a -> a -> a -> Int
+dijkstra graph s t = dijkstra_aux ((s,0):[(v,infinite) | v <- M.keys graph, v /= s])
+  where dijkstra_aux queue =
+          let (x,d):queue' = sortOn snd queue
+              v = graph M.! x
+              relax y dy = min dy (d + dist graph x y)
+          in if x==t then d
+               else dijkstra_aux [(y, relax y dy) | (y,dy) <- queue']
+ 
+        
