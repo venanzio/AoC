@@ -36,14 +36,23 @@ pContraption ls =
 
 -- Part 1
 
+width :: Contraption -> Int
+width (w,_,_) = w
+
+height :: Contraption -> Int
+height (_,h,_) = h
+
+outBounds :: Point -> Contraption -> Bool
+outBounds (x,y) (w,h,_) = x<0 || x>=w || y<0 || y>=h
+  
 pointContr :: Point -> Contraption -> Tile
-pointContr point contraption =
-  case M.lookup point contraption of
+pointContr point (_,_,c) =
+  case M.lookup point c of
     Just t -> t
     Nothing -> '.'
 
 data Direction = UpD | DownD | LeftD | RightD
-  deriving Eq
+  deriving (Eq,Show)
 type Energized = M.Map Point [Direction]
 
 move :: Point -> Direction -> Point
@@ -72,28 +81,37 @@ eDirections p en = case M.lookup p en of
   Nothing -> []
   Just ds -> ds
 
-
 beam :: Point -> Direction -> Energized -> Contraption -> ([(Point,Direction)],Energized)
-beam (x,y) _ _ (w,h,_) | x<0 || x>=w || y<0 || y>=h = undefined
+beam p d en contraption | outBounds p contraption || d `elem` (eDirections p en) = ([],en)
 beam p d en contraption =
-  if d `elem` (eDirections p en)
-  then ([],en)
-  else let ds = changeDir d (pointContr p contraption)
-           ps = map (move p) ds
-       in (zip ps ds, M.insert p (union [d] (eDirections p en)) en)
+ let ds = changeDir d (pointContr p contraption)
+     ps = map (move p) ds
+ in (zip ps ds, M.insert p (union [d] (eDirections p en)) en)
 
-beams :: [(Point,Direction)] -> Energized -> Contraption -> Energized
-beams [] en _ = en
-beams pds en contraption = snd $ foldl beamAdd ([],en) pds
+beams :: [(Point,Direction)] -> Energized -> Contraption -> ([(Point,Direction)],Energized)
+beams [] en _ = ([],en)
+beams pds en contraption = foldl beamAdd ([],en) pds
   where beamAdd (pds0,en0) (p,d) =
           let (pds1,en1) = beam p d en0 contraption
           in (pds1++pds0, en1)
-    
-part1 :: Int -> Int -> Contraption -> Int
-part1 width height contraption =
-  length 
+
+energize :: ([(Point,Direction)],Energized) -> Contraption -> Energized
+energize ([],en) _ = en
+energize (pds,en) contraption = energize (beams pds en contraption) contraption
+
+energized :: (Point,Direction) -> Contraption -> Int
+energized pd = M.size . energize ([pd],M.empty)
+
+part1 :: Contraption -> Int
+part1 = energized ((0,0),RightD)
 
 -- Part 2
 
-part2 :: Int -> Int -> Contraption -> Int
-part2 width height contraption = 2
+part2 :: Contraption -> Int
+part2 contraption = maximum $ map (flip energized contraption) $
+  let w = width contraption
+      h = height contraption
+  in [((x,0)  , DownD) | x <- [0..w-1]] ++
+     [((x,h-1), UpD)   | x <- [0..w-1]] ++
+     [((0,y)  , DownD) | y <- [0..h-1]] ++
+     [((w-1,y), UpD)   | y <- [0..h-1]]
