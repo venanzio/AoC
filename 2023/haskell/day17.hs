@@ -23,6 +23,8 @@ puzzle fileName = do
   let maxX = length (input!!0)-1
       maxY = length input - 1
       graph = pGraph input
+  putStrLn ("maxX : " ++ show maxX ++ ", maxY : " ++ show maxY)
+  putStrLn (show $ M.size graph)
   putStrLn ("Part 1: " ++ show (part1 graph maxX maxY))
   putStrLn ("Part 2: " ++ show (part2 graph))
 
