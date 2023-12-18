@@ -363,3 +363,41 @@ dijkstra graph s t =
                     -- [(y, relax y dy) | (y,dy) <- queue, y/=x]
  
         
+
+
+
+-- Winding number , copied from day 10
+
+type Point = (Int,Int)
+
+winding :: Point -> [Point] -> Int
+winding (x0,y0) l = winDir 0 lastX l where
+  winDir w px [] = w
+  winDir w px qs@((x1,y1):qs1) =
+    if x0==x1 && y0>y1
+    then let (nx,qs') = nextXL qs
+         in winDir (w + (nx-px) `div` 2) x1 qs'
+    else winDir w x1 qs1
+
+  firstX = head $ filter (/=x0) $ map fst l
+  lastX = head $ filter (/=x0) $ reverse $ map fst l
+
+  nextXL [] = (firstX, [])
+  nextXL (qs@((x1,y1):qs')) = if x1 == x0 then nextXL qs' else (x1,qs')
+    
+enclosed :: [Point] -> [Point] -> [Point]
+enclosed ground l =
+  let cs = connected (ground \\ l)
+      inside p = winding p l /= 0       
+  in foldl (\en c -> if inside (head c) then c++en else en) [] cs
+
+ -- connected components
+connected :: [Point] -> [[Point]]
+connected [] = []
+connected (p:ps) = let (c0,ps0) = component p ps
+                   in c0 : connected ps0 where
+  component p = foldl (\(c0,ps0) p0 -> if p0 `near` c0 then (p0:c0,ps0) else (c0,p0:ps0))
+                      ([p],[])
+
+near :: Point -> [Point] -> Bool
+near (x,y) ps = intersect [(x-1,y),(x+1,y),(x,y-1),(x,y+1)] ps /= [] 
