@@ -24,7 +24,7 @@ puzzle fileName = do
       maxY = length input - 1
       graph = pGraph input
       graph2 = pGraph2 input
-  putStrLn ("Part 1: " ++ show (part1 graph maxX maxY))
+  -- putStrLn ("Part 1: " ++ show (part1 graph maxX maxY))
   putStrLn ("Part 2: " ++ show (part2 graph2 maxX maxY))
 
 -- Parsing the input
