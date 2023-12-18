@@ -370,6 +370,8 @@ dijkstra graph s t =
 
 type Point = (Int,Int)
 
+-- Winding number of a loop around a point
+-- This is not quite correct
 winding :: Point -> [Point] -> Int
 winding (x0,y0) l = winDir 0 lastX l where
   winDir w px [] = w
@@ -384,7 +386,8 @@ winding (x0,y0) l = winDir 0 lastX l where
 
   nextXL [] = (firstX, [])
   nextXL (qs@((x1,y1):qs')) = if x1 == x0 then nextXL qs' else (x1,qs')
-    
+
+-- area contained inside a loop
 enclosed :: [Point] -> [Point] -> [Point]
 enclosed ground l =
   let cs = connected (ground \\ l)
@@ -401,3 +404,34 @@ connected (p:ps) = let (c0,ps0) = component p ps
 
 near :: Point -> [Point] -> Bool
 near (x,y) ps = intersect [(x-1,y),(x+1,y),(x,y-1),(x,y+1)] ps /= [] 
+
+
+
+
+-- AREA OF POLYGON
+
+-- The shoelace formula for the area of a region
+-- contained inside a polygon
+
+-- double the area
+shoelace :: [Point] -> Int
+shoelace ps = abs $ sum [(x0-x1)*(y0+y1) | ((x0,y0),(x1,y1)) <- zip ps (tail ps)]
+
+
+-- integer points on a line (excluding last)
+linePoints :: Point -> Point -> Int
+linePoints (x0,y0) (x1,y1) = gcd (abs (x1-x0)) (abs (y1-y0))
+  
+-- integer points on a polygon (last point must be the same as first)
+polyPoints :: [Point] -> Int
+polyPoints ps = sum [linePoints p0 p1 | (p0,p1) <- zip ps (tail ps)]
+
+-- by Pick's theorem A = i + b/2 - 1
+--  where i = interior points, b = boundary points
+-- so all points: i = A - b/2 + 1
+
+polyInterior :: [Point] -> Int
+polyInterior ps = (shoelace ps - polyPoints ps) `div` 2 + 1
+
+polyArea :: [Point] -> Int
+polyArea ps = (shoelace ps + polyPoints ps) `div` 2 + 1
