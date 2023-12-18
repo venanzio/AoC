@@ -413,10 +413,9 @@ near (x,y) ps = intersect [(x-1,y),(x+1,y),(x,y-1),(x,y+1)] ps /= []
 -- The shoelace formula for the area of a region
 -- contained inside a polygon
 
--- double the area
+-- double the area (to avoid rounding errors)
 shoelace :: [Point] -> Int
 shoelace ps = abs $ sum [(x0-x1)*(y0+y1) | ((x0,y0),(x1,y1)) <- zip ps (tail ps)]
-
 
 -- integer points on a line (excluding last)
 linePoints :: Point -> Point -> Int
@@ -428,7 +427,7 @@ polyPoints ps = sum [linePoints p0 p1 | (p0,p1) <- zip ps (tail ps)]
 
 -- by Pick's theorem A = i + b/2 - 1
 --  where i = interior points, b = boundary points
--- so all points: i = A - b/2 + 1
+-- so i = A - b/2 + 1, all points : i + b = A + b/2 + 1
 
 polyInterior :: [Point] -> Int
 polyInterior ps = (shoelace ps - polyPoints ps) `div` 2 + 1
