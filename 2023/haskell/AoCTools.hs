@@ -142,6 +142,10 @@ iEmpty (x,y) = y < x
 inInterval :: Int -> Interval -> Bool
 inInterval v (x,y) = x<=v && v<=y
 
+sizeInterval :: Interval -> Int
+sizeInterval (x,y) =
+  if iEmpty (x,y) then 0 else y-x+1
+
 -- create anInterval given first element and length
 slInterval :: Int -> Int -> Interval
 slInterval s l = (s,s+l-1)
@@ -160,6 +164,9 @@ emptyR = []
 -- This should never be needed, if the range is correct
 neRange :: Range -> Range
 neRange = filter (not.iEmpty)
+
+sizeRange :: Range -> Int
+sizeRange = sum . map sizeInterval
 
 addInterval :: Interval -> Range -> Range
 addInterval i [] = if iEmpty i then [] else [i]
