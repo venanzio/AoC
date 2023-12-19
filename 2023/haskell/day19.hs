@@ -4,11 +4,7 @@
 module Main where
 
 import System.Environment
-import Data.List
-import Data.Char
 import Control.Applicative
-import qualified Data.Map as M
-
 import FunParser
 import AoCTools
 
@@ -43,8 +39,6 @@ data Destination = Send String | Accept | Reject
 data Rule = Rule {
   categoryR :: Category,
   intervalR :: Interval,
---  relationR :: Int -> Int -> Bool,
---  valueR :: Int,
   destinationR :: Destination}
   deriving Show
 
@@ -131,7 +125,6 @@ changeCat X range (mX,mR,aR,sR) = (range,mR,aR,sR)
 changeCat M range (mX,mR,aR,sR) = (mX,range,aR,sR)
 changeCat A range (mX,mR,aR,sR) = (mX,mR,range,sR)
 changeCat S range (mX,mR,aR,sR) = (mX,mR,aR,range)
-
 
 initRange :: PRange
 initRange = ([(1,4000)],[(1,4000)],[(1,4000)],[(1,4000)])
