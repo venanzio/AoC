@@ -139,6 +139,9 @@ iEnd = snd
 iEmpty :: Interval -> Bool
 iEmpty (x,y) = y < x
 
+inInterval :: Int -> Interval -> Bool
+inInterval v (x,y) = x<=v && v<=y
+
 -- create anInterval given first element and length
 slInterval :: Int -> Int -> Interval
 slInterval s l = (s,s+l-1)
