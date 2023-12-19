@@ -146,3 +146,17 @@ Since we are going to recompute the same patterns several times, I used dynamic 
 
 **Part 2**: Define the sliding the the other three direction and one cycle of sliding in all for directions. Then we're suppose to repeat the cycle a billion times, which is computationally impossible.
 But the repetition will get into a loop quite early: from the length of the orbit leading to the loop and the size of the loop itself, you can compute which configuration the rocks will be in after a billion cycles.
+
+## Day 15
+
+## Day 16
+
+## Day 17
+
+## Day 18
+
+## Day 19: Aplenty
+
+**Part 1**: Parsing was the most time-consuming part, then we just have to execute the instructions on every part to determine if it's accepted or not.
+
+**Part 2**: Instead of working with single parts, we work with ranges. For every workflow we determine how it operates on a given range of parts: it will break the range into several sub-ranges that are sent to different destinations. Determine the ranges that are accepted either directly or through a recursive call to other workflows.
