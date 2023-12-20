@@ -21,9 +21,9 @@ puzzle :: String -> IO ()
 puzzle fileName = do
   input <- readFile fileName
   let xs = parseAll pInput input
-  putStrLn (show $ configurationInit xs)
-  putStrLn ("Part 1: " ++ show (part1 xs))
-  putStrLn ("Part 2: " ++ show (part2 xs))
+      conf = configurationInit xs
+  putStrLn ("Part 1: " ++ show (part1 conf))
+  putStrLn ("Part 2: " ++ show (part2 conf))
 
 -- Parsing the input
 
@@ -54,19 +54,18 @@ pInput = pLines pModule >>= return . M.fromList
 
 -- Part 1
 
-conjunctionInit :: Configuration -> String -> ConjMemory
-conjunctionInit conf name =
-  M.foldlWithKey (\ms mod (_,dest) -> if name `elem` dest
-                   then M.insert mod False ms
-                   else ms) M.empty conf
+sources :: Configuration -> String -> [String]
+sources conf name = [mod | (mod, (_,dest)) <- M.toList conf, name `elem` dest]
 
-updateMem :: String -> (Module,[String]) -> ConjMemory -> (Module,[String])
-updateMem name (Conjunction mem,dest) newmem = (Conjunction newmem,dest)
-updateMem _ md _ = md
+lowMem :: [String] -> ConjMemory
+lowMem = M.fromList . map (\s -> (s,False))
 
 configurationInit :: Configuration -> Configuration
-configurationInit conf = M.foldlWithKey initMod conf conf where
-  initMod c name (mod) = M.insert name (updateMem name mod (conjunctionInit conf name)) c
+configurationInit conf = M.mapWithKey moduleInit conf where
+  moduleInit name (Conjunction _, dest) = (Conjunction (lowMem $ sources conf name), dest)
+  moduleInit _ mod = mod
+
+  
 
 -- High pulse = True, Low pulse = False
 
@@ -89,30 +88,56 @@ incCount (lows,highs) b = if b then (lows,highs+1) else (lows+1,highs)
 signal :: Count -> [Signal] -> Configuration -> (Count,Configuration)
 signal count [] conf = (count,conf)
 signal count ((from,pulse,to):sigs) conf = case M.lookup to conf of
-  Nothing -> signal (incCount count pulse) sigs conf
+  Nothing ->
+    signal count sigs conf
   Just (FlipFlop b,dest) ->
-    if pulse then signal (incCount count pulse) sigs conf
-    else signal (incCount count pulse) (sigs++map (\d -> (to,not b,d)) dest)
-                (M.insert to (FlipFlop (not b),dest) conf)
+    if pulse then signal count sigs conf
+    else let b' = not b
+             newsigs = map (\d -> (to,b',d)) dest
+             count' = nIter (\c -> incCount c b') (length newsigs) count
+         in signal count' (sigs++newsigs) (M.insert to (FlipFlop b',dest) conf)
   Just (Conjunction mem,dest) ->
     let mem' = M.insert from pulse mem
         out = not $ and (M.elems mem')
-    in signal (incCount count pulse) (sigs++map (\d -> (to,out,d)) dest)
-              (M.insert to (Conjunction mem',dest) conf)
-  Just (Broadcaster,dest) ->
-    signal (incCount count pulse) (sigs++map (\d -> (to,pulse,d)) dest) conf
+        newsigs = map (\d -> (to,out,d)) dest
+        count' = nIter (\c -> incCount c out) (length newsigs) count
+    in signal count' (sigs++newsigs) (M.insert to (Conjunction mem',dest) conf)
+  Just (Broadcaster,dest) -> 
+    let newsigs = map (\d -> (to,pulse,d)) dest
+        count' = nIter (\c -> incCount c pulse) (length newsigs) count
+    in signal count' (sigs++newsigs) conf
 
 
 pushButton :: (Count,Configuration) -> (Count,Configuration)
-pushButton (count,conf) = signal count [("button",False,"broadcaster")] conf
-
-
+pushButton (count,conf) = signal (incCount count False)
+                                 [("button",False,"broadcaster")]
+                                 conf
 
 part1 :: Configuration -> Int
 part1 conf = let (lows,highs) = fst $ nIter pushButton 1000 ((0,0),conf)
-             in lows*highs 
+             in lows*highs
                 
 -- Part 2
+
+signal2 :: [Signal] -> Configuration -> (Boool,Configuration)
+signal2 [] conf = (False,conf)
+signal2 ((_,_,"rx"):_) conf = (True,conf)
+signal2 ((from,pulse,to):sigs) conf = case M.lookup to conf of
+  Nothing ->
+    signal2 sigs conf
+  Just (FlipFlop b,dest) ->
+    if pulse then signal2 sigs conf
+    else let b' = not b
+             newsigs = map (\d -> (to,b',d)) dest
+          in signal2 (sigs++newsigs) (M.insert to (FlipFlop b',dest) conf)
+  Just (Conjunction mem,dest) ->
+    let mem' = M.insert from pulse mem
+        out = not $ and (M.elems mem')
+        newsigs = map (\d -> (to,out,d)) dest
+    in signal2 (sigs++newsigs) (M.insert to (Conjunction mem',dest) conf)
+  Just (Broadcaster,dest) -> 
+    let newsigs = map (\d -> (to,pulse,d)) dest
+    in signal2 (sigs++newsigs) conf
 
 part2 :: Configuration -> Int
 part2 _ = 2
