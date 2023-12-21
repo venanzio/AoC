@@ -119,9 +119,9 @@ part1 conf = let (lows,highs) = fst $ nIter pushButton 1000 ((0,0),conf)
                 
 -- Part 2
 
-signal2 :: [Signal] -> Configuration -> (Boool,Configuration)
+signal2 :: [Signal] -> Configuration -> (Bool,Configuration)
 signal2 [] conf = (False,conf)
-signal2 ((_,_,"rx"):_) conf = (True,conf)
+signal2 ((_,False,"rx"):_) conf = (True,conf)
 signal2 ((from,pulse,to):sigs) conf = case M.lookup to conf of
   Nothing ->
     signal2 sigs conf
@@ -140,4 +140,5 @@ signal2 ((from,pulse,to):sigs) conf = case M.lookup to conf of
     in signal2 (sigs++newsigs) conf
 
 part2 :: Configuration -> Int
-part2 _ = 2
+part2 conf = let (rxPulse,conf') = signal2 [("button",False,"broadcaster")] conf
+             in if rxPulse then 1 else 1+part2 conf'
