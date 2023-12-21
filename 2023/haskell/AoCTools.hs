@@ -362,6 +362,9 @@ maximumB x xs = maximum (x:xs)
 
 infinite = maxBound `div` 2 :: Int
 
+minimumInf :: [Int] -> Int
+minimumInf xs = minimum (infinite:xs)
+
 type Graph a = M.Map a [(a,Int)]
 
 type Queue a = M.Map a Int

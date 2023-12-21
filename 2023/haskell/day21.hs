@@ -8,7 +8,7 @@ import Data.List
 import Data.Char
 import Control.Applicative
 import qualified Data.Map as M
-
+import Data.Set (fromList)
 import FunParser
 import AoCTools
 
@@ -23,6 +23,7 @@ puzzle fileName = do
   let bxy = bounds input
       rs = rocks input
       s = sPoint bxy input
+  putStrLn (show $ minDist bxy rs)
   putStrLn ("Part 1: " ++ show (part1 bxy rs s))
   putStrLn ("Part 2: " ++ show (part2 bxy rs s))
 
@@ -66,16 +67,18 @@ part1 bxy rocks s = length $ nIter (steps bxy rocks) 64 [s]
 noRock :: Point -> [Point] -> Point -> Bool
 noRock (bx,by) rocks (x,y) = not $ (x `mod` (bx+1), y `mod` (by+1)) `elem` rocks
 
+allPoints :: Point -> [Point]
+allPoints (bx,by) = [(x,y) | x <- [0..bx], y <- [0..by]]
 
-
--- Minimum distance inside the field
+-- Minimum distance inside the garden
 minDist :: Point -> [Point] -> M.Map (Point,Point) Int
 minDist bxy rocks = minDMap where
-  minDMap = M.MapOnSet (??) minDistF allPoints
+  minDMap = M.fromSet minDistF allPairs
   
-  minDistF p0 p1 = if p1 `elem` step bxy rocks p0 then 1
-    else minimum (map (minDMap M.!) (step bxy rocks p0)) + 1
+  minDistF (p0,p1) = if p1 `elem` step bxy rocks p0 then 1
+    else minimumInf (map (\p1 -> minDMap M.! (p0,p1)) (step bxy rocks p0)) + 1
 
+  allPairs = fromList [(p0,p1) | p0 <- allPoints bxy, p1 <- allPoints bxy]
 
 
 
