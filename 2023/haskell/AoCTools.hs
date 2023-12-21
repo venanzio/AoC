@@ -300,6 +300,8 @@ imap f = imap_aux 0 where
 
 -- INDEXED MAPS
 
+type Point = (Int,Int)
+
 -- list to index map with indices as keys, starting at index i0
 listMap :: Int -> [a] -> M.Map Int a
 listMap i0 = M.fromAscList . (zip [i0..])
@@ -308,23 +310,33 @@ lMap :: [a] -> M.Map Int a
 lMap = listMap 0
 
 -- 2-dimentional matrix to index map, with coordinates as keys
-matrixMap :: (Int,Int) -> [[a]] -> M.Map (Int,Int) a
+matrixMap :: Point -> [[a]] -> M.Map Point a
 matrixMap (i0,j0) xss = M.fromList [((i0+i,j0+j), xss!!j!!i) |
                                     j <- [0 .. length xss - 1],
                                     i <- [0 .. length (xss!!j) - 1]]
                         
-mMap :: [[a]] -> M.Map (Int,Int) a
+mMap :: [[a]] -> M.Map Point a
 mMap = matrixMap (0,0)
 
-matrixMapF :: (Int,Int) -> (a -> Maybe b) -> [[a]] -> M.Map (Int,Int) b
+matrixMapF :: Point -> (a -> Maybe b) -> [[a]] -> M.Map Point b
 matrixMapF (i0,j0) f xss =
   M.fromList [((i0+i,j0+j), b)
              | j <- [0 .. length xss - 1]
              , i <- [0 .. length (xss!!j) - 1]
              , b <- justL (f (xss!!j!!i))
              ]
-mMapF :: (a -> Maybe b) -> [[a]] -> M.Map (Int,Int) b
+mMapF :: (a -> Maybe b) -> [[a]] -> M.Map Point b
 mMapF = matrixMapF (0,0)
+
+matrixMapFP :: Point -> (Point -> a -> Maybe b) -> [[a]] -> M.Map Point b
+matrixMapFP (i0,j0) f xss =
+  M.fromList [((i0+i,j0+j), b)
+             | j <- [0 .. length xss - 1]
+             , i <- [0 .. length (xss!!j) - 1]
+             , b <- justL (f (i0+i,j0+j) (xss!!j!!i))
+             ]
+mMapFP :: (Point -> a -> Maybe b) -> [[a]] -> M.Map Point b
+mMapFP = matrixMapFP (0,0)
 
 
 
@@ -377,8 +389,6 @@ dijkstra graph s t =
 
 
 -- Winding number , copied from day 10
-
-type Point = (Int,Int)
 
 -- Winding number of a loop around a point
 -- This is not quite correct
