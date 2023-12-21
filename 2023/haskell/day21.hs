@@ -23,9 +23,8 @@ puzzle fileName = do
   let bxy = bounds input
       rs = rocks input
       s = sPoint bxy input
-  putStrLn (show rs)
   putStrLn ("Part 1: " ++ show (part1 bxy rs s))
-  putStrLn ("Part 2: " ++ show (part2 rs))
+  putStrLn ("Part 2: " ++ show (part2 bxy rs s))
 
 -- Parsing the input
 
@@ -67,7 +66,13 @@ part1 bxy rocks s = length $ nIter (steps bxy rocks) 64 [s]
 noRock :: Point -> [Point] -> Point -> Bool
 noRock (bx,by) rocks (x,y) = not $ (x `mod` (bx+1), y `mod` (by+1)) `elem` rocks
 
+step2 :: Point -> [Point] -> Point -> [Point]
+step2 bxy rocks p = filter (noRock bxy rocks) $ map (move p) directions
+
+steps2 :: Point -> [Point] -> [Point] -> [Point]
+steps2 bxy rocks ps = nub $ concat $ map (step2 bxy rocks) ps
+
+part2 :: Point -> [Point] -> Point -> Int
+part2 bxy rocks s = length $ nIter (steps2 bxy rocks) 100 [s] 
 
 
-part2 :: [Point] -> Int
-part2 _ = 2
