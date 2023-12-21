@@ -66,6 +66,19 @@ part1 bxy rocks s = length $ nIter (steps bxy rocks) 64 [s]
 noRock :: Point -> [Point] -> Point -> Bool
 noRock (bx,by) rocks (x,y) = not $ (x `mod` (bx+1), y `mod` (by+1)) `elem` rocks
 
+
+
+-- Minimum distance inside the field
+minDist :: Point -> [Point] -> M.Map (Point,Point) Int
+minDist bxy rocks = minDMap where
+  minDMap = M.MapOnSet (??) minDistF allPoints
+  
+  minDistF p0 p1 = if p1 `elem` step bxy rocks p0 then 1
+    else minimum (map (minDMap M.!) (step bxy rocks p0)) + 1
+
+
+
+
 step2 :: Point -> [Point] -> Point -> [Point]
 step2 bxy rocks p = filter (noRock bxy rocks) $ map (move p) directions
 
