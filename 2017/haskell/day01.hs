@@ -1,4 +1,4 @@
--- Advent of Code 2017, day ?
+-- Advent of Code 2017, day 1
 
 module Main where
 
@@ -19,7 +19,7 @@ main = do
 
 puzzle :: String -> IO ()
 puzzle fileName = do
-  putStrLn "Advent of Code 2017, day 4"  
+  putStrLn "Advent of Code 2017, day 1"  
   input <- readFile fileName
   let xs = parseAll digits input
   putStrLn ("Part 1: " ++ show (part1 xs))
