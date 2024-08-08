@@ -68,10 +68,12 @@ directions = [(u,v) | u <- [-1,0,1], v <- [-1,0,1], (u,v) /= (0,0)]
 neighbours :: (Int,Int) -> [(Int,Int)]
 neighbours (i,j) = map (\(u,v)->(i+u,j+v)) directions
 
+-- sum of entries in the neighbouring squares of the grid
 grid_sum :: Grid -> (Int,Int) -> Int
 grid_sum _ (0,0) = 1
 grid_sum gr p = sum [gr M.! c | c <- neighbours p, c `M.member` gr]
 
+-- fill in the grid progressively until finding a value larger than v
 grid_gt :: Grid -> Int -> Int -> Int
 grid_gt gr v x =
   let p = square_coords x
