@@ -35,12 +35,13 @@ square_lt x = sqlt 0
   where sqlt n = if x <= (2*n+1)^2 then n else sqlt (n+1)
 
 -- coordinates of x around the frame of the square (2n-1)^2
+-- each side is 2*n long
 frame_tour :: Int -> Int -> (Int,Int)
 frame_tour x n
-  | x1<=2*n = (n,n-x1)
-  | x2<=2*n = (n-x2,-n)
-  | x3<=2*n = (-n,-n+x3)
-  | otherwise = (-n+x4,n)
+  | x1<=2*n = (n,n-x1)    -- right side
+  | x2<=2*n = (n-x2,-n)   -- top side
+  | x3<=2*n = (-n,-n+x3)  -- left side
+  | otherwise = (-n+x4,n) -- bottom side
   where x1 = x - (2*n-1)^2
         x2 = x1-2*n
         x3 = x2-2*n
@@ -51,7 +52,7 @@ square_coords :: Int -> (Int,Int)
 square_coords x =
   if x == 1 then (0,0) else frame_tour x (square_lt x) 
 
--- Manhattan distance
+-- Manhattan distance from (0,0)
 manhattan :: (Int,Int) -> Int
 manhattan (x,y) = abs x + abs y
 
