@@ -32,55 +32,20 @@ pInput = some integer
 
 -- Part 1
 
--- two ways lists
-type Maze = ([Int],[Int]) -- front and back in reverse order
+type Maze = M.Map Int Int
 
-mInit :: [Int] -> Maze
-mInit l = (l,[])
-
-mSound :: Maze -> Bool
-mSound (front,_) = not (null front)
-
-mMove :: Int -> Maze -> Maybe (Maze)
-mMove 0 m | mSound m = Just m
-mMove n (x:xs,ys) | n>0 = mMove (n-1) (xs,x:ys)
-mMove n (xs,y:ys) | n<0 = mMove (n+1) (y:xs,ys)
-mMove _ _ = Nothing
-
-mRead :: Maze -> Maybe Int
-mRead (x:_,_) = Just x
-mRead _ = Nothing
-
-mWrite :: Int -> Maze -> Maybe Maze
-mWrite x (_:xs,ys) = Just (x:xs,ys)
-mWrite _ _ = Nothing
-
-mStep :: Maze -> Maybe Maze
-mStep m = do x <- mRead m
-             m' <- mWrite (x+1) m
-             mMove x m'
-
-mTrip :: Maze -> Int
-mTrip m = case mStep m of
-  Nothing -> 1
-  Just m' -> 1 + mTrip m'
+jump_around :: (Int->Int) -> Maze -> Int
+jump_around step m = ja_from m 0 0 where
+  ja_from m i s =  case M.lookup i m of
+    Nothing -> s
+    Just j -> ja_from (M.adjust step i m) (i+j) (s+1)
 
 part1 :: [Int] -> Int
-part1 = mTrip . mInit
+part1 js = jump_around (+1) (M.fromList $ zip [0..] js)
 
 -- Part 2
 
-mStep2 :: Maze -> Maybe Maze
-mStep2 m = do x <- mRead m
-              let x' = if x>=3 then x-1 else x+1
-              m' <- mWrite x' m
-              mMove x m'
-
-mTrip2 :: Maze -> Int
-mTrip2 m = case mStep2 m of
-  Nothing -> 1
-  Just m' -> 1 + mTrip2 m'
-
 part2 :: [Int] -> Int
-part2 = mTrip2 . mInit
+part2 js  = jump_around (\j -> if j>=3 then j-1 else j+1)
+                        (M.fromList $ zip [0..] js)
 
