@@ -25,7 +25,7 @@ puzzle fileName = do
   putStrLn ("Part 1: " ++ show (part1 xs))
   putStrLn ("Part 2: " ++ show (part2 xs))
 
--- Parsing the input
+-- Parsing the input 
 
 pInput :: Parser [Int]
 pInput = some integer
