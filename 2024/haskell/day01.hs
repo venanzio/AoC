@@ -21,8 +21,10 @@ puzzle :: String -> IO ()
 puzzle fileName = do
   input <- readFile fileName
   let xs = parseAll pInput input
-  putStrLn ("Part 1: " ++ show (part1 xs))
-  putStrLn ("Part 2: " ++ show (part2 xs))
+      as = sort (fst xs)
+      bs = sort (snd xs)
+  putStrLn ("Part 1: " ++ show (part1 as bs))
+  putStrLn ("Part 2: " ++ show (part2 as bs))
 
 -- Parsing the input
 
@@ -37,11 +39,23 @@ pInput = do pairs <- pLines pData
 
 -- Part 1
 
-part1 :: ([Int],[Int]) -> Int
-part1 (as,bs) = sum $ zipWith (\a b -> abs (a-b)) (sort as) (sort bs)
+part1 :: [Int] -> [Int] -> Int
+part1 = (sum .) . (zipWith (\a b -> abs (a-b)))
       
 
 -- Part 2
 
-part2 :: ([Int],[Int]) -> Int
-part2 _ = 2
+splitEq :: [Int] -> (Int,Int,[Int])
+splitEq [] = (0,0,[])
+splitEq (x:xs) = let (xs1,xs2) = span (==x) xs
+                 in (x,length xs1+1,xs2)
+                    
+similarity :: (Int,Int,[Int]) -> (Int,Int,[Int]) -> Int
+similarity (a,na,as2) (b,nb,bs2)
+  | na == 0 || nb == 0 = 0
+  | a < b = similarity (splitEq as2) (b,nb,bs2)
+  | a > b = similarity (a,na,as2) (splitEq bs2)
+  | otherwise = a*na*nb + similarity (splitEq as2) (splitEq bs2)
+
+part2 :: [Int] -> [Int] -> Int
+part2 as bs = similarity (splitEq as) (splitEq bs)
