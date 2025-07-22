@@ -34,9 +34,6 @@ pInput = pLines pData
 
 -- Part 1
 
-differences :: [Int] -> [Int]
-differences xs = zipWith (-) (drop 1 xs) xs
-
 increasing :: [Int] -> Bool
 increasing = allRel (<)
 
@@ -46,24 +43,16 @@ decreasing = allRel (>)
 diff3 :: [Int] -> Bool
 diff3 = allRel (\x y -> abs (x-y)<=3)
 
-
 safe :: [Int] -> Bool
-{-
-safe report = let diffs = differences report
-              in all (\d -> abs d <= 3) diffs &&
-                 (all (<0) diffs || all (>0) diffs)
--}
 safe report = diff3 report && (increasing report || decreasing report)
 
 part1 :: [[Int]] -> Int
 part1 reports = length (filter safe reports)
 
 -- Part 2
-{-
-safeDiff :: 
 
-safeInc :: [Int] -> Bool
-safeInc report = 
--}
+safeErr :: [Int] -> Bool
+safeErr report = safe report || any safe (delOne report)
+
 part2 :: [[Int]] -> Int
-part2 _ = 2
+part2  reports = length (filter safeErr reports)

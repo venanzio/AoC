@@ -44,6 +44,17 @@ allIndices x ys = case elemIndex x ys of
   Nothing -> []
   Just i  -> i : map (+(i+1)) (allIndices x (drop (i+1) ys))
 
+-- all deletions of one element
+delOne :: [a] -> [[a]]
+delOne = delOneAux [] where
+  delOneAux xs [] = []
+  delOneAux xs (y:ys) = (xs++ys) : delOneAux (xs++[y]) ys
+
+-- delete element with index i
+delIndex :: Int -> [a] -> [a]
+delIndex i xs = (delOne xs)!!i
+
+
 -- delete all occurrences
 deleteAll :: Eq a => a -> [a] -> [a]
 deleteAll x ys = case elemIndex x ys of
