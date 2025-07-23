@@ -395,13 +395,16 @@ mOccurrences :: Eq a => [a] -> Map2D a -> Int
 mOccurrences l m = length [(p,d) | p <- M.keys m, d <- directions,
                                    l `isPrefixOf` mTrace m p d]
 
+-- horizontal and vertical mirror images
+hMirror :: Map2D a -> Map2D a
+hMirror = M.mapKeys (\(i,j) -> (-i,j))
+
+vMirror :: Map2D a -> Map2D a
+vMirror = M.mapKeys (\(i,j) -> (i,-j))
+                                 
 -- list of strings to 2D map ('.' means empty)
 stringsMap :: [String] -> Map2D Char
 stringsMap = M.filter (=='.') . mMap
-
-
-
-
                             
 -- DIJKSTRA ALGORITHM
 
