@@ -45,12 +45,6 @@ pInput = do rs <- pRules
 
 -- Part 1
 
-
-{-
-rRel :: [(Int,Int)] -> Int -> Int -> Bool
-rRel rs x y = (x,y) `elem` rs
--}
-
 rRel :: [(Int,Int)] -> Int -> Int -> Ordering
 rRel rs x y | (x,y) `elem` rs = LT
             | (y,x) `elem` rs = GT
@@ -69,4 +63,4 @@ part1 rs pss = sum [midList ps | ps <- pss, correct rs ps]
 -- Part 2
 
 part2 :: [(Int,Int)] -> [[Int]] -> Int
-part2 rs pss = sum [midList (sortBy (rRel rs) ps) | ps <- pss, not $ correct rs ps]
+part2 rs pss = sum [midList (sortBy (rRel rs) ps) | ps <- pss, not (correct rs ps)]
