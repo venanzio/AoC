@@ -7,7 +7,7 @@ import System.Environment
 -- import Data.List
 -- import Data.Char
 -- import Control.Applicative
--- import qualified Data.Map as M
+import qualified Data.Map as M
 
 import FunParser
 import AoCTools
@@ -31,5 +31,10 @@ part1 = mOccurrences "XMAS"
 
 -- Part 2
 
+xmas = stringsMap ["M.S",".A.","M.S"]
+
+patterns = [xmas, hMirror xmas, vMirror xmas, vMirror (hMirror xmas)]
+
+
 part2 :: Map2D Char -> Int
-part2 _ = 2
+part2 m = sum (map (\sub -> subOccurrences sub m) patterns)

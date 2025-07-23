@@ -313,9 +313,18 @@ imap f = imap_aux 0 where
   imap_aux i (x:xs) = f i x : imap_aux (i+1) xs
 
 
+
 -- INDEXED MAPS
 
 type Point = (Int,Int)
+
+-- Travelling in a 2-dimensional map
+pMove :: Point -> Point -> Point
+pMove (x,y) (dx,dy) = (x+dx,y+dy)
+
+-- vector distance between two points
+pDist :: Point -> Point -> Point
+pDist (x1,y1) (x2,y2) = (x2-x1,y2-y1)
 
 type Map2D a = M.Map Point a
 
@@ -361,25 +370,6 @@ mMapFP = matrixMapFP (0,0)
 
 
 
-fst3 :: (a,b,c) -> a
-fst3 (x,_,_) = x
-
-snd3 :: (a,b,c) -> b
-snd3 (_,y,_) = y
-
-divide :: Eq a => a -> [a] -> [[a]]
-divide _ [] = []
-divide x l = case break (==x) l of
-  (xs,[]) -> [xs]
-  (xs,(_:ys)) -> xs : divide x ys
-
-maximumB :: Ord a => a -> [a] -> a
-maximumB x xs = maximum (x:xs)
-
--- Travelling in a 2-dimensional map
-pMove :: Point -> Point -> Point
-pMove (x,y) (dx,dy) = (x+dx,y+dy)
-
 -- moving in a direction and returning the list of elememts visited
 mTrace :: Map2D a -> Point -> Point -> [a]
 mTrace m p d = case M.lookup p m of
@@ -395,6 +385,22 @@ mOccurrences :: Eq a => [a] -> Map2D a -> Int
 mOccurrences l m = length [(p,d) | p <- M.keys m, d <- directions,
                                    l `isPrefixOf` mTrace m p d]
 
+
+-- occurrence of a submap at a point
+subOccur :: Eq a => Map2D a -> Map2D a -> Point -> Bool
+subOccur sub map p =
+  let p0 = fst $ M.findMin sub
+  in M.isSubmapOf (M.mapKeys (pMove (pDist p p0)) sub) map
+
+-- count all occurrences of a sub-map
+subOccurrences :: Eq a => Map2D a -> Map2D a -> Int
+subOccurrences sub map = length [p | p <- M.keys map, subOccur sub map p]
+
+
+
+
+  
+
 -- horizontal and vertical mirror images
 hMirror :: Map2D a -> Map2D a
 hMirror = M.mapKeys (\(i,j) -> (-i,j))
@@ -404,7 +410,33 @@ vMirror = M.mapKeys (\(i,j) -> (i,-j))
                                  
 -- list of strings to 2D map ('.' means empty)
 stringsMap :: [String] -> Map2D Char
-stringsMap = M.filter (=='.') . mMap
+stringsMap = M.filter (/='.') . mMap
+
+
+
+
+
+
+
+
+
+
+fst3 :: (a,b,c) -> a
+fst3 (x,_,_) = x
+
+snd3 :: (a,b,c) -> b
+snd3 (_,y,_) = y
+
+divide :: Eq a => a -> [a] -> [[a]]
+divide _ [] = []
+divide x l = case break (==x) l of
+  (xs,[]) -> [xs]
+  (xs,(_:ys)) -> xs : divide x ys
+
+maximumB :: Ord a => a -> [a] -> a
+maximumB x xs = maximum (x:xs)
+
+
                             
 -- DIJKSTRA ALGORITHM
 
