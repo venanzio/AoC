@@ -23,7 +23,7 @@ puzzle fileName = do
   let xs1 = parseAll parse1 input
   putStrLn ("Part 1: " ++ show (sum xs1))
   let xs2 = parseAll parse2 input
-  putStrLn ("Part 2: " ++ show (sum xs2))
+  putStrLn ("Part 2: " ++ show (puzzle2 xs2))
 
 -- Parsing the input
 
@@ -38,11 +38,22 @@ parse1 = only (some (skipTo mulOp))
 
 -- Part 2
 
+mulDo :: Parser (Either Int Bool)
+mulDo = (mulOp >>= return.Left) <|>
+        (symbol "don\'t()" >> return (Right False)) <|>
+        (symbol "do()" >> return (Right True))
+        
 doMul :: Parser Int
 doMul = skipTo (mulOp <|> (symbol "don\'t()" >> dont))
 
 dont :: Parser Int
 dont = skipTo (symbol "do()") >> doMul
 
-parse2 :: Parser [Int]
-parse2 = only (some (skipTo doMul))
+parse2 :: Parser [Either Int Bool]
+parse2 = only (some (skipTo mulDo))
+
+puzzle2 :: [Either Int Bool] -> Int
+puzzle2 [] = 0
+puzzle2 (Left x:xs) = x + puzzle2 xs
+puzzle2 (Right True:xs) = puzzle2 xs
+puzzle2 (Right False:xs) = puzzle2 (snd $ break (==Right True) xs)
