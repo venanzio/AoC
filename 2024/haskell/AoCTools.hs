@@ -407,7 +407,12 @@ hMirror = M.mapKeys (\(i,j) -> (-i,j))
 
 vMirror :: Map2D a -> Map2D a
 vMirror = M.mapKeys (\(i,j) -> (i,-j))
-                                 
+
+-- swap up-down and left-righy
+mTranspose :: Map2D a -> Map2D a
+mTranspose = M.mapKeys (\(i,j) -> (j,i))
+
+          
 -- list of strings to 2D map ('.' means empty)
 stringsMap :: [String] -> Map2D Char
 stringsMap = M.filter (/='.') . mMap

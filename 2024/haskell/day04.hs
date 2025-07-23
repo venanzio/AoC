@@ -4,9 +4,6 @@
 module Main where
 
 import System.Environment
--- import Data.List
--- import Data.Char
--- import Control.Applicative
 import qualified Data.Map as M
 
 import FunParser
@@ -32,8 +29,9 @@ part1 = mOccurrences "XMAS"
 -- Part 2
 
 xmas = stringsMap ["M.S",".A.","M.S"]
+samx = hMirror xmas
 
-patterns = [xmas, hMirror xmas, vMirror xmas, vMirror (hMirror xmas)]
+patterns = [xmas, samx, mTranspose xmas, mTranspose samx]
 
 
 part2 :: Map2D Char -> Int
