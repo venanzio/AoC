@@ -390,7 +390,7 @@ mOccurrences l m = length [(p,d) | p <- M.keys m, d <- directions,
 subOccur :: Eq a => Map2D a -> Map2D a -> Point -> Bool
 subOccur sub map p =
   let p0 = fst $ M.findMin sub
-  in M.isSubmapOf (M.mapKeys (pMove (pDist p p0)) sub) map
+  in M.isSubmapOf (M.mapKeys (pMove (pDist p0 p)) sub) map
 
 -- count all occurrences of a sub-map
 subOccurrences :: Eq a => Map2D a -> Map2D a -> Int
