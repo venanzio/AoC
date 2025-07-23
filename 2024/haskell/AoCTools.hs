@@ -1,5 +1,5 @@
 -- Advent of Code: Useful Functions
---  Venanzio Capretta 2020 - 2023
+--  Venanzio Capretta 2020 - 2025
 
 module AoCTools where
 
@@ -138,9 +138,6 @@ loopf f x0 n =
       lead = length xs
       loop = length ys
   in if n < lead then xs!!n else ys!!((n-lead) `rem` loop)
-
-
-
 
 -- RANGES
 
@@ -320,6 +317,8 @@ imap f = imap_aux 0 where
 
 type Point = (Int,Int)
 
+type Map2D a = M.Map Point a
+
 -- list to index map with indices as keys, starting at index i0
 listMap :: Int -> [a] -> M.Map Int a
 listMap i0 = M.fromAscList . (zip [i0..])
@@ -328,14 +327,15 @@ lMap :: [a] -> M.Map Int a
 lMap = listMap 0
 
 -- 2-dimentional matrix to index map, with coordinates as keys
-matrixMap :: Point -> [[a]] -> M.Map Point a
+matrixMap :: Point -> [[a]] -> Map2D a
 matrixMap (i0,j0) xss = M.fromList [((i0+i,j0+j), xss!!j!!i) |
                                     j <- [0 .. length xss - 1],
                                     i <- [0 .. length (xss!!j) - 1]]
                         
-mMap :: [[a]] -> M.Map Point a
+mMap :: [[a]] -> Map2D a
 mMap = matrixMap (0,0)
 
+-- map by applying a Maybe-function to elements of a matrix
 matrixMapF :: Point -> (a -> Maybe b) -> [[a]] -> M.Map Point b
 matrixMapF (i0,j0) f xss =
   M.fromList [((i0+i,j0+j), b)
@@ -343,6 +343,7 @@ matrixMapF (i0,j0) f xss =
              , i <- [0 .. length (xss!!j) - 1]
              , b <- justL (f (xss!!j!!i))
              ]
+  
 mMapF :: (a -> Maybe b) -> [[a]] -> M.Map Point b
 mMapF = matrixMapF (0,0)
 
@@ -353,6 +354,7 @@ matrixMapFP (i0,j0) f xss =
              , i <- [0 .. length (xss!!j) - 1]
              , b <- justL (f (i0+i,j0+j) (xss!!j!!i))
              ]
+
 mMapFP :: (Point -> a -> Maybe b) -> [[a]] -> M.Map Point b
 mMapFP = matrixMapFP (0,0)
 
@@ -374,9 +376,28 @@ divide x l = case break (==x) l of
 maximumB :: Ord a => a -> [a] -> a
 maximumB x xs = maximum (x:xs)
 
+-- Travelling in a 2-dimensional map
+pMove :: Point -> Point -> Point
+pMove (x,y) (dx,dy) = (x+dx,y+dy)
+
+-- moving in a direction and returning the list of elememts visited
+mTrace :: Map2D a -> Point -> Point -> [a]
+mTrace m p d = case M.lookup p m of
+  Nothing -> []
+  Just x -> x : mTrace m (pMove p d) d
+  
+-- directions: up, down, left, right and diagonal
+directions :: [Point]
+directions = [(dx,dy) | dx <- [-1..1], dy <- [-1..1]] \\ [(0,0)]
+
+-- count all occurrences of from any point to any direction
+mOccurrences :: Eq a => [a] -> Map2D a -> Int
+mOccurrences l m = length [(p,d) | p <- M.keys m, d <- directions, mTrace m p d == l]
 
 
 
+                            
+-- DIJKSTRA ALGORITHM
 
 infinite = maxBound `div` 2 :: Int
 

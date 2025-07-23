@@ -10,7 +10,7 @@ import System.Environment
 -- import qualified Data.Map as M
 
 import FunParser
--- import AoCTools
+import AoCTools
 
 main :: IO ()
 main = do
@@ -20,6 +20,7 @@ main = do
 puzzle :: String -> IO ()
 puzzle fileName = do
   input <- readFile fileName
+  putStrLn (show (lines input))
   let xs = parseAll pInput input
   putStrLn ("Part 1: " ++ show (part1 xs))
   putStrLn ("Part 2: " ++ show (part2 xs))
