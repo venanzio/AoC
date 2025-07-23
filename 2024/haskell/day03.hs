@@ -4,13 +4,9 @@
 module Main where
 
 import System.Environment
--- import Data.List
--- import Data.Char
 import Control.Applicative
--- import qualified Data.Map as M
 
 import FunParser
--- import AoCTools
 
 main :: IO ()
 main = do
@@ -20,40 +16,34 @@ main = do
 puzzle :: String -> IO ()
 puzzle fileName = do
   input <- readFile fileName
-  let xs1 = parseAll parse1 input
-  putStrLn ("Part 1: " ++ show (sum xs1))
-  let xs2 = parseAll parse2 input
-  putStrLn ("Part 2: " ++ show (puzzle2 xs2))
-
+  let xs = parseAll pInput input
+  putStrLn ("Part 1: " ++ show (puzzle1 xs))
+  putStrLn ("Part 2: " ++ show (puzzle2 xs))
+  
 -- Parsing the input
 
 mulOp :: Parser Int
 mulOp = do symbol "mul"
            parens (integer >>= \x -> symbol "," >> integer >>= \y -> return (x*y))
 
--- Part 1
-
-parse1 :: Parser [Int]
-parse1 = only (some (skipTo mulOp))
-
--- Part 2
-
 mulDo :: Parser (Either Int Bool)
 mulDo = (mulOp >>= return.Left) <|>
         (symbol "don\'t()" >> return (Right False)) <|>
         (symbol "do()" >> return (Right True))
-        
-doMul :: Parser Int
-doMul = skipTo (mulOp <|> (symbol "don\'t()" >> dont))
 
-dont :: Parser Int
-dont = skipTo (symbol "do()") >> doMul
+pInput :: Parser [Either Int Bool]
+pInput = only (some (skipTo mulDo))
 
-parse2 :: Parser [Either Int Bool]
-parse2 = only (some (skipTo mulDo))
+-- Part 1
+
+puzzle1 :: [Either Int Bool] -> Int
+puzzle1 xs = sum [x | Left x <- xs]
+
+-- Part 2
 
 puzzle2 :: [Either Int Bool] -> Int
 puzzle2 [] = 0
 puzzle2 (Left x:xs) = x + puzzle2 xs
 puzzle2 (Right True:xs) = puzzle2 xs
 puzzle2 (Right False:xs) = puzzle2 (snd $ break (==Right True) xs)
+
