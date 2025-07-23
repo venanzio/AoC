@@ -392,7 +392,13 @@ directions = [(dx,dy) | dx <- [-1..1], dy <- [-1..1]] \\ [(0,0)]
 
 -- count all occurrences of from any point to any direction
 mOccurrences :: Eq a => [a] -> Map2D a -> Int
-mOccurrences l m = length [(p,d) | p <- M.keys m, d <- directions, mTrace m p d == l]
+mOccurrences l m = length [(p,d) | p <- M.keys m, d <- directions,
+                                   l `isPrefixOf` mTrace m p d]
+
+-- list of strings to 2D map ('.' means empty)
+stringsMap :: [String] -> Map2D Char
+stringsMap = M.filter (=='.') . mMap
+
 
 
 
