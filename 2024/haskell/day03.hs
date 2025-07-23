@@ -20,9 +20,10 @@ main = do
 puzzle :: String -> IO ()
 puzzle fileName = do
   input <- readFile fileName
-  let xs = parseAll pInput input
-  putStrLn ("Part 1: " ++ show (part1 xs))
-  putStrLn ("Part 2: " ++ show (part2 xs))
+  let xs1 = parseAll parse1 input
+  putStrLn ("Part 1: " ++ show (sum xs1))
+  let xs2 = parseAll parse2 input
+  putStrLn ("Part 2: " ++ show (sum xs2))
 
 -- Parsing the input
 
@@ -30,18 +31,18 @@ mulOp :: Parser Int
 mulOp = do symbol "mul"
            parens (integer >>= \x -> symbol "," >> integer >>= \y -> return (x*y))
 
-pData :: Parser ()
-pData = return ()
-
-pInput :: Parser [Int]
-pInput = some (skipTo mulOp)
-
 -- Part 1
 
-part1 :: [Int] -> Int
-part1 = sum
+parse1 :: Parser [Int]
+parse1 = only (some (skipTo mulOp))
 
 -- Part 2
 
-part2 :: [Int] -> Int
-part2 _ = 2
+doMul :: Parser Int
+doMul = skipTo (mulOp <|> (symbol "don\'t()" >> dont))
+
+dont :: Parser Int
+dont = skipTo (symbol "do()") >> doMul
+
+parse2 :: Parser [Int]
+parse2 = only (some (skipTo doMul))

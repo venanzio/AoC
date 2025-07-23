@@ -27,6 +27,12 @@ noItem = P (\inp -> case inp of
                [] -> [(True,[])]
                xs -> [(False,xs)])
 
+skip :: Parser ()
+skip = P (\_ -> [((),"")])
+
+only :: Parser a -> Parser a
+only p = p >>= \x -> skip >> return x
+
 -- Returning the result of a deterministic parser that consume all the input
 parseAll :: Parser a -> String -> a
 parseAll pa src = case (parse pa src) of
