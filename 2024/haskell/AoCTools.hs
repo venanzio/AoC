@@ -62,10 +62,14 @@ deleteAll x ys = case elemIndex x ys of
     Just i -> let (ys0,ys1) = splitAt i ys
               in ys0 ++ deleteAll x (tail ys1)
 
--- successive elements satisfy a relation
+-- successive elements satisfy a relation (sorted by rel)
 allRel :: (a->a->Bool) -> [a] -> Bool
 allRel rel (x0:xs@(x1:_)) = rel x0 x1 && allRel rel xs
 allRel _ _ = True
+
+isOrderedBy :: (a->a->Ordering) -> [a] -> Bool
+isOrderedBy ord (x0:xs@(x1:_)) = ord x0 x1 == LT && isOrderedBy ord xs
+isOrderedBy _ _ = True
 
 -- apply a binary function element-wise
 zipWithLong :: (a -> a -> a) -> [a] -> [a] -> [a] 
@@ -108,6 +112,10 @@ allPairs :: [a] -> [(a,a)]
 allPairs [] = []
 allPairs (x:xs) = map (\y -> (x,y)) xs ++ allPairs xs
 
+
+
+
+  
 
 -- ORBITS OF FUNCIONS
 
