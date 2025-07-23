@@ -6,7 +6,7 @@ module Main where
 import System.Environment
 -- import Data.List
 -- import Data.Char
--- import Control.Applicative
+import Control.Applicative
 -- import qualified Data.Map as M
 
 import FunParser
@@ -33,15 +33,15 @@ mulOp = do symbol "mul"
 pData :: Parser ()
 pData = return ()
 
-pInput :: Parser [()]
-pInput = pLines pData
+pInput :: Parser [Int]
+pInput = some (skipTo mulOp)
 
 -- Part 1
 
-part1 :: [()] -> Int
-part1 _ = 1
+part1 :: [Int] -> Int
+part1 = sum
 
 -- Part 2
 
-part2 :: [()] -> Int
+part2 :: [Int] -> Int
 part2 _ = 2
