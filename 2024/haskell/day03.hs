@@ -1,4 +1,4 @@
--- Advent of Code 2024, day 0
+-- Advent of Code 2024, day 3
 --  Venanzio Capretta
 
 module Main where
@@ -25,6 +25,10 @@ puzzle fileName = do
   putStrLn ("Part 2: " ++ show (part2 xs))
 
 -- Parsing the input
+
+mulOp :: Parser Int
+mulOp = do symbol "mul"
+           parens (integer >>= \x -> symbol "," >> integer >>= \y -> return (x*y))
 
 pData :: Parser ()
 pData = return ()

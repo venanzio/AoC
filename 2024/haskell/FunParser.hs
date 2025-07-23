@@ -1,5 +1,5 @@
 {- Functional Parser Library
-   Venanzio Capretta, 2020-2023
+   Venanzio Capretta, 2020-2025
 
 based on chapter 13 of "Programming in Haskell" (2nd edition)
 Graham Hutton, Cambridge University Press, 2016.
@@ -181,7 +181,6 @@ sigNum = (do char '+'
              n <- nat
              return (-n))
 
-
 -- Handling spacing
 
 -- parsing empty space
@@ -345,3 +344,6 @@ sepDNL :: Parser [String]
 sepDNL = (beforeNL >>= \s -> sepDNL >>= \ss -> return (s:ss))
          <|> (pAll >>= \s -> return [s])
 
+-- skip ahead to correct parsing (ignoring everything else)
+skipTo :: Parser a -> Parser a
+skipTo p = p <|> (item >> skipTo p)
