@@ -24,8 +24,6 @@ puzzle fileName = do
       maxX = length (ls!!1) - 1
       maxY = length ls - 1
       map = mMap ls
-      start = mFind '^' map
-      direction = dUp
   putStrLn ("Part 1: " ++ show (part1 maxX maxY map))
   putStrLn ("Part 2: " ++ show (part2 maxX maxY map))
 
@@ -40,7 +38,8 @@ patrol maxX maxY map p d
         map' = M.insert p 'X' map
 
 part1 :: Int -> Int -> Map2D Char -> Int
-part1 maxX maxY map = 1
+part1 maxX maxY map =
+  length $ mFind 'X' (patrol maxX maxY map (head $ mFind '^' map) dUp)
 
 -- Part 2
 

@@ -406,6 +406,8 @@ pInside (minX,minY) (maxX,maxY) (x,y) =
   minX <= x && x <= maxX && minY <= y && y <= maxY
 
 -- moving in a direction and returning the list of elememts visited
+-- WARNING: it doesn't work with sparse maps
+--   delete the Nothing part and make it lazy-non-terminating?
 mTrace :: Map2D a -> Point -> Point -> [a]
 mTrace m p d = case M.lookup p m of
   Nothing -> []
