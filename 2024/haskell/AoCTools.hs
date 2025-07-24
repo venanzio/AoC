@@ -148,6 +148,7 @@ loopf f x0 n =
       loop = length ys
   in if n < lead then xs!!n else ys!!((n-lead) `rem` loop)
 
+
 -- RANGES
 
 -- An interval is a pair (x,y) denoting [x..y]
@@ -327,14 +328,6 @@ imap f = imap_aux 0 where
 
 type Point = (Int,Int)
 
--- Travelling in a 2-dimensional map
-pMove :: Point -> Point -> Point
-pMove (x,y) (dx,dy) = (x+dx,y+dy)
-
--- vector distance between two points
-pDist :: Point -> Point -> Point
-pDist (x1,y1) (x2,y2) = (x2-x1,y2-y1)
-
 type Map2D a = M.Map Point a
 
 -- list to index map with indices as keys, starting at index i0
@@ -376,8 +369,13 @@ matrixMapFP (i0,j0) f xss =
 mMapFP :: (Point -> a -> Maybe b) -> [[a]] -> M.Map Point b
 mMapFP = matrixMapFP (0,0)
 
+-- travelling in a 2-dimensional map
+pMove :: Point -> Point -> Point
+pMove (x,y) (dx,dy) = (x+dx,y+dy)
 
-
+-- vector distance between two points
+pDist :: Point -> Point -> Point
+pDist (x1,y1) (x2,y2) = (x2-x1,y2-y1)
 
 -- moving in a direction and returning the list of elememts visited
 mTrace :: Map2D a -> Point -> Point -> [a]
@@ -404,11 +402,6 @@ subOccur sub map p =
 -- count all occurrences of a sub-map
 subOccurrences :: Eq a => Map2D a -> Map2D a -> Int
 subOccurrences sub map = length [p | p <- M.keys map, subOccur sub map p]
-
-
-
-
-  
 
 -- horizontal and vertical mirror images
 hMirror :: Map2D a -> Map2D a
