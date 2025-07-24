@@ -5,8 +5,6 @@ module Main where
 
 import System.Environment
 import Data.List
--- import Data.Char
--- import Control.Applicative
 import qualified Data.Map as M
 
 import FunParser
@@ -46,20 +44,6 @@ part1 maxX maxY map =
   length $ mFind 'X' (patrol maxX maxY map (start map) dUp)
 
 -- Part 2
-
--- encoding of visited information
-
-{-
-visited :: Maybe Char -> Point -> Char
-visited Nothing   dir  = if dir `elem` [dUp,dDown] then '|'
-                                                   else '-'
-visited (Just '|') dir = if dir `elem` [dUp,dDown] then 'O'
-                                                   else '+'
-visited (Just '-') dir = if dir `elem` [dUp,dDown] then '+'
-                                                   else 'O'
-visited (Just '^') _ = '|'
-visited _ _ = 'O'                           
--}
 
 -- to check a loop, use a map of visited points with directions
 loop :: Int -> Int -> Map2D Char -> Point -> Point -> Map2D [Point] ->  Bool
