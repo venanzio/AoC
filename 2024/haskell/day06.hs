@@ -43,5 +43,19 @@ part1 maxX maxY map =
 
 -- Part 2
 
+loop :: Int -> Int -> Map2D Char -> Point -> Point -> Bool
+loop maxX maxY map p d
+  | not (pInside (0,0) (maxX,maxY) p) = False 
+  | M.lookup p' map == Just '#' = loop maxX maxY map p (dRTurn d)
+  | otherwise = loop maxX maxY map' p' d
+  where pVis = M.lookup p map
+        newVis = case pVis of
+          Nothing -> undefined
+        map' = undefined
+        p' = pMove p d
+{-        mapH = M.insert p '-' map
+        mapV = M.insert p '|' map
+        mapB = M.insert p '+' map
+-}
 part2 :: Int -> Int -> Map2D Char -> Int
 part2 maxX maxY map = 2
