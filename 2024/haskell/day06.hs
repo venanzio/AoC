@@ -24,6 +24,8 @@ puzzle fileName = do
       maxX = length (ls!!1)
       maxY = length ls
       map = mMap ls
+      start = mFind '#' map
+  putStrLn (show start)
   putStrLn ("Part 1: " ++ show (part1 maxX maxY map))
   putStrLn ("Part 2: " ++ show (part2 maxX maxY map))
 

@@ -419,7 +419,13 @@ mTranspose = M.mapKeys (\(i,j) -> (j,i))
 stringsMap :: [String] -> Map2D Char
 stringsMap = M.filter (/='.') . mMap
 
+-- list of positions of items satisfying a property
+mSatisfy :: (a->Bool) -> Map2D a -> [Point]
+mSatisfy prop = M.foldrWithKey (\p x ps -> if prop x then p:ps else ps) []
 
+-- Find the position(s) of an item
+mFind :: Eq a => a -> Map2D a -> [Point]
+mFind x = mSatisfy (==x)
 
 
 
