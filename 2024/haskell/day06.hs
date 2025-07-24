@@ -26,7 +26,7 @@ puzzle fileName = do
       map = stringsMap ls
       p0 = start map
   putStrLn ("Part 1: " ++ show (part1 maxX maxY map))
-  putStrLn (part2 maxX maxY map) -- ("Part 2: " ++ show (part2 maxX maxY map))
+  putStrLn ("Part 2: " ++ show (part2 maxX maxY map))
 
 -- Part 1
 
@@ -49,7 +49,7 @@ part1 maxX maxY map =
 
 -- encoding of visited information
 
-
+{-
 visited :: Maybe Char -> Point -> Char
 visited Nothing   dir  = if dir `elem` [dUp,dDown] then '|'
                                                    else '-'
@@ -59,22 +59,25 @@ visited (Just '-') dir = if dir `elem` [dUp,dDown] then '+'
                                                    else 'O'
 visited (Just '^') _ = '|'
 visited _ _ = 'O'                           
+-}
 
-loop :: Int -> Int -> Map2D Char -> Point -> Point -> Bool
-loop maxX maxY map p d
-  | newVis == 'O' = True
+-- to check a loop, use a map of visited points with directions
+loop :: Int -> Int -> Map2D Char -> Point -> Point -> Map2D [Point] ->  Bool
+loop maxX maxY map p d visited
+  | d `elem` pVis = True
   | not (pInside (0,0) (maxX,maxY) p) = False 
-  | M.lookup p' map == Just '#' = loop maxX maxY map p (dRTurn d)
-  | otherwise = loop maxX maxY map' p' d
-  where pVis = M.lookup p map
-        newVis = visited pVis d
-        map' = M.insert p newVis map
+  | M.lookup p' map == Just '#' = loop maxX maxY map p (dRTurn d) visited
+  | otherwise = loop maxX maxY map p' d visited'
+  where pVis = case M.lookup p visited of
+                 Nothing -> []
+                 Just ds -> ds
+        visited' = M.insert p (d:pVis) visited 
         p' = pMove p d
 
-part2 :: Int -> Int -> Map2D Char -> String
+part2 :: Int -> Int -> Map2D Char -> Int
 part2 maxX maxY map =
   let p0 = start map
       trace = delete p0 (mFind 'X' (patrol maxX maxY map (start map) dUp))
-      loops = filter (\p -> loop maxX maxY (M.insert p '#' map) p0 dUp) trace
-  in show loops
+      loops = filter (\p -> loop maxX maxY (M.insert p '#' map) p0 dUp M.empty) trace
+  in length loops
 
