@@ -328,6 +328,12 @@ imap f = imap_aux 0 where
 
 type Point = (Int,Int)
 
+pX :: Point -> Int
+pX = fst
+
+pY :: Point -> Int
+pY = snd
+
 type Map2D a = M.Map Point a
 
 -- list to index map with indices as keys, starting at index i0
@@ -377,15 +383,33 @@ pMove (x,y) (dx,dy) = (x+dx,y+dy)
 pDist :: Point -> Point -> Point
 pDist (x1,y1) (x2,y2) = (x2-x1,y2-y1)
 
+-- directions: up, down, left, right and diagonal
+directions :: [Point]
+directions = [(dx,dy) | dx <- [-1..1], dy <- [-1..1]] \\ [(0,0)]
+
+dUp    = (0,-1) :: Point
+dDown  = (0,1)  :: Point
+dLeft  = (-1,0) :: Point
+dRight = (1,0)  :: Point
+
+-- turning a right angle clockwise
+dRTurn :: Point -> Point
+dRTurn (x,y) = (-y,x)
+
+-- turning anti-clockwise
+dLTurn :: Point -> Point
+dLTurn (x,y) = (y,-x)
+
+-- is a point inside a box with given up-left and downright corners?
+pInside :: Point -> Point -> Point -> Bool
+pInside (minX,minY) (maxX,maxY) (x,y) =
+  minX <= x && x <= maxX && minY <= y && y <= maxY
+
 -- moving in a direction and returning the list of elememts visited
 mTrace :: Map2D a -> Point -> Point -> [a]
 mTrace m p d = case M.lookup p m of
   Nothing -> []
   Just x -> x : mTrace m (pMove p d) d
-  
--- directions: up, down, left, right and diagonal
-directions :: [Point]
-directions = [(dx,dy) | dx <- [-1..1], dy <- [-1..1]] \\ [(0,0)]
 
 -- count all occurrences of from any point to any direction
 mOccurrences :: Eq a => [a] -> Map2D a -> Int
