@@ -4,7 +4,7 @@
 module Main where
 
 import System.Environment
--- import Data.List
+import Data.List
 -- import Data.Char
 -- import Control.Applicative
 import qualified Data.Map as M
@@ -25,11 +25,8 @@ puzzle fileName = do
       maxY = length ls - 1
       map = stringsMap ls
       p0 = start map
-  if (loop maxX maxY (M.insert (6,7) '#' map) (start map) dUp)
-    then putStrLn "There is a loop!"
-    else putStrLn "No loop!"
   putStrLn ("Part 1: " ++ show (part1 maxX maxY map))
-  putStrLn ("Part 2: " ++ show (part2 maxX maxY map))
+  putStrLn (part2 maxX maxY map) -- ("Part 2: " ++ show (part2 maxX maxY map))
 
 -- Part 1
 
@@ -49,6 +46,9 @@ part1 maxX maxY map =
   length $ mFind 'X' (patrol maxX maxY map (start map) dUp)
 
 -- Part 2
+
+-- encoding of visited information
+
 
 visited :: Maybe Char -> Point -> Char
 visited Nothing   dir  = if dir `elem` [dUp,dDown] then '|'
@@ -71,5 +71,10 @@ loop maxX maxY map p d
         map' = M.insert p newVis map
         p' = pMove p d
 
-part2 :: Int -> Int -> Map2D Char -> Int
-part2 maxX maxY map = 2
+part2 :: Int -> Int -> Map2D Char -> String
+part2 maxX maxY map =
+  let p0 = start map
+      trace = delete p0 (mFind 'X' (patrol maxX maxY map (start map) dUp))
+      loops = filter (\p -> loop maxX maxY (M.insert p '#' map) p0 dUp) trace
+  in show loops
+
