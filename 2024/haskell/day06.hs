@@ -23,11 +23,18 @@ puzzle fileName = do
   let ls = lines input
       maxX = length (ls!!1) - 1
       maxY = length ls - 1
-      map = mMap ls
+      map = stringsMap ls
+      p0 = start map
+  if (loop maxX maxY (M.insert (6,7) '#' map) (start map) dUp)
+    then putStrLn "There is a loop!"
+    else putStrLn "No loop!"
   putStrLn ("Part 1: " ++ show (part1 maxX maxY map))
   putStrLn ("Part 2: " ++ show (part2 maxX maxY map))
 
 -- Part 1
+
+start :: Map2D Char -> Point
+start map = head $ mFind '^' map
 
 patrol :: Int -> Int -> Map2D Char -> Point -> Point -> Map2D Char
 patrol maxX maxY map p d
@@ -39,23 +46,30 @@ patrol maxX maxY map p d
 
 part1 :: Int -> Int -> Map2D Char -> Int
 part1 maxX maxY map =
-  length $ mFind 'X' (patrol maxX maxY map (head $ mFind '^' map) dUp)
+  length $ mFind 'X' (patrol maxX maxY map (start map) dUp)
 
 -- Part 2
 
+visited :: Maybe Char -> Point -> Char
+visited Nothing   dir  = if dir `elem` [dUp,dDown] then '|'
+                                                   else '-'
+visited (Just '|') dir = if dir `elem` [dUp,dDown] then 'O'
+                                                   else '+'
+visited (Just '-') dir = if dir `elem` [dUp,dDown] then '+'
+                                                   else 'O'
+visited (Just '^') _ = '|'
+visited _ _ = 'O'                           
+
 loop :: Int -> Int -> Map2D Char -> Point -> Point -> Bool
 loop maxX maxY map p d
+  | newVis == 'O' = True
   | not (pInside (0,0) (maxX,maxY) p) = False 
   | M.lookup p' map == Just '#' = loop maxX maxY map p (dRTurn d)
   | otherwise = loop maxX maxY map' p' d
   where pVis = M.lookup p map
-        newVis = case pVis of
-          Nothing -> undefined
-        map' = undefined
+        newVis = visited pVis d
+        map' = M.insert p newVis map
         p' = pMove p d
-{-        mapH = M.insert p '-' map
-        mapV = M.insert p '|' map
-        mapB = M.insert p '+' map
--}
+
 part2 :: Int -> Int -> Map2D Char -> Int
 part2 maxX maxY map = 2
