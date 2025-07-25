@@ -40,10 +40,16 @@ pInput = pLines pData
 
 calibration :: (Int,[Int]) -> Bool
 calibration (s,[]) = s==0
-calibration (s,xs) = any calibration
+calibration (s,[x]) = s==x
+calibration (s,(x0:x1:xs))
+  | s<x0 = False
+  | otherwise = calibration (s,(x0*x1:xs)) || calibration (s,(x0+x1:xs))
+{-
+  any calibration
                          [let (ms,ys) = splitAt i xs in (s,product ms:ys)
                          | i <- [1..length xs]]
-
+-}
+  
 part1 :: [(Int,[Int])] -> Int
 part1 equations = sum $ map fst  (filter calibration equations)
 
