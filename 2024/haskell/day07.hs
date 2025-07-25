@@ -38,6 +38,11 @@ pInput = pLines pData
 
 -- Part 1
 
+calibration :: (Int,[Int]) -> Bool
+calibration (s,[]) = s==0
+calibration (s,[x]) = s==x
+calibration (s,(x0:x1:xs)) = undefined
+
 part1 :: [(Int,[Int])] -> Int
 part1 _ = 1
 
