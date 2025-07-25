@@ -65,4 +65,4 @@ calibration2 (s,(x0:x1:xs))
                 calibration2 (s,(x0+x1:xs))
   
 part2 :: [(Int,[Int])] -> Int
-part2 _ = 2
+part2 equations = sum $ map fst  (filter calibration2 equations)
