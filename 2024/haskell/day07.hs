@@ -49,5 +49,20 @@ part1 equations = sum $ map fst  (filter calibration equations)
 
 -- Part 2
 
+digs :: Int -> Int
+digs x = if x<10 then 1 else 1 + digs (x `div` 10)
+
+conc :: Int -> Int -> Int
+conc x y = x*(10 ^ digs y) + y
+
+calibration2 :: (Int,[Int]) -> Bool
+calibration2 (s,[]) = s==0
+calibration2 (s,[x]) = s==x
+calibration2 (s,(x0:x1:xs))
+  | s<x0 = False
+  | otherwise = calibration2 (s,(conc x0 x1:xs)) ||
+                calibration2 (s,(x0*x1:xs)) ||
+                calibration2 (s,(x0+x1:xs))
+  
 part2 :: [(Int,[Int])] -> Int
 part2 _ = 2
