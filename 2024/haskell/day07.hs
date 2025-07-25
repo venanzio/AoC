@@ -21,7 +21,6 @@ puzzle :: String -> IO ()
 puzzle fileName = do
   input <- readFile fileName
   let xs = parseAll pInput input
-  putStrLn (show xs)
   putStrLn ("Part 1: " ++ show (part1 xs))
   putStrLn ("Part 2: " ++ show (part2 xs))
 
@@ -44,11 +43,6 @@ calibration (s,[x]) = s==x
 calibration (s,(x0:x1:xs))
   | s<x0 = False
   | otherwise = calibration (s,(x0*x1:xs)) || calibration (s,(x0+x1:xs))
-{-
-  any calibration
-                         [let (ms,ys) = splitAt i xs in (s,product ms:ys)
-                         | i <- [1..length xs]]
--}
   
 part1 :: [(Int,[Int])] -> Int
 part1 equations = sum $ map fst  (filter calibration equations)
