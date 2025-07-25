@@ -4,7 +4,7 @@
 module Main where
 
 import System.Environment
--- import Data.List
+import Data.List
 -- import Data.Char
 import Control.Applicative
 -- import qualified Data.Map as M
@@ -40,11 +40,12 @@ pInput = pLines pData
 
 calibration :: (Int,[Int]) -> Bool
 calibration (s,[]) = s==0
-calibration (s,[x]) = s==x
-calibration (s,(x0:x1:xs)) = undefined
+calibration (s,xs) = any calibration
+                         [let (ms,ys) = splitAt i xs in (s,product ms:ys)
+                         | i <- [1..length xs]]
 
 part1 :: [(Int,[Int])] -> Int
-part1 _ = 1
+part1 equations = sum $ map fst  (filter calibration equations)
 
 -- Part 2
 
