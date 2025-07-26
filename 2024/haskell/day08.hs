@@ -45,5 +45,14 @@ part1 maxX maxY antennas = length $
 
 -- Part 2
 
+line :: Int -> Int -> Point -> Point -> [Point]
+line maxX maxY p0 p1 =
+  let (dx,dy) = pDist p0 p1
+      g = gcd dx dy
+      vx = dx `div` g
+      vy = dy `div` g
+  in (takeWhile (pInside (0,0) (maxX,maxY)) [pMove p0 (i*vx,i*vy) | i <- [0..]]) ++
+     (takeWhile (pInside (0,0) (maxX,maxY)) [pMove p0 (i*vx,i*vy) | i <- [-1..]])
+
 part2 :: Int -> Int -> Map2D Char -> Int
 part2 maxX maxY antennas = 2
