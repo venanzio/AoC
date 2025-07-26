@@ -31,8 +31,11 @@ puzzle fileName = do
 
 -- Part 1
 
-antinodes :: Point -> Point -> (Point,Point)
-antinodes p0 p1 = let d = pDist p0 p1 in (pMove p0 (pNeg d), pMove p1 d)
+antinodes :: Point -> Point -> [Point]
+antinodes p0 p1 = let d = pDist p0 p1 in [pMove p0 (pNeg d), pMove p1 d]
+
+allAntinodes :: [Point] -> [Point]
+allAntinodes ps = concat [antinodes p0 p1 | (p0,p1) <- allPairs ps]
 
 
 part1 :: Int -> Int -> Map2D Char -> Int
