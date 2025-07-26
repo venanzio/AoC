@@ -4,7 +4,7 @@
 module Main where
 
 import System.Environment
--- import Data.List
+import Data.List
 -- import Data.Char
 -- import Control.Applicative
 import qualified Data.Map as M
@@ -25,7 +25,7 @@ puzzle fileName = do
       maxY = length lns - 1
       antennas = stringsMap (lines input)
   putStrLn (show maxX ++ " - " ++ show maxY)
-  putStrLn (show antennas)
+  putStrLn (show (nub $ M.elems antennas))
   putStrLn ("Part 1: " ++ show (part1 maxX maxY antennas))
   putStrLn ("Part 2: " ++ show (part2 maxX maxY antennas))
 
@@ -37,9 +37,11 @@ antinodes p0 p1 = let d = pDist p0 p1 in [pMove p0 (pNeg d), pMove p1 d]
 allAntinodes :: [Point] -> [Point]
 allAntinodes ps = concat [antinodes p0 p1 | (p0,p1) <- allPairs ps]
 
-
 part1 :: Int -> Int -> Map2D Char -> Int
-part1 maxX maxY antennas = 1
+part1 maxX maxY antennas = length $
+  filter (pInside (0,0) (maxX,maxY)) $ nub $ concat
+    [allAntinodes (mFind freq antennas) | freq <- (nub $ M.elems antennas)]
+  
 
 -- Part 2
 
