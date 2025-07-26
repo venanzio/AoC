@@ -52,11 +52,13 @@ antiLine maxX maxY p0 p1 =
       vx = dx `div` g
       vy = dy `div` g
   in (takeWhile (pInside (0,0) (maxX,maxY)) [pMove p0 (i*vx,i*vy) | i <- [0..]]) ++
-     (takeWhile (pInside (0,0) (maxX,maxY)) [pMove p0 (i*vx,i*vy) | i <- [-1..]])
+     (takeWhile (pInside (0,0) (maxX,maxY)) [pMove p0 (i*vx,i*vy) | i <- [-1,-2..]])
 
 allAntinodes2 :: Int -> Int -> [Point] -> [Point]
 allAntinodes2 maxX maxY ps =
   concat [antiLine maxX maxY p0 p1 | (p0,p1) <- allPairs ps]
 
 part2 :: Int -> Int -> Map2D Char -> Int
-part2 maxX maxY antennas = 2
+part2 maxX maxY antennas = length $ nub $ concat
+    [allAntinodes2 maxX maxY (mFind freq antennas)
+    | freq <- (nub $ M.elems antennas)]
