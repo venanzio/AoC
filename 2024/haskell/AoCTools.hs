@@ -383,6 +383,10 @@ pMove (x,y) (dx,dy) = (x+dx,y+dy)
 pDist :: Point -> Point -> Point
 pDist (x1,y1) (x2,y2) = (x2-x1,y2-y1)
 
+-- opposite of a vector
+pNeg :: Point -> Point
+pNeg (v1,v2) = (-v1,-v2)
+
 -- directions: up, down, left, right and diagonal
 directions :: [Point]
 directions = [(dx,dy) | dx <- [-1..1], dy <- [-1..1]] \\ [(0,0)]

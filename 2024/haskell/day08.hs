@@ -7,7 +7,7 @@ import System.Environment
 -- import Data.List
 -- import Data.Char
 -- import Control.Applicative
--- import qualified Data.Map as M
+import qualified Data.Map as M
 
 import FunParser
 import AoCTools
@@ -29,15 +29,11 @@ puzzle fileName = do
   putStrLn ("Part 1: " ++ show (part1 maxX maxY antennas))
   putStrLn ("Part 2: " ++ show (part2 maxX maxY antennas))
 
--- Parsing the input
-
-pData :: Parser ()
-pData = return ()
-
-pInput :: Parser [()]
-pInput = pLines pData
-
 -- Part 1
+
+antinodes :: Point -> Point -> (Point,Point)
+antinodes p0 p1 = let d = pDist p0 p1 in (pMove p0 (pNeg d), pMove p1 d)
+
 
 part1 :: Int -> Int -> Map2D Char -> Int
 part1 maxX maxY antennas = 1
