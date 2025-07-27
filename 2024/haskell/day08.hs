@@ -5,8 +5,6 @@ module Main where
 
 import System.Environment
 import Data.List
--- import Data.Char
--- import Control.Applicative
 import qualified Data.Map as M
 
 import FunParser
@@ -42,7 +40,6 @@ part1 maxX maxY antennas = length $
   filter (pInside (0,0) (maxX,maxY)) $ nub $ concat
     [allAntinodes (mFind freq antennas) | freq <- (nub $ M.elems antennas)]
   
-
 -- Part 2
 
 antiLine :: Int -> Int -> Point -> Point -> [Point]
