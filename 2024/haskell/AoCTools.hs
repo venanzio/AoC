@@ -458,6 +458,78 @@ mFind :: Eq a => a -> Map2D a -> [Point]
 mFind x = mSatisfy (==x)
 
 
+-- WHEELS
+
+readW :: Wheel a -> a
+readW (x:_,_) = x
+readW ([],ys@(_:_)) = last ys 
+readW _       = error "readW: empty wheel"
+
+emptyW :: Wheel a
+emptyW = ([],[])
+
+-- A wheel with no head: first component empty
+--  (A correct wheel should be empty if it has no head)
+noHeadW :: Wheel a -> Bool
+noHeadW w = null (fst w)
+
+isEmptyW :: Wheel a -> Bool
+isEmptyW ([],[]) = True
+isEmptyW _ = False
+
+-- Turning a list into a wheel
+--   The last element of the list is linked back to the first
+--   This "bends the list around clockwise"
+listLW :: [a] -> Wheel a
+listLW [x] = ([x],[])
+listLW xs = (xs1, reverse xs2)
+  where (xs1,xs2) = splitAt (length xs `div` 2) xs
+
+-- Bending the list around anticlockwise
+listRW :: [a] -> Wheel a
+listRW xs = (reverse xs2, xs1)
+  where (xs1,xs2) = splitAt (length xs `div` 2) xs
+
+-- Turning a wheel into a list
+--  just forget the link from last to first element
+wheelL :: Wheel a -> [a]
+wheelL (ys,zs) = ys ++ reverse zs
+
+-- Move to the next element clockwise
+rightW :: Wheel a -> Wheel a
+rightW ([y],zs) = listRW (y:zs)
+rightW (y:ys,zs) = (ys,y:zs)
+rightW ([],[]) = ([],[])
+rightW ([],zs) = rightW (listRW zs)
+
+-- Move to the next element anti-clockwise
+leftW :: Wheel a -> Wheel a
+leftW (ys,z:zs) = (z:ys,zs)
+leftW ([],[]) = ([],[])
+leftW ([y],[]) = ([y],[])
+leftW (ys,[]) = leftW (listLW ys)
+
+-- insert a new element as head
+insertW :: a -> Wheel a -> Wheel a
+insertW x (ys,zs) = (x:ys,zs)
+
+-- extract and delete the head
+-- move the head to the next right
+extractW :: Wheel a -> (a, Wheel a)
+extractW (y:ys,zs) = (y,(ys,zs))
+extractW ([],[]) = error "empty wheel"
+extractW ([],zs) = extractW (listRW zs)
+
+deleteW :: Wheel a -> Wheel a
+deleteW = snd.extractW
+
+-- Concatenate two wheels
+--   The new head is the head of the first (if non-empty)
+--   (complexity: can we make it O(1)?)
+concatW :: Wheel a -> Wheel a -> Wheel a
+concatW (ys1,zs1) (ys2,zs2) = (ys1 ++ reverse zs1, zs2 ++ reverse ys2)
+
+
 
 
 
