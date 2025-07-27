@@ -4,7 +4,7 @@
 module Main where
 
 import System.Environment
--- import Data.List
+import Data.List
 -- import Data.Char
 import Control.Applicative
 -- import qualified Data.Map as M
@@ -26,6 +26,11 @@ puzzle fileName = do
 
 -- Parsing the input
 
+pInput :: Parser [Int]
+pInput = some (digit >>= \d -> return (read [d]))
+
+-- Part 1
+
 diskBlocks :: [Int] -> [Int]
 diskBlocks = dBlocks 0 where
   dBlocks n (f:e:map) = take f (repeat n) ++ take e (repeat (-1)) ++ dBlocks (n+1) map
@@ -45,15 +50,10 @@ compact = auxCompact . listLW where
           (l,blocks2) = extractW (leftW blocks1)
 
 checkSum :: [Int] -> Int
-checkSum = undefined
-
-pInput :: Parser [Int]
-pInput = some (digit >>= \d -> return (read [d]))
-
--- Part 1
+checkSum = sum . zipWith (*) [0..]
 
 part1 :: [Int] -> Int
-part1 _ = 1
+part1 = checkSum . compact . diskBlocks
 
 -- Part 2
 
