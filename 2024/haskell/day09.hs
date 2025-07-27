@@ -37,7 +37,11 @@ compact :: [Int] -> [Int]
 compact = auxCompact . listLW where
   auxCompact blocks
     | isEmptyW blocks = []
-    | readW blocks == -1 = undefined 
+    | h  >= 0 = h : auxCompact blocks1
+    | isEmptyW blocks1 = []
+    | otherwise = l : auxCompact blocks2
+    where (h,blocks1) = extractW blocks
+          (l,blocks2) = extractW (leftW blocks1)
 
 pInput :: Parser [Int]
 pInput = some (digit >>= \d -> return (read [d]))
