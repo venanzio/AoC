@@ -458,24 +458,37 @@ mFind :: Eq a => a -> Map2D a -> [Point]
 mFind x = mSatisfy (==x)
 
 
+
 -- WHEELS
+-- Double linked circular lists
+-- Implemented so all operations have amortized complexity O(1)
 
+type Wheel a = ([a], [a])
+
+-- A pair ([y1,..,yn],[z1,..,zm]) represents a circular list
+-- with elements [y1,..,yn,zm,..,z1];
+-- the element to the right of z1 is y1, the element to the left of y1 is z1.
+-- The head element is y1
+
+-- read the head element
 readW :: Wheel a -> a
-readW (x:_,_) = x
-readW ([],ys@(_:_)) = last ys 
-readW _       = error "readW: empty wheel"
+readW (x:_, _) = x
+readW ([], _) = error "Wheel is empty"
 
+-- readn the element on the Left of the Head
+readLastW :: Wheel a -> a
+readLastW (_,(x:_)) = x
+readLastW (xs@(_:_),[]) = last xs
+readLastW _ = error "readLastW: empty wheel"
+
+-- wheel containing no elements
 emptyW :: Wheel a
-emptyW = ([],[])
+emptyW = ([], [])
 
--- A wheel with no head: first component empty
---  (A correct wheel should be empty if it has no head)
-noHeadW :: Wheel a -> Bool
-noHeadW w = null (fst w)
-
+-- test if a wheel is empty 
 isEmptyW :: Wheel a -> Bool
-isEmptyW ([],[]) = True
-isEmptyW _ = False
+isEmptyW ([], []) = True
+isEmptyW _        = False
 
 -- Turning a list into a wheel
 --   The last element of the list is linked back to the first
@@ -495,39 +508,42 @@ listRW xs = (reverse xs2, xs1)
 wheelL :: Wheel a -> [a]
 wheelL (ys,zs) = ys ++ reverse zs
 
--- Move to the next element clockwise
+-- move the head to the next element clockwise
 rightW :: Wheel a -> Wheel a
-rightW ([y],zs) = listRW (y:zs)
-rightW (y:ys,zs) = (ys,y:zs)
-rightW ([],[]) = ([],[])
-rightW ([],zs) = rightW (listRW zs)
+rightW ([], [])     = ([], [])
+rightW (x:xs, ys)   = (xs, x:ys)
+rightW ([], ys)     = (reverse ys, [])
 
--- Move to the next element anti-clockwise
+-- move the head to the next element anti-clockwise
 leftW :: Wheel a -> Wheel a
-leftW (ys,z:zs) = (z:ys,zs)
-leftW ([],[]) = ([],[])
-leftW ([y],[]) = ([y],[])
-leftW (ys,[]) = leftW (listLW ys)
+leftW (xs, y:ys)   = (y:xs, ys)
+leftW (xs, [])     = ([], reverse xs)
 
--- insert a new element as head
+-- insert a new element the the left of the head and set as new head
 insertW :: a -> Wheel a -> Wheel a
-insertW x (ys,zs) = (x:ys,zs)
+insertW x (xs, ys) = (x:xs, ys)
 
--- extract and delete the head
--- move the head to the next right
+-- extract and delete the head, move the head to the next right
 extractW :: Wheel a -> (a, Wheel a)
-extractW (y:ys,zs) = (y,(ys,zs))
-extractW ([],[]) = error "empty wheel"
-extractW ([],zs) = extractW (listRW zs)
+extractW (x:xs, ys) = (x, (xs ++ reverse ys, []))
+extractW ([], [])   = error "Cannot extract from an empty wheel"
+
+
+-- concatenate two wheels, the new head is the head of the first (if non-empty)
+concatW :: Wheel a -> Wheel a -> Wheel a
+concatW ([], []) w2 = w2
+concatW w1 ([], []) = w1
+concatW (xs, ys) (zs, ws) = (xs ++ reverse ws, zs ++ reverse ys)
 
 deleteW :: Wheel a -> Wheel a
 deleteW = snd.extractW
 
--- Concatenate two wheels
---   The new head is the head of the first (if non-empty)
---   (complexity: can we make it O(1)?)
-concatW :: Wheel a -> Wheel a -> Wheel a
-concatW (ys1,zs1) (ys2,zs2) = (ys1 ++ reverse zs1, zs2 ++ reverse ys2)
+-- Print the state of a wheel
+printWheel :: Show a => String -> Wheel a -> IO ()
+printWheel msg (xs, ys) = do
+    putStrLn $ msg ++ " (Left: " ++ show xs ++ ", Right: " ++ show (reverse ys) ++ ")"
+
+
 
 
 

@@ -10,7 +10,7 @@ import Control.Applicative
 -- import qualified Data.Map as M
 
 import FunParser
--- import AoCTools
+import AoCTools
 
 main :: IO ()
 main = do
@@ -31,6 +31,13 @@ diskBlocks = dBlocks 0 where
   dBlocks n (f:e:map) = take f (repeat n) ++ take 3 (repeat (-1)) ++ dBlocks (n+1) map
   dBlocks n [f] = take f (repeat n)
   dBlocks _ [] = []
+
+
+compact :: [Int] -> [Int]
+compact = auxCompact . listLW where
+  auxCompact blocks
+    | isEmptyW blocks = []
+    | readW blocks == -1 = undefined 
 
 pInput :: Parser [Int]
 pInput = some (digit >>= \d -> return (read [d]))
