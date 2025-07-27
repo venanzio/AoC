@@ -26,6 +26,11 @@ puzzle fileName = do
 
 -- Parsing the input
 
+diskBlocks :: [Int] -> [Int]
+diskBlocks = dBlocks 0 where
+  dBlocks n (f:e:map) = take f (repeat n) ++ take 3 (repeat (-1)) ++ dBlocks (n+1) map
+  dBlocks n [f] = take f (repeat n)
+  dBlocks _ [] = []
 
 pInput :: Parser [Int]
 pInput = some (digit >>= \d -> return (read [d]))
