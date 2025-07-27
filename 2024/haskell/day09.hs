@@ -28,7 +28,7 @@ puzzle fileName = do
 
 diskBlocks :: [Int] -> [Int]
 diskBlocks = dBlocks 0 where
-  dBlocks n (f:e:map) = take f (repeat n) ++ take 3 (repeat (-1)) ++ dBlocks (n+1) map
+  dBlocks n (f:e:map) = take f (repeat n) ++ take e (repeat (-1)) ++ dBlocks (n+1) map
   dBlocks n [f] = take f (repeat n)
   dBlocks _ [] = []
 
@@ -39,9 +39,13 @@ compact = auxCompact . listLW where
     | isEmptyW blocks = []
     | h  >= 0 = h : auxCompact blocks1
     | isEmptyW blocks1 = []
+    | l <0 = auxCompact (insertW (-1) blocks2)
     | otherwise = l : auxCompact blocks2
     where (h,blocks1) = extractW blocks
           (l,blocks2) = extractW (leftW blocks1)
+
+checkSum :: [Int] -> Int
+checkSum = undefined
 
 pInput :: Parser [Int]
 pInput = some (digit >>= \d -> return (read [d]))
