@@ -52,24 +52,24 @@ checkSum = sum . zipWith (*) [0..]
 
 --
 
-bInsert1 :: Int -> Int -> [(Int,Int,Int)] -> ([(Int,Int,Int)],[(Int,Int,Int)]
+bInsert1 :: Int -> Int -> [(Int,Int,Int)] -> [(Int,Int,Int)]
 bInsert1 size f [] = [(size,f,0)]
 bInsert1 size f ((s0,f0,sp):bs)
-  | sp == 0 = (s0,f0,0) : bInsert size f bs
-  | sp < size = (s0,f0,0) : (sp,f,0) : bInsert (size-sp) f bs
+  | sp == 0 = (s0,f0,0) : bInsert1 size f bs
+  | sp < size = (s0,f0,0) : (sp,f,0) : bInsert1 (size-sp) f bs
   | sp == size = (s0,f0,0) : (size,f,0) : compact1 bs
   | sp > size = (s0,f0,0) : compact1 ((size,f,sp-size):bs)
 
 compact1 :: [(Int,Int,Int)] -> [(Int,Int,Int)]
 compact1 bs = case unsnoc bs of
   Nothing -> []
-  Just (bs0,(size,f,sp):bs0) -> bInsert1 size f bs0
+  Just (bs0,(size,f,sp)) -> bInsert1 size f bs0
 
 
 
 part1 :: [Int] -> Int
-part1 = checkSum . compact . diskBlocks
-
+-- part1 = checkSum . compact . diskBlocks
+part1 = checkSum2 . compact1 . diskBlocks2
 -- Part 2
 
 dBlocks :: Int -> [Int] -> [(Int,Int,Int)]
