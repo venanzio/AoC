@@ -57,5 +57,21 @@ part1 = checkSum . compact . diskBlocks
 
 -- Part 2
 
+dBlocks :: Int -> String -> [(Int,Int,Int)]
+dBlocks n (bl:sp:dmap) = (read [bl],n,read [sp]) : dBlocks (n+1) dmap
+dBlocks n [bl] = [(read [bl],n,0)]
+dBlocks n [] = []
+
+diskBlocks2 :: String -> [(Int,Int,Int)]
+diskBlocks2 = dBlocks 0
+{-
+dBlocks n dmap@(h:_) = (length bl,n,length sp) : dBlocks (n+1) dmap2 where
+  (bl,dmap1) = span (==h) dmap
+  (sp,dmap2) = span (==(-1)) dmap
+dBlocks _ = []
+  -}
+
+
+
 part2 :: [Int] -> Int
 part2 _ = 2
