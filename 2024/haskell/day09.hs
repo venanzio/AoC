@@ -92,7 +92,7 @@ checkSum2 :: [(Int,Int,Int)] -> Int
 checkSum2 = checkSumAux 0 where
   checkSumAux _ [] = 0
   checkSumAux n ((size,f,sp):bs) =
-    sum (map (*f) [n..n+size-1]) + checkSumAux (n+1) bs
+    sum (map (*f) [n..n+size-1]) + checkSumAux (n+size+sp) bs
 
 part2 :: String -> Int
 part2 = checkSum2 . compact2 . diskBlocks2
