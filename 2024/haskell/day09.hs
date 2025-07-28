@@ -71,7 +71,15 @@ dBlocks n dmap@(h:_) = (length bl,n,length sp) : dBlocks (n+1) dmap2 where
 dBlocks _ = []
   -}
 
+bSpace :: (Int,Int,Int) -> Int
+bSpace (_,_,sp) = sp
 
+bInsert :: Int -> Int -> [(Int,Int,Int)] -> [(Int,Int,Int)]
+bInsert size f bs
+  | bs2 == [] = bs ++ [(size,f,0)]
+  | otherwise = bs1 ++ [(s0,f0,0),(size,f,sp0-size)] ++ bs2
+  where (bs1,bs2) = span (\b -> bSpace b < size) bs
+        (s0,f0,sp0):bs3 = bs2
 
 part2 :: [Int] -> Int
 part2 _ = 2
