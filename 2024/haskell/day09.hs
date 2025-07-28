@@ -81,5 +81,10 @@ bInsert size f bs
   where (bs1,bs2) = span (\b -> bSpace b < size) bs
         (s0,f0,sp0):bs3 = bs2
 
+compact2 :: [(Int,Int,Int)] -> [(Int,Int,Int)]
+compact2 bs = case unsnoc bs of
+  Nothing -> bs
+  Just (bs0,(size,f,_)) -> compact2 (bInsert size f bs0)
+
 part2 :: [Int] -> Int
 part2 _ = 2
