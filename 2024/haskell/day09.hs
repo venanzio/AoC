@@ -89,7 +89,7 @@ compact2 bs = case unsnoc bs of
     case (bInsert size f bs0) of
       Nothing -> compact2 bs0 ++ [b]
       Just bs1 -> let Just (bs2,(size2,f2,sp2)) = unsnoc bs1
-                  in compact2 bs2 ++ [(size2,f2,sp2+size+sp)]
+                  in compact2 (bs2 ++ [(size2,f2,sp2+size+sp)])
 
 checkSum2 :: [(Int,Int,Int)] -> Int
 checkSum2 = checkSumAux 0 where
