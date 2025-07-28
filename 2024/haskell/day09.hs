@@ -74,17 +74,19 @@ dBlocks _ = []
 bSpace :: (Int,Int,Int) -> Int
 bSpace (_,_,sp) = sp
 
-bInsert :: Int -> Int -> [(Int,Int,Int)] -> [(Int,Int,Int)]
+bInsert :: Int -> Int -> [(Int,Int,Int)] -> Maybe [(Int,Int,Int)]
 bInsert size f bs
-  | bs2 == [] = bs ++ [(size,f,0)]
-  | otherwise = bs1 ++ [(s0,f0,0),(size,f,sp0-size)] ++ bs2
+  | bs2 == [] = Nothing
+  | otherwise = Just $ bs1 ++ [(s0,f0,0),(size,f,sp0-size)] ++ bs2
   where (bs1,bs2) = span (\b -> bSpace b < size) bs
         (s0,f0,sp0):bs3 = bs2
 
 compact2 :: [(Int,Int,Int)] -> [(Int,Int,Int)]
 compact2 bs = case unsnoc bs of
   Nothing -> bs
-  Just (bs0,(size,f,_)) -> compact2 (bInsert size f bs0)
+  Just (bs0,(size,f,_)) -> case (bInsert size f bs0) of
+                             Nothing -> bs
+                             Just bs1 -> compact2 bs1
 
 checkSum2 :: [(Int,Int,Int)] -> Int
 checkSum2 = checkSumAux 0 where
