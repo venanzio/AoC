@@ -22,7 +22,8 @@ puzzle fileName = do
   input <- readFile fileName
   let xs = parseAll pInput input
   putStrLn ("Part 1: " ++ show (part1 xs))
-  putStrLn ("Part 2: " ++ show (part2 input))
+  -- putStrLn (show $ diskBlocks2 xs)
+  putStrLn ("Part 2: " ++ show (part2 xs))
 
 -- Parsing the input
 
@@ -57,12 +58,12 @@ part1 = checkSum . compact . diskBlocks
 
 -- Part 2
 
-dBlocks :: Int -> String -> [(Int,Int,Int)]
-dBlocks n (bl:sp:dmap) = (read [bl],n,read [sp]) : dBlocks (n+1) dmap
-dBlocks n [bl] = [(read [bl],n,0)]
+dBlocks :: Int -> [Int] -> [(Int,Int,Int)]
+dBlocks n (bl:sp:dmap) = (bl,n,sp) : dBlocks (n+1) dmap
+dBlocks n [bl] = [(bl,n,0)]
 dBlocks n [] = []
 
-diskBlocks2 :: String -> [(Int,Int,Int)]
+diskBlocks2 :: [Int] -> [(Int,Int,Int)]
 diskBlocks2 = dBlocks 0
 {-
 dBlocks n dmap@(h:_) = (length bl,n,length sp) : dBlocks (n+1) dmap2 where
@@ -96,5 +97,5 @@ checkSum2 = checkSumAux 0 where
   checkSumAux n ((size,f,sp):bs) =
     sum (map (*f) [n..n+size-1]) + checkSumAux (n+size+sp) bs
 
-part2 :: String -> Int
+part2 :: [Int] -> Int
 part2 = checkSum2 . compact2 . diskBlocks2
