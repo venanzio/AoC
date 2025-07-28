@@ -77,7 +77,7 @@ bSpace (_,_,sp) = sp
 bInsert :: Int -> Int -> [(Int,Int,Int)] -> Maybe [(Int,Int,Int)]
 bInsert size f bs
   | bs2 == [] = Nothing
-  | otherwise = Just $ bs1 ++ [(s0,f0,0),(size,f,sp0-size)] ++ bs2
+  | otherwise = Just $ bs1 ++ [(s0,f0,0),(size,f,sp0-size)] ++ bs3
   where (bs1,bs2) = span (\b -> bSpace b < size) bs
         (s0,f0,sp0):bs3 = bs2
 
