@@ -5,9 +5,7 @@ module Main where
 
 import System.Environment
 import Data.List
--- import Data.Char
 import Control.Applicative
--- import qualified Data.Map as M
 
 import FunParser
 import AoCTools
@@ -22,7 +20,6 @@ puzzle fileName = do
   input <- readFile fileName
   let xs = parseAll pInput input
   putStrLn ("Part 1: " ++ show (part1 xs))
-  -- putStrLn (show $ diskBlocks2 xs)
   putStrLn ("Part 2: " ++ show (part2 xs))
 
 -- Parsing the input
@@ -65,12 +62,6 @@ dBlocks n [] = []
 
 diskBlocks2 :: [Int] -> [(Int,Int,Int)]
 diskBlocks2 = dBlocks 0
-{-
-dBlocks n dmap@(h:_) = (length bl,n,length sp) : dBlocks (n+1) dmap2 where
-  (bl,dmap1) = span (==h) dmap
-  (sp,dmap2) = span (==(-1)) dmap
-dBlocks _ = []
-  -}
 
 bSpace :: (Int,Int,Int) -> Int
 bSpace (_,_,sp) = sp
