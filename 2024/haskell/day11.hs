@@ -4,8 +4,6 @@
 module Main where
 
 import System.Environment
--- import Data.List
--- import Data.Char
 import Control.Applicative
 import qualified Data.Map as M
 
@@ -31,7 +29,7 @@ pInput = some natural
 
 -- Part 1
 
-{-
+{- Brute force solution:
 blink :: Int -> Int -> Int
 blink 0 _ = 1
 blink n 0 = blink (n-1) 1
@@ -41,23 +39,7 @@ blink n x = let d = dig10 x
                          else blink (n-1) (2024*x)
 -}
 
-part1 :: [Int] -> Int
-part1 = blinks M.empty 25 -- sum [blinkTable M.! (25,x) | x <- xs]
-
--- Part 2
-
-{-
-blinkTable :: M.Map (Int,Int) Int
-blinkTable = M.fromAscList [((n,x),blink n x) | n <- [0..75], x <- [0..0]]
-
-blink :: Int -> Int -> Int
-blink 0 _ = 1
-blink n 0 = blinkTable M.! (n-1,1)
-blink n x = let d = dig10 x
-                (x0,x1) = quotRem x (10^(d `div` 2))
-            in if even d then blinkTable M.! (n-1,x0) + blinkTable M.! (n-1,x1)
-                         else blinkTable M.! (n-1,2024*x)
--}
+-- Solution using dynamic programming
 
 blink :: M.Map  (Int,Int) Int -> (Int,Int) -> (Int, M.Map  (Int,Int) Int)
 blink m b =
@@ -78,6 +60,11 @@ blink m b =
 blinks :: M.Map  (Int,Int) Int -> Int -> [Int] -> Int
 blinks _ _ [] = 0
 blinks m n (x:xs) = let (y,m0) = blink m (n,x) in y + blinks m0 n xs
+
+part1 :: [Int] -> Int
+part1 = blinks M.empty 25
+
+-- Part 2
 
 part2 :: [Int] -> Int
 part2 = blinks M.empty 75
