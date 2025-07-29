@@ -21,7 +21,6 @@ puzzle :: String -> IO ()
 puzzle fileName = do
   input <- readFile fileName
   let map = parseAll pInput input
-  putStrLn (show $ trails map (2,0))
   putStrLn ("Part 1: " ++ show (part1 map))
   putStrLn ("Part 2: " ++ show (part2 map))
 
@@ -50,4 +49,4 @@ part1 m = sum (map (length . nub . trails m) (mFind 0 m))
 -- Part 2
 
 part2 :: (Map2D Int) -> Int
-part2 _ = 2
+part2 m = sum (map (length . trails m) (mFind 0 m))
