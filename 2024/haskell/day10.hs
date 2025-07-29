@@ -7,7 +7,7 @@ import System.Environment
 import Data.List
 -- import Data.Char
 import Control.Applicative
--- import qualified Data.Map as M
+import qualified Data.Map as M
 
 import FunParser
 import AoCTools
@@ -35,8 +35,17 @@ pInput = pLines pData >>= return . mMap
 
 -- Part 1
 
+dirs = [dUp,dDown,dLeft,dRight]
+
+trails :: Map2D Int -> Point -> Int
+trails m p = if ph == 9 then 1 else sum (map (trails m0) neighbours)
+  where ph = m M.! p
+        m0 = M.delete p m
+        neighbours = filter (\q -> M.lookup q m0 == Just (ph+1))
+                            (map (pMove p) dirs)
+
 part1 :: (Map2D Int) -> Int
-part1 _ = 1
+part1 m = sum (map (trails m) (mFind 0 m))
 
 -- Part 2
 
