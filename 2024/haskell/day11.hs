@@ -10,7 +10,7 @@ import Control.Applicative
 -- import qualified Data.Map as M
 
 import FunParser
--- import AoCTools
+import AoCTools
 
 main :: IO ()
 main = do
@@ -30,6 +30,11 @@ pInput :: Parser [Int]
 pInput = some natural
 
 -- Part 1
+
+blink :: Int -> Int -> Int
+blink 0 _ = 1
+blink n 0 = blink (n-1) 1
+blink n x = undefined
 
 part1 :: [Int] -> Int
 part1 _ = 1
