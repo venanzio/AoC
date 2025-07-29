@@ -34,10 +34,13 @@ pInput = some natural
 blink :: Int -> Int -> Int
 blink 0 _ = 1
 blink n 0 = blink (n-1) 1
-blink n x = undefined
-
+blink n x = let d = dig10 x
+                (x0,x1) = quotRem x (10^(d `div` 2))
+            in if even d then blink (n-1) x0 + blink (n-1) x1
+                         else blink (n-1) (2024*x)
+                   
 part1 :: [Int] -> Int
-part1 _ = 1
+part1 = sum . map (blink 25)
 
 -- Part 2
 
