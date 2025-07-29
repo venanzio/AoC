@@ -80,4 +80,4 @@ blinks _ _ [] = 0
 blinks m n (x:xs) = let (y,m0) = blink m (n,x) in y + blinks m0 n xs
 
 part2 :: [Int] -> Int
-part2 = blinks M.empty 0
+part2 = blinks M.empty 75
