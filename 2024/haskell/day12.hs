@@ -61,7 +61,7 @@ part1 = tPrice
 -- Part 2
 
 boundary :: [Point] -> [(Point,Direction)]
-boundary ps = nub [(p,q) | p <- ps, q <- bDirections p ps]
+boundary ps = nub [(c,q) | p <- ps, c <- corners p, q <- bDirections c ps]
 
 corners p = [p, pMove p dRight, pMove p dDown, pMove p (1,1)]
 
