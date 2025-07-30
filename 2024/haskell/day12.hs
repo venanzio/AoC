@@ -20,10 +20,10 @@ main = do
 puzzle :: String -> IO ()
 puzzle fileName = do
   input <- readFile fileName
-  let xs = stringsMap (lines input)
-  putStrLn (show xs)
-  putStrLn ("Part 1: " ++ show (part1 xs))
-  putStrLn ("Part 2: " ++ show (part2 xs))
+  let m = stringsMap (lines input)
+  putStrLn (show (fst $ region m))
+  putStrLn ("Part 1: " ++ show (part1 m))
+  putStrLn ("Part 2: " ++ show (part2 m))
 
 -- Part 1
 
@@ -31,7 +31,15 @@ puzzle fileName = do
 region :: Map2D Char -> ([Point], Map2D Char)
 region m
   | M.null m = ([],m)
-  | otherwise  = let ((p,kind),m0) = M.deleteFindMin m in undefined
+  | otherwise  = let (p,kind) = M.findMin m in
+      regionAux [p] kind m
+
+regionAux :: [Point] -> Char -> Map2D Char -> ([Point], Map2D Char)
+regionAux [] kind m = ([],m)
+regionAux (p:ps) kind m
+  | M.lookup p m == Just kind =
+       mapFst (p :) $ regionAux (neighboursHV p ++ ps) kind (M.delete p m)
+  | otherwise = regionAux ps kind m
 
 part1 :: Map2D Char -> Int
 part1 _ = 1

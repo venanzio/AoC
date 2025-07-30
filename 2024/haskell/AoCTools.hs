@@ -119,6 +119,9 @@ allPairs :: [a] -> [(a,a)]
 allPairs [] = []
 allPairs (x:xs) = map (\y -> (x,y)) xs ++ allPairs xs
 
+--bounded maximum
+maximumB :: Ord a => a -> [a] -> a
+maximumB x xs = maximum (x:xs)
 
 
 
@@ -563,7 +566,7 @@ readLastW _ = error "readLastW: empty wheel"
 
 
 
-
+-- TUPLES
 
 fst3 :: (a,b,c) -> a
 fst3 (x,_,_) = x
@@ -571,14 +574,17 @@ fst3 (x,_,_) = x
 snd3 :: (a,b,c) -> b
 snd3 (_,y,_) = y
 
+trd3 ::  (a,b,c) -> c
+trd3 (_,_,z) = z
+
 divide :: Eq a => a -> [a] -> [[a]]
 divide _ [] = []
 divide x l = case break (==x) l of
   (xs,[]) -> [xs]
   (xs,(_:ys)) -> xs : divide x ys
 
-maximumB :: Ord a => a -> [a] -> a
-maximumB x xs = maximum (x:xs)
+mapFst :: (a -> b) -> (a,c) -> (b,c)
+mapFst f (x,y) = (f x,y)
 
 
                             
