@@ -7,7 +7,7 @@ import System.Environment
 -- import Data.List
 -- import Data.Char
 -- import Control.Applicative
--- import qualified Data.Map as M
+import qualified Data.Map as M
 
 import FunParser
 import AoCTools
@@ -29,8 +29,9 @@ puzzle fileName = do
 
 -- Separate a region from the rest of the map
 region :: Map2D Char -> ([Point], Map2D Char)
-region map = undefined
-
+region m
+  | M.null m = ([],m)
+  | otherwise  = let ((p,kind),m0) = M.deleteFindMin m in undefined
 
 part1 :: Map2D Char -> Int
 part1 _ = 1
