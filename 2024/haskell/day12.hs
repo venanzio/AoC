@@ -89,7 +89,10 @@ isBoundary q ps = any (\p -> not (p `elem` ps))
 tour :: (Point,Direction) -> (Point,Direction) -> [(Point,Direction)]
         -> (Int, [(Point,Direction)])
 tour (p0,d0) (p,d) pds
-  | p == p0 = (if d == d0 then 0 else 1, delete (p,pNeg d) pds)
+  | p == p0 = (if d == d0 then 0 else 1, pds0)
+  | otherwise = undefined
+  where p1 = pMove p d
+        pds0 = delete (p,d) $ delete (p1,pNeg d) pds 
                   
 part2 :: Map2D Char -> Int
 part2 _ = 2
