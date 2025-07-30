@@ -21,7 +21,7 @@ puzzle :: String -> IO ()
 puzzle fileName = do
   input <- readFile fileName
   let m = stringsMap (lines input)
-  putStrLn (show (perimeter $ fst $ region m))
+  putStrLn (show (price $ fst $ region m))
   putStrLn ("Part 1: " ++ show (part1 m))
   putStrLn ("Part 2: " ++ show (part2 m))
 
@@ -46,6 +46,9 @@ perimeter :: [Point] -> Int
 perimeter [] = 0
 perimeter (p:ps) = 4 - 2 * length [q | q <- neighboursHV p, q `elem` ps]
                      + perimeter ps
+
+price :: [Point] -> Int
+price r = length r * perimeter r
 
 part1 :: Map2D Char -> Int
 part1 _ = 1
