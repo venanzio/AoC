@@ -5,8 +5,6 @@ module Main where
 
 import System.Environment
 import Data.List
--- import Data.Char
--- import Control.Applicative
 import qualified Data.Map as M
 
 import FunParser
@@ -21,7 +19,6 @@ puzzle :: String -> IO ()
 puzzle fileName = do
   input <- readFile fileName
   let m = stringsMap (lines input)
-  putStrLn (show (boundary $ fst $ region m))
   putStrLn ("Part 1: " ++ show (part1 m))
   putStrLn ("Part 2: " ++ show (part2 m))
 
@@ -46,7 +43,6 @@ perimeter :: [Point] -> Int
 perimeter [] = 0
 perimeter (p:ps) = 4 - 2 * length [q | q <- neighboursHV p, q `elem` ps]
                      + perimeter ps
-
 price :: [Point] -> Int
 price r = length r * perimeter r
 
@@ -69,6 +65,7 @@ bDirections :: Point -> [Point] -> [Direction]
 bDirections p ps = [q | q <- directionsHV, isBoundary p q]
   where isBoundary p q = (length $ filter (`elem` ps) [edgeR p q, edgeL p q]) == 1
 
+-- point on the right of an edge
 edgeR :: Point -> Direction -> Point
 edgeR p d
   | d == dRight = p
@@ -76,15 +73,16 @@ edgeR p d
   | d == dLeft  = pMove p (-1,-1)
   | d == dDown  = pMove p dLeft
 
+-- point on the left of an edge
 edgeL :: Point -> Direction -> Point
 edgeL p d
   | d == dRight = pMove p dUp
   | d == dUp    = pMove p (-1,-1)
   | d == dLeft  = pMove p dLeft
   | d == dDown  = p
- 
-isBoundary q ps = any (\p -> not (p `elem` ps))
-                      [q, pMove q dUp, pMove q dLeft, pMove q (-1,-1)]
+
+{- length of a tour (strated in p0 with direction d0) from position (p,d)
+   returning also the remaining edges -}
 
 tour :: (Point,Direction) -> (Point,Direction) -> [(Point,Direction)]
         -> (Int, [(Point,Direction)])
@@ -97,6 +95,7 @@ tour (p0,d0) (p,d) pds
         d1 = head d1s
         (l,pds1) = tour (p0,d0) (p1,d1) pds0
 
+-- total perimeter of a boundary
 perimeterB :: [(Point,Direction)] -> Int
 perimeterB [] = 0
 perimeterB pds@(pd:_) = let (l,pds0) = tour pd pd pds in l + perimeterB pds0
