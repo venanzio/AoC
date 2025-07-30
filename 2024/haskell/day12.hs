@@ -4,7 +4,7 @@
 module Main where
 
 import System.Environment
--- import Data.List
+import Data.List
 -- import Data.Char
 -- import Control.Applicative
 import qualified Data.Map as M
@@ -21,7 +21,7 @@ puzzle :: String -> IO ()
 puzzle fileName = do
   input <- readFile fileName
   let m = stringsMap (lines input)
-  putStrLn (show (price $ fst $ region m))
+  putStrLn (show (boundary $ fst $ region m))
   putStrLn ("Part 1: " ++ show (part1 m))
   putStrLn ("Part 2: " ++ show (part2 m))
 
@@ -60,5 +60,13 @@ part1 = tPrice
 
 -- Part 2
 
+boundary :: [Point] -> [Point]
+boundary ps = nub [q | p <- ps, q <- corners p, isBoundary q ps]
+
+corners p = [p, pMove p dRight, pMove p dDown, pMove p (1,1)]
+
+isBoundary q ps = any (\p -> not (p `elem` ps))
+                      [q, pMove q dUp, pMove q dLeft, pMove q (-1,-1)]
+        
 part2 :: Map2D Char -> Int
 part2 _ = 2
