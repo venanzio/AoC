@@ -21,7 +21,7 @@ puzzle :: String -> IO ()
 puzzle fileName = do
   input <- readFile fileName
   let m = stringsMap (lines input)
-  putStrLn (show (fst $ region m))
+  putStrLn (show (perimeter $ fst $ region m))
   putStrLn ("Part 1: " ++ show (part1 m))
   putStrLn ("Part 2: " ++ show (part2 m))
 
@@ -40,6 +40,12 @@ regionAux (p:ps) kind m
   | M.lookup p m == Just kind =
        mapFst (p :) $ regionAux (neighboursHV p ++ ps) kind (M.delete p m)
   | otherwise = regionAux ps kind m
+
+-- Perimeter of a region
+perimeter :: [Point] -> Int
+perimeter [] = 0
+perimeter (p:ps) = 4 - 2 * length [q | q <- neighboursHV p, q `elem` ps]
+                     + perimeter ps
 
 part1 :: Map2D Char -> Int
 part1 _ = 1
