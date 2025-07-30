@@ -50,8 +50,13 @@ perimeter (p:ps) = 4 - 2 * length [q | q <- neighboursHV p, q `elem` ps]
 price :: [Point] -> Int
 price r = length r * perimeter r
 
+tPrice :: Map2D Char -> Int
+tPrice m
+  | M.null m = 0
+  | otherwise = let (r0,m0) = region m in price r0 + tPrice m0
+
 part1 :: Map2D Char -> Int
-part1 _ = 1
+part1 = tPrice
 
 -- Part 2
 
