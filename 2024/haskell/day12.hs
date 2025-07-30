@@ -27,6 +27,11 @@ puzzle fileName = do
 
 -- Part 1
 
+-- Separate a region from the rest of the map
+region :: Map2D Char -> ([Point], Map2D Char)
+region map = undefined
+
+
 part1 :: Map2D Char -> Int
 part1 _ = 1
 
