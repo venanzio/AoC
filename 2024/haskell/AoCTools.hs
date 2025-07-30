@@ -412,11 +412,11 @@ neighboursHV :: Point -> [Point]
 neighboursHV p = map (pMove p) directionsHV
 
 -- turning a right angle clockwise
-dRTurn :: Point -> Point
+dRTurn :: Direction -> Direction
 dRTurn (x,y) = (-y,x)
 
 -- turning anti-clockwise
-dLTurn :: Point -> Point
+dLTurn ::  Direction -> Direction
 dLTurn (x,y) = (y,-x)
 
 -- is a point inside a box with given up-left and downright corners?

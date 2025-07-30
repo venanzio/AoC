@@ -89,10 +89,25 @@ isBoundary q ps = any (\p -> not (p `elem` ps))
 tour :: (Point,Direction) -> (Point,Direction) -> [(Point,Direction)]
         -> (Int, [(Point,Direction)])
 tour (p0,d0) (p,d) pds
-  | p == p0 = (if d == d0 then 0 else 1, pds0)
-  | otherwise = undefined
+  | null d1s  = (if d == d0 then 0 else 1, pds0)
+  | otherwise = (l + if d1==d then 0 else 1, pds1)
   where p1 = pMove p d
-        pds0 = delete (p,d) $ delete (p1,pNeg d) pds 
-                  
+        pds0 = delete (p,d) $ delete (p1,pNeg d) pds
+        d1s = [d' | d' <- [dRTurn d, d, dLTurn d], (p1,d') `elem` pds0]
+        d1 = head d1s
+        (l,pds1) = tour (p0,d0) (p1,d1) pds0
+
+perimeterB :: [(Point,Direction)] -> Int
+perimeterB [] = 0
+perimeterB pds@(pd:_) = let (l,pds0) = tour pd pd pds in l + perimeterB pds0
+
+priceD :: [Point] -> Int
+priceD r = length r * perimeterB (boundary r)
+
+tPriceD :: Map2D Char -> Int
+tPriceD m
+  | M.null m = 0
+  | otherwise = let (r0,m0) = region m in priceD r0 + tPriceD m0
+               
 part2 :: Map2D Char -> Int
-part2 _ = 2
+part2 = tPriceD
