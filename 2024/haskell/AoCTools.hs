@@ -336,6 +336,7 @@ imap f = imap_aux 0 where
 -- INDEXED MAPS
 
 type Point = (Int,Int)
+type Direction = Point
 
 pX :: Point -> Int
 pX = fst
@@ -385,25 +386,25 @@ mMapFP :: (Point -> a -> Maybe b) -> [[a]] -> M.Map Point b
 mMapFP = matrixMapFP (0,0)
 
 -- travelling in a 2-dimensional map
-pMove :: Point -> Point -> Point
+pMove :: Point -> Direction -> Point
 pMove (x,y) (dx,dy) = (x+dx,y+dy)
 
 -- vector distance between two points
-pDist :: Point -> Point -> Point
+pDist :: Point -> Point -> Direction
 pDist (x1,y1) (x2,y2) = (x2-x1,y2-y1)
 
 -- opposite of a vector
-pNeg :: Point -> Point
+pNeg :: Direction -> Direction
 pNeg (v1,v2) = (-v1,-v2)
 
 -- directions: up, down, left, right and diagonal
-directions :: [Point]
+directions :: [Direction]
 directions = [(dx,dy) | dx <- [-1..1], dy <- [-1..1]] \\ [(0,0)]
 
-dUp    = (0,-1) :: Point
-dDown  = (0,1)  :: Point
-dLeft  = (-1,0) :: Point
-dRight = (1,0)  :: Point
+dUp    = (0,-1) :: Direction
+dDown  = (0,1)  :: Direction
+dLeft  = (-1,0) :: Direction
+dRight = (1,0)  :: Direction
 
 directionsHV = [dUp,dDown,dLeft,dRight]
 

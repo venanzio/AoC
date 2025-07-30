@@ -60,13 +60,33 @@ part1 = tPrice
 
 -- Part 2
 
-boundary :: [Point] -> [Point]
-boundary ps = nub [q | p <- ps, q <- corners p, isBoundary q ps]
+boundary :: [Point] -> [(Point,Direction)]
+boundary ps = nub [(p,q) | p <- ps, q <- bDirections p ps]
 
 corners p = [p, pMove p dRight, pMove p dDown, pMove p (1,1)]
 
+bDirections :: Point -> [Point] -> [Direction]
+bDirections p ps = [q | q <- directionsHV, isBoundary p q]
+  where isBoundary p q = (length $ filter (`elem` ps) [edgeR p q, edgeL p q]) == 1
+
+edgeR :: Point -> Direction -> Point
+edgeR p d
+  | d == dRight = p
+  | d == dUp    = pMove p dUp
+  | d == dLeft  = pMove p (-1,-1)
+  | d == dDown  = pMove p dLeft
+
+edgeL :: Point -> Direction -> Point
+edgeL p d
+  | d == dRight = pMove p dUp
+  | d == dUp    = pMove p (-1,-1)
+  | d == dLeft  = pMove p dLeft
+  | d == dDown  = p
+ 
 isBoundary q ps = any (\p -> not (p `elem` ps))
                       [q, pMove q dUp, pMove q dLeft, pMove q (-1,-1)]
-        
+
+
+                  
 part2 :: Map2D Char -> Int
 part2 _ = 2
