@@ -402,6 +402,11 @@ dDown  = (0,1)  :: Point
 dLeft  = (-1,0) :: Point
 dRight = (1,0)  :: Point
 
+directionsHV = [dUp,dDown,dLeft,dRight]
+
+neighboursHV :: Point -> [Point]
+neighboursHV p = map (pMove p) directionsHV
+
 -- turning a right angle clockwise
 dRTurn :: Point -> Point
 dRTurn (x,y) = (-y,x)
