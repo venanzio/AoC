@@ -10,7 +10,7 @@ import System.Environment
 -- import qualified Data.Map as M
 
 import FunParser
--- import AoCTools
+import AoCTools
 
 main :: IO ()
 main = do

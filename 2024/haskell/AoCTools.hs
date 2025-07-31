@@ -13,12 +13,34 @@ import qualified Data.Map as M
 dig10 :: Int -> Int
 dig10 n = if n<10 then 1 else 1 + dig10 (n `div` 10)
 
+divisible :: Int -> Int -> Bool
+divisible x y = rem x y == 0
 
 -- LINEAR DIOPHANTINE EQUATIONS
 
+-- Extended Euclidean Algorithm
+-- returns the gcd g and coefficients s, t s.t. s*x+t*y = g
 
+euclid :: Int -> Int -> (Int,Int,Int)
+euclid x 0 = (x,1,0)
+euclid x y = let (q,r) = quotRem x y
+                 (g,s,t) = euclid y r
+             in (g,t,s-t*q)
+                
+-- Linear Diophantine Equation in two variables
+--   solve a*x + b*y = c
+--   if solvable, returns a function giving all solutions
 
+dioph2 :: Int -> Int -> Int -> Maybe (Int -> (Int,Int))
+dioph2 a b c = let (d,ca,cb) = euclid a b
+                   cm = c `div` d
+                   x0 = ca*cm
+                   y0 = cb*cm
+                   cx = b `div` d
+                   cy = a `div` d
+  in if divisible c d then Just (\k -> (x0 + cx*k, y0 - cy*k)) else Nothing
 
+  
 {-************
   * GEOMETRY *
   ************-}
