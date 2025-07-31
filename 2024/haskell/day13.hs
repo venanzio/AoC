@@ -77,5 +77,8 @@ part1 ms = sum [3*a+b | m <- ms, (a,b) <- solveMachine m]
 
 -- Part 2
 
+bigMachine :: Machine -> Machine
+bigMachine m = m { xP = xP m + 10000000000000, yP = yP m + 10000000000000 }
+
 part2 :: [Machine] -> Int
-part2 _ = 2
+part2 = part1 . map bigMachine
