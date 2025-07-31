@@ -13,6 +13,332 @@ import qualified Data.Map as M
 dig10 :: Int -> Int
 dig10 n = if n<10 then 1 else 1 + dig10 (n `div` 10)
 
+
+-- LINEAR DIOPHANTINE EQUATIONS
+
+
+
+
+{-************
+  * GEOMETRY *
+  ************-}
+
+-- INDEXED MAPS
+
+type Point = (Int,Int)
+type Direction = Point
+
+pX :: Point -> Int
+pX = fst
+
+pY :: Point -> Int
+pY = snd
+
+type Map2D a = M.Map Point a
+
+-- list to index map with indices as keys, starting at index i0
+listMap :: Int -> [a] -> M.Map Int a
+listMap i0 = M.fromAscList . (zip [i0..])
+
+lMap :: [a] -> M.Map Int a
+lMap = listMap 0
+
+-- 2-dimentional matrix to index map, with coordinates as keys
+matrixMap :: Point -> [[a]] -> Map2D a
+matrixMap (i0,j0) xss = M.fromList [((i0+i,j0+j), xss!!j!!i) |
+                                    j <- [0 .. length xss - 1],
+                                    i <- [0 .. length (xss!!j) - 1]]
+                        
+mMap :: [[a]] -> Map2D a
+mMap = matrixMap (0,0)
+
+-- map by applying a Maybe-function to elements of a matrix
+matrixMapF :: Point -> (a -> Maybe b) -> [[a]] -> M.Map Point b
+matrixMapF (i0,j0) f xss =
+  M.fromList [((i0+i,j0+j), b)
+             | j <- [0 .. length xss - 1]
+             , i <- [0 .. length (xss!!j) - 1]
+             , b <- justL (f (xss!!j!!i))
+             ]
+  
+mMapF :: (a -> Maybe b) -> [[a]] -> M.Map Point b
+mMapF = matrixMapF (0,0)
+
+matrixMapFP :: Point -> (Point -> a -> Maybe b) -> [[a]] -> M.Map Point b
+matrixMapFP (i0,j0) f xss =
+  M.fromList [((i0+i,j0+j), b)
+             | j <- [0 .. length xss - 1]
+             , i <- [0 .. length (xss!!j) - 1]
+             , b <- justL (f (i0+i,j0+j) (xss!!j!!i))
+             ]
+
+mMapFP :: (Point -> a -> Maybe b) -> [[a]] -> M.Map Point b
+mMapFP = matrixMapFP (0,0)
+
+-- travelling in a 2-dimensional map
+pMove :: Point -> Direction -> Point
+pMove (x,y) (dx,dy) = (x+dx,y+dy)
+
+-- vector distance between two points
+pDist :: Point -> Point -> Direction
+pDist (x1,y1) (x2,y2) = (x2-x1,y2-y1)
+
+-- opposite of a vector
+pNeg :: Direction -> Direction
+pNeg (v1,v2) = (-v1,-v2)
+
+-- directions: up, down, left, right and diagonal
+directions :: [Direction]
+directions = [(dx,dy) | dx <- [-1..1], dy <- [-1..1]] \\ [(0,0)]
+
+dUp    = (0,-1) :: Direction
+dDown  = (0,1)  :: Direction
+dLeft  = (-1,0) :: Direction
+dRight = (1,0)  :: Direction
+
+directionsHV = [dUp,dDown,dLeft,dRight]
+
+neighboursHV :: Point -> [Point]
+neighboursHV p = map (pMove p) directionsHV
+
+-- turning a right angle clockwise
+dRTurn :: Direction -> Direction
+dRTurn (x,y) = (-y,x)
+
+-- turning anti-clockwise
+dLTurn ::  Direction -> Direction
+dLTurn (x,y) = (y,-x)
+
+-- is a point inside a box with given up-left and downright corners?
+pInside :: Point -> Point -> Point -> Bool
+pInside (minX,minY) (maxX,maxY) (x,y) =
+  minX <= x && x <= maxX && minY <= y && y <= maxY
+
+-- moving in a direction and returning the list of elememts visited
+-- WARNING: it doesn't work with sparse maps
+--   delete the Nothing part and make it lazy-non-terminating?
+mTrace :: Map2D a -> Point -> Point -> [a]
+mTrace m p d = case M.lookup p m of
+  Nothing -> []
+  Just x -> x : mTrace m (pMove p d) d
+
+-- count all occurrences of from any point to any direction
+mOccurrences :: Eq a => [a] -> Map2D a -> Int
+mOccurrences l m = length [(p,d) | p <- M.keys m, d <- directions,
+                                   l `isPrefixOf` mTrace m p d]
+
+
+-- occurrence of a submap at a point
+subOccur :: Eq a => Map2D a -> Map2D a -> Point -> Bool
+subOccur sub map p =
+  let p0 = fst $ M.findMin sub
+  in M.isSubmapOf (M.mapKeys (pMove (pDist p0 p)) sub) map
+
+-- count all occurrences of a sub-map
+subOccurrences :: Eq a => Map2D a -> Map2D a -> Int
+subOccurrences sub map = length [p | p <- M.keys map, subOccur sub map p]
+
+-- horizontal and vertical mirror images
+hMirror :: Map2D a -> Map2D a
+hMirror = M.mapKeys (\(i,j) -> (-i,j))
+
+vMirror :: Map2D a -> Map2D a
+vMirror = M.mapKeys (\(i,j) -> (i,-j))
+
+-- swap up-down and left-righy
+mTranspose :: Map2D a -> Map2D a
+mTranspose = M.mapKeys (\(i,j) -> (j,i))
+
+          
+-- list of strings to 2D map ('.' means empty)
+stringsMap :: [String] -> Map2D Char
+stringsMap = M.filter (/='.') . mMap
+
+-- list of positions of items satisfying a property
+mSatisfy :: (a->Bool) -> Map2D a -> [Point]
+mSatisfy prop = M.foldrWithKey (\p x ps -> if prop x then p:ps else ps) []
+
+-- Find the position(s) of an item
+mFind :: Eq a => a -> Map2D a -> [Point]
+mFind x = mSatisfy (==x)
+
+
+-- Winding number , copied from day 10 of 2023
+
+-- Winding number of a loop around a point
+-- This is not quite correct
+winding :: Point -> [Point] -> Int
+winding (x0,y0) l = winDir 0 lastX l where
+  winDir w px [] = w
+  winDir w px qs@((x1,y1):qs1) =
+    if x0==x1 && y0>y1
+    then let (nx,qs') = nextXL qs
+         in winDir (w + (nx-px) `div` 2) x1 qs'
+    else winDir w x1 qs1
+
+  firstX = head $ filter (/=x0) $ map fst l
+  lastX = head $ filter (/=x0) $ reverse $ map fst l
+
+  nextXL [] = (firstX, [])
+  nextXL (qs@((x1,y1):qs')) = if x1 == x0 then nextXL qs' else (x1,qs')
+
+-- area contained inside a loop
+enclosed :: [Point] -> [Point] -> [Point]
+enclosed ground l =
+  let cs = connected (ground \\ l)
+      inside p = winding p l /= 0       
+  in foldl (\en c -> if inside (head c) then c++en else en) [] cs
+
+ -- connected components
+connected :: [Point] -> [[Point]]
+connected [] = []
+connected (p:ps) = let (c0,ps0) = component p ps
+                   in c0 : connected ps0 where
+  component p = foldl (\(c0,ps0) p0 -> if p0 `near` c0 then (p0:c0,ps0) else (c0,p0:ps0))
+                      ([p],[])
+
+near :: Point -> [Point] -> Bool
+near (x,y) ps = intersect [(x-1,y),(x+1,y),(x,y-1),(x,y+1)] ps /= [] 
+
+
+-- AREA OF POLYGON
+
+-- The shoelace formula for the area of a region
+-- contained inside a polygon
+
+-- double the area (to avoid rounding errors)
+shoelace :: [Point] -> Int
+shoelace ps = abs $ sum [(x0-x1)*(y0+y1) | ((x0,y0),(x1,y1)) <- zip ps (tail ps)]
+
+-- integer points on a line (excluding last)
+linePoints :: Point -> Point -> Int
+linePoints (x0,y0) (x1,y1) = gcd (abs (x1-x0)) (abs (y1-y0))
+  
+-- integer points on a polygon (last point must be the same as first)
+polyPoints :: [Point] -> Int
+polyPoints ps = sum [linePoints p0 p1 | (p0,p1) <- zip ps (tail ps)]
+
+-- by Pick's theorem A = i + b/2 - 1
+--  where i = interior points, b = boundary points
+-- so i = A - b/2 + 1, all points : i + b = A + b/2 + 1
+
+polyInterior :: [Point] -> Int
+polyInterior ps = (shoelace ps - polyPoints ps) `div` 2 + 1
+
+polyArea :: [Point] -> Int
+polyArea ps = (shoelace ps + polyPoints ps) `div` 2 + 1
+
+
+-- RANGES
+
+-- An interval is a pair (x,y) denoting [x..y]
+--   if y<x, the interval is empty
+type Interval = (Int,Int)
+
+iStart :: Interval -> Int
+iStart = fst
+
+iEnd :: Interval -> Int
+iEnd = snd
+
+iEmpty :: Interval -> Bool
+iEmpty (x,y) = y < x
+
+inInterval :: Int -> Interval -> Bool
+inInterval v (x,y) = x<=v && v<=y
+
+sizeInterval :: Interval -> Int
+sizeInterval (x,y) =
+  if iEmpty (x,y) then 0 else y-x+1
+
+-- create anInterval given first element and length
+slInterval :: Int -> Int -> Interval
+slInterval s l = (s,s+l-1)
+
+-- Intersection (may give an empty interval)
+iIntersection :: Interval -> Interval -> Interval
+iIntersection (x0,y0) (x1,y1) = (max x0 x1, min y0 y1)
+
+-- A range is an ordered list of non-overlapping intervals
+--   operations preserve ordering and non-overlapping property
+type Range = [Interval]
+
+emptyR :: Range
+emptyR = []
+
+-- This should never be needed, if the range is correct
+neRange :: Range -> Range
+neRange = filter (not.iEmpty)
+
+sizeRange :: Range -> Int
+sizeRange = sum . map sizeInterval
+
+addInterval :: Interval -> Range -> Range
+addInterval i [] = if iEmpty i then [] else [i]
+addInterval i@(x,y) r@(i0@(x0,y0):r1)
+  | iEmpty i = r
+  | y + 1 < x0 = i : r
+  | y0 + 1 < x = i0 : addInterval i r1
+  | otherwise = addInterval (min x x0, max y y0) r1
+
+-- Single interval range (just check that it is not empty)
+intRange :: Interval -> Range
+intRange i = addInterval i emptyR
+
+-- Create a range from a non-ordered list of intervals
+intsRange :: [Interval] -> Range
+intsRange = foldr addInterval emptyR
+
+rUnion :: Range -> Range -> Range
+rUnion [] r1 = r1
+rUnion r0 [] = r0
+rUnion  r0@(i0@(x0,y0):r0') r1@(i1@(x1,y1):r1')
+  | x0 < x1 = addInterval i0 (rUnion r0' r1)
+  | otherwise = addInterval i1 (rUnion r0 r1')
+
+rIntersection :: Range -> Range -> Range
+rIntersection [] _ = []
+rIntersection _ [] = []
+rIntersection r0@(i0@(x0,y0):r0') r1@(i1@(x1,y1):r1')
+  | y0 < x1 = rIntersection r0' r1
+  | y1 < x0 = rIntersection r0 r1'
+  | y0 < y1 = addInterval (iIntersection i0 i1) (rIntersection r0' r1)
+  | otherwise = addInterval (iIntersection i0 i1) (rIntersection r0 r1')
+
+rMinimum :: Range -> Int
+rMinimum [] = error "empty range has no minimum"
+rMinimum r = fst (r!!0)
+
+rMaximum :: Range -> Int
+rMaximum [] = error "empty range has no maximum"
+rMaximum r = snd (last r)
+
+-- Difference between two intervals
+iDiff :: Interval -> Interval -> Range
+iDiff (x0,y0) (x1,y1) = intsRange [(x0,min y0 (x1-1)),(max x0 (y1+1),y0)]
+
+-- complement of a range inside a give interval
+rComplement :: Interval -> Range -> Range
+rComplement i [] = intsRange [i]
+rComplement i@(x0,y0) ((x1,y1):r)
+  | y0 < x0   = []
+  | y0 < x1   = intsRange [i]
+  | otherwise = addInterval (x0,x1-1) (rComplement (y1+1,y0) r)
+  
+-- Difference between two ranges
+rDiff :: Range -> Range -> Range
+rDiff r0 r1 = rIntersection r0 (rComplement (rMinimum r0, rMaximum r0) r1)
+
+
+
+
+
+
+{- *********
+   * OTHER *
+   *********
+   To be reorganized -}
+
 -- LISTS
 
 {- ALREADY EXISTS: partition
@@ -158,106 +484,6 @@ loopf f x0 n =
   in if n < lead then xs!!n else ys!!((n-lead) `rem` loop)
 
 
--- RANGES
-
--- An interval is a pair (x,y) denoting [x..y]
---   if y<x, the interval is empty
-type Interval = (Int,Int)
-
-iStart :: Interval -> Int
-iStart = fst
-
-iEnd :: Interval -> Int
-iEnd = snd
-
-iEmpty :: Interval -> Bool
-iEmpty (x,y) = y < x
-
-inInterval :: Int -> Interval -> Bool
-inInterval v (x,y) = x<=v && v<=y
-
-sizeInterval :: Interval -> Int
-sizeInterval (x,y) =
-  if iEmpty (x,y) then 0 else y-x+1
-
--- create anInterval given first element and length
-slInterval :: Int -> Int -> Interval
-slInterval s l = (s,s+l-1)
-
--- Intersection (may give an empty interval)
-iIntersection :: Interval -> Interval -> Interval
-iIntersection (x0,y0) (x1,y1) = (max x0 x1, min y0 y1)
-
--- A range is an ordered list of non-overlapping intervals
---   operations preserve ordering and non-overlapping property
-type Range = [Interval]
-
-emptyR :: Range
-emptyR = []
-
--- This should never be needed, if the range is correct
-neRange :: Range -> Range
-neRange = filter (not.iEmpty)
-
-sizeRange :: Range -> Int
-sizeRange = sum . map sizeInterval
-
-addInterval :: Interval -> Range -> Range
-addInterval i [] = if iEmpty i then [] else [i]
-addInterval i@(x,y) r@(i0@(x0,y0):r1)
-  | iEmpty i = r
-  | y + 1 < x0 = i : r
-  | y0 + 1 < x = i0 : addInterval i r1
-  | otherwise = addInterval (min x x0, max y y0) r1
-
--- Single interval range (just check that it is not empty)
-intRange :: Interval -> Range
-intRange i = addInterval i emptyR
-
--- Create a range from a non-ordered list of intervals
-intsRange :: [Interval] -> Range
-intsRange = foldr addInterval emptyR
-
-rUnion :: Range -> Range -> Range
-rUnion [] r1 = r1
-rUnion r0 [] = r0
-rUnion  r0@(i0@(x0,y0):r0') r1@(i1@(x1,y1):r1')
-  | x0 < x1 = addInterval i0 (rUnion r0' r1)
-  | otherwise = addInterval i1 (rUnion r0 r1')
-
-rIntersection :: Range -> Range -> Range
-rIntersection [] _ = []
-rIntersection _ [] = []
-rIntersection r0@(i0@(x0,y0):r0') r1@(i1@(x1,y1):r1')
-  | y0 < x1 = rIntersection r0' r1
-  | y1 < x0 = rIntersection r0 r1'
-  | y0 < y1 = addInterval (iIntersection i0 i1) (rIntersection r0' r1)
-  | otherwise = addInterval (iIntersection i0 i1) (rIntersection r0 r1')
-
-rMinimum :: Range -> Int
-rMinimum [] = error "empty range has no minimum"
-rMinimum r = fst (r!!0)
-
-rMaximum :: Range -> Int
-rMaximum [] = error "empty range has no maximum"
-rMaximum r = snd (last r)
-
--- Difference between two intervals
-iDiff :: Interval -> Interval -> Range
-iDiff (x0,y0) (x1,y1) = intsRange [(x0,min y0 (x1-1)),(max x0 (y1+1),y0)]
-
--- complement of a range inside a give interval
-rComplement :: Interval -> Range -> Range
-rComplement i [] = intsRange [i]
-rComplement i@(x0,y0) ((x1,y1):r)
-  | y0 < x0   = []
-  | y0 < x1   = intsRange [i]
-  | otherwise = addInterval (x0,x1-1) (rComplement (y1+1,y0) r)
-  
--- Difference between two ranges
-rDiff :: Range -> Range -> Range
-rDiff r0 r1 = rIntersection r0 (rComplement (rMinimum r0, rMaximum r0) r1)
-
 
 
 
@@ -332,145 +558,6 @@ imap f = imap_aux 0 where
   imap_aux i (x:xs) = f i x : imap_aux (i+1) xs
 
 
-
--- INDEXED MAPS
-
-type Point = (Int,Int)
-type Direction = Point
-
-pX :: Point -> Int
-pX = fst
-
-pY :: Point -> Int
-pY = snd
-
-type Map2D a = M.Map Point a
-
--- list to index map with indices as keys, starting at index i0
-listMap :: Int -> [a] -> M.Map Int a
-listMap i0 = M.fromAscList . (zip [i0..])
-
-lMap :: [a] -> M.Map Int a
-lMap = listMap 0
-
--- 2-dimentional matrix to index map, with coordinates as keys
-matrixMap :: Point -> [[a]] -> Map2D a
-matrixMap (i0,j0) xss = M.fromList [((i0+i,j0+j), xss!!j!!i) |
-                                    j <- [0 .. length xss - 1],
-                                    i <- [0 .. length (xss!!j) - 1]]
-                        
-mMap :: [[a]] -> Map2D a
-mMap = matrixMap (0,0)
-
--- map by applying a Maybe-function to elements of a matrix
-matrixMapF :: Point -> (a -> Maybe b) -> [[a]] -> M.Map Point b
-matrixMapF (i0,j0) f xss =
-  M.fromList [((i0+i,j0+j), b)
-             | j <- [0 .. length xss - 1]
-             , i <- [0 .. length (xss!!j) - 1]
-             , b <- justL (f (xss!!j!!i))
-             ]
-  
-mMapF :: (a -> Maybe b) -> [[a]] -> M.Map Point b
-mMapF = matrixMapF (0,0)
-
-matrixMapFP :: Point -> (Point -> a -> Maybe b) -> [[a]] -> M.Map Point b
-matrixMapFP (i0,j0) f xss =
-  M.fromList [((i0+i,j0+j), b)
-             | j <- [0 .. length xss - 1]
-             , i <- [0 .. length (xss!!j) - 1]
-             , b <- justL (f (i0+i,j0+j) (xss!!j!!i))
-             ]
-
-mMapFP :: (Point -> a -> Maybe b) -> [[a]] -> M.Map Point b
-mMapFP = matrixMapFP (0,0)
-
--- travelling in a 2-dimensional map
-pMove :: Point -> Direction -> Point
-pMove (x,y) (dx,dy) = (x+dx,y+dy)
-
--- vector distance between two points
-pDist :: Point -> Point -> Direction
-pDist (x1,y1) (x2,y2) = (x2-x1,y2-y1)
-
--- opposite of a vector
-pNeg :: Direction -> Direction
-pNeg (v1,v2) = (-v1,-v2)
-
--- directions: up, down, left, right and diagonal
-directions :: [Direction]
-directions = [(dx,dy) | dx <- [-1..1], dy <- [-1..1]] \\ [(0,0)]
-
-dUp    = (0,-1) :: Direction
-dDown  = (0,1)  :: Direction
-dLeft  = (-1,0) :: Direction
-dRight = (1,0)  :: Direction
-
-directionsHV = [dUp,dDown,dLeft,dRight]
-
-neighboursHV :: Point -> [Point]
-neighboursHV p = map (pMove p) directionsHV
-
--- turning a right angle clockwise
-dRTurn :: Direction -> Direction
-dRTurn (x,y) = (-y,x)
-
--- turning anti-clockwise
-dLTurn ::  Direction -> Direction
-dLTurn (x,y) = (y,-x)
-
--- is a point inside a box with given up-left and downright corners?
-pInside :: Point -> Point -> Point -> Bool
-pInside (minX,minY) (maxX,maxY) (x,y) =
-  minX <= x && x <= maxX && minY <= y && y <= maxY
-
--- moving in a direction and returning the list of elememts visited
--- WARNING: it doesn't work with sparse maps
---   delete the Nothing part and make it lazy-non-terminating?
-mTrace :: Map2D a -> Point -> Point -> [a]
-mTrace m p d = case M.lookup p m of
-  Nothing -> []
-  Just x -> x : mTrace m (pMove p d) d
-
--- count all occurrences of from any point to any direction
-mOccurrences :: Eq a => [a] -> Map2D a -> Int
-mOccurrences l m = length [(p,d) | p <- M.keys m, d <- directions,
-                                   l `isPrefixOf` mTrace m p d]
-
-
--- occurrence of a submap at a point
-subOccur :: Eq a => Map2D a -> Map2D a -> Point -> Bool
-subOccur sub map p =
-  let p0 = fst $ M.findMin sub
-  in M.isSubmapOf (M.mapKeys (pMove (pDist p0 p)) sub) map
-
--- count all occurrences of a sub-map
-subOccurrences :: Eq a => Map2D a -> Map2D a -> Int
-subOccurrences sub map = length [p | p <- M.keys map, subOccur sub map p]
-
--- horizontal and vertical mirror images
-hMirror :: Map2D a -> Map2D a
-hMirror = M.mapKeys (\(i,j) -> (-i,j))
-
-vMirror :: Map2D a -> Map2D a
-vMirror = M.mapKeys (\(i,j) -> (i,-j))
-
--- swap up-down and left-righy
-mTranspose :: Map2D a -> Map2D a
-mTranspose = M.mapKeys (\(i,j) -> (j,i))
-
-          
--- list of strings to 2D map ('.' means empty)
-stringsMap :: [String] -> Map2D Char
-stringsMap = M.filter (/='.') . mMap
-
--- list of positions of items satisfying a property
-mSatisfy :: (a->Bool) -> Map2D a -> [Point]
-mSatisfy prop = M.foldrWithKey (\p x ps -> if prop x then p:ps else ps) []
-
--- Find the position(s) of an item
-mFind :: Eq a => a -> Map2D a -> [Point]
-mFind x = mSatisfy (==x)
 
 
 
@@ -618,73 +705,3 @@ dijkstra graph s t =
                else dijkstra_aux (relax graph (M.delete x queue) x dx)
                     -- [(y, relax y dy) | (y,dy) <- queue, y/=x]
  
-        
-
-
-
--- Winding number , copied from day 10
-
--- Winding number of a loop around a point
--- This is not quite correct
-winding :: Point -> [Point] -> Int
-winding (x0,y0) l = winDir 0 lastX l where
-  winDir w px [] = w
-  winDir w px qs@((x1,y1):qs1) =
-    if x0==x1 && y0>y1
-    then let (nx,qs') = nextXL qs
-         in winDir (w + (nx-px) `div` 2) x1 qs'
-    else winDir w x1 qs1
-
-  firstX = head $ filter (/=x0) $ map fst l
-  lastX = head $ filter (/=x0) $ reverse $ map fst l
-
-  nextXL [] = (firstX, [])
-  nextXL (qs@((x1,y1):qs')) = if x1 == x0 then nextXL qs' else (x1,qs')
-
--- area contained inside a loop
-enclosed :: [Point] -> [Point] -> [Point]
-enclosed ground l =
-  let cs = connected (ground \\ l)
-      inside p = winding p l /= 0       
-  in foldl (\en c -> if inside (head c) then c++en else en) [] cs
-
- -- connected components
-connected :: [Point] -> [[Point]]
-connected [] = []
-connected (p:ps) = let (c0,ps0) = component p ps
-                   in c0 : connected ps0 where
-  component p = foldl (\(c0,ps0) p0 -> if p0 `near` c0 then (p0:c0,ps0) else (c0,p0:ps0))
-                      ([p],[])
-
-near :: Point -> [Point] -> Bool
-near (x,y) ps = intersect [(x-1,y),(x+1,y),(x,y-1),(x,y+1)] ps /= [] 
-
-
-
-
--- AREA OF POLYGON
-
--- The shoelace formula for the area of a region
--- contained inside a polygon
-
--- double the area (to avoid rounding errors)
-shoelace :: [Point] -> Int
-shoelace ps = abs $ sum [(x0-x1)*(y0+y1) | ((x0,y0),(x1,y1)) <- zip ps (tail ps)]
-
--- integer points on a line (excluding last)
-linePoints :: Point -> Point -> Int
-linePoints (x0,y0) (x1,y1) = gcd (abs (x1-x0)) (abs (y1-y0))
-  
--- integer points on a polygon (last point must be the same as first)
-polyPoints :: [Point] -> Int
-polyPoints ps = sum [linePoints p0 p1 | (p0,p1) <- zip ps (tail ps)]
-
--- by Pick's theorem A = i + b/2 - 1
---  where i = interior points, b = boundary points
--- so i = A - b/2 + 1, all points : i + b = A + b/2 + 1
-
-polyInterior :: [Point] -> Int
-polyInterior ps = (shoelace ps - polyPoints ps) `div` 2 + 1
-
-polyArea :: [Point] -> Int
-polyArea ps = (shoelace ps + polyPoints ps) `div` 2 + 1
