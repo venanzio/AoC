@@ -21,7 +21,7 @@ puzzle :: String -> IO ()
 puzzle fileName = do
   input <- readFile fileName
   let ms = parseAll pInput input
-  putStrLn (show ms)
+  putStrLn (show (solveMachine (ms!!3)))
   putStrLn ("Part 1: " ++ show (part1 ms))
   putStrLn ("Part 2: " ++ show (part2 ms))
 
@@ -63,17 +63,17 @@ pInput = some pMachine
 
 -- Part 1
 
-solveMachine :: Machine -> Maybe (Int,Int)
+solveMachine :: Machine -> [(Int,Int)]
 solveMachine m
   | da == 0 = error "solve single diophantine equation"
-  | ra == 0 && rb == 0 = Just (a,b)
-  | otherwise = Nothing
+  | ra == 0 && rb == 0 = [(a,b)]
+  | otherwise = []
   where da = yB m * xA m - xB m * yA m
         (a,ra) = quotRem (yB m * xP m - xB m * yP m) da
         (b,rb) = quotRem (xP m - xA m * a) (xB m)
 
 part1 :: [Machine] -> Int
-part1 _ = 1
+part1 ms = sum [3*a+b | m <- ms, (a,b) <- solveMachine m]
 
 -- Part 2
 
