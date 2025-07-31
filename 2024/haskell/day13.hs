@@ -4,10 +4,7 @@
 module Main where
 
 import System.Environment
--- import Data.List
--- import Data.Char
 import Control.Applicative
--- import qualified Data.Map as M
 
 import FunParser
 import AoCTools
@@ -21,7 +18,6 @@ puzzle :: String -> IO ()
 puzzle fileName = do
   input <- readFile fileName
   let ms = parseAll pInput input
-  putStrLn (show (solveMachine (ms!!3)))
   putStrLn ("Part 1: " ++ show (part1 ms))
   putStrLn ("Part 2: " ++ show (part2 ms))
 
