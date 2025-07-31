@@ -29,7 +29,7 @@ puzzle fileName = do
 
 data Machine = Mac { xA :: Int, yA :: Int,
                      xB :: Int, yB :: Int,
-                     prizeX :: Int, prizeY :: Int }
+                     xP :: Int, yP :: Int }
   deriving (Eq,Show)
 
 pButton :: Char -> Parser (Int,Int)
@@ -62,6 +62,15 @@ pInput :: Parser [Machine]
 pInput = some pMachine
 
 -- Part 1
+
+solveMachine :: Machine -> Maybe (Int,Int)
+solveMachine m
+  | da == 0 = error "solve single diophantine equation"
+  | ra == 0 && rb == 0 = Just (a,b)
+  | otherwise = Nothing
+  where da = yB m * xA m - xB m * yA m
+        (a,ra) = quotRem (yB m * xP m - xB m * yP m) da
+        (b,rb) = quotRem (xP m - xA m * a) (xB m)
 
 part1 :: [Machine] -> Int
 part1 _ = 1
