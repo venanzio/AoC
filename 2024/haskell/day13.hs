@@ -6,7 +6,7 @@ module Main where
 import System.Environment
 -- import Data.List
 -- import Data.Char
--- import Control.Applicative
+import Control.Applicative
 -- import qualified Data.Map as M
 
 import FunParser
@@ -20,24 +20,53 @@ main = do
 puzzle :: String -> IO ()
 puzzle fileName = do
   input <- readFile fileName
-  let xs = parseAll pInput input
-  putStrLn ("Part 1: " ++ show (part1 xs))
-  putStrLn ("Part 2: " ++ show (part2 xs))
+  let ms = parseAll pInput input
+  putStrLn (show ms)
+  putStrLn ("Part 1: " ++ show (part1 ms))
+  putStrLn ("Part 2: " ++ show (part2 ms))
 
 -- Parsing the input
 
-pData :: Parser ()
-pData = return ()
+data Machine = Mac { xA :: Int, yA :: Int,
+                     xB :: Int, yB :: Int,
+                     prizeX :: Int, prizeY :: Int }
+  deriving (Eq,Show)
 
-pInput :: Parser [()]
-pInput = pLines pData
+pButton :: Char -> Parser (Int,Int)
+pButton c = do symbol "Button"
+               char c
+               symbol ":"
+               symbol "X+"
+               x <- natural
+               symbol ","
+               symbol "Y+"
+               y <- natural
+               return (x,y)
+
+pPrize :: Parser (Int,Int)
+pPrize = do symbol "Prize:"
+            symbol "X="
+            x <- natural
+            symbol ","
+            symbol "Y="
+            y <- natural
+            return (x,y)
+
+pMachine :: Parser Machine
+pMachine = do (ax,ay) <- pButton 'A'
+              (bx,by) <- pButton 'B'
+              (px,py) <- pPrize
+              return (Mac ax ay bx by px py)
+
+pInput :: Parser [Machine]
+pInput = some pMachine
 
 -- Part 1
 
-part1 :: [()] -> Int
+part1 :: [Machine] -> Int
 part1 _ = 1
 
 -- Part 2
 
-part2 :: [()] -> Int
+part2 :: [Machine] -> Int
 part2 _ = 2
