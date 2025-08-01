@@ -10,7 +10,7 @@ import System.Environment
 -- import qualified Data.Map as M
 
 import FunParser
--- import AoCTools
+import AoCTools
 
 main :: IO ()
 main = do
@@ -20,24 +20,35 @@ main = do
 puzzle :: String -> IO ()
 puzzle fileName = do
   input <- readFile fileName
-  let xs = parseAll pInput input
-  putStrLn ("Part 1: " ++ show (part1 xs))
-  putStrLn ("Part 2: " ++ show (part2 xs))
+  let rs = parseAll pInput input
+  putStrLn (show rs)
+  putStrLn ("Part 1: " ++ show (part1 rs))
+  putStrLn ("Part 2: " ++ show (part2 rs))
 
 -- Parsing the input
 
-pData :: Parser ()
-pData = return ()
+pIntPair :: Parser Point
+pIntPair = do x <- integer
+              symbol ","
+              y <- integer
+              return (x,y)
 
-pInput :: Parser [()]
+pData :: Parser (Point,Direction)
+pData = do symbol "p="
+           p <- pIntPair
+           symbol "v="
+           v <- pIntPair
+           return (p,v)
+
+pInput :: Parser [(Point,Direction)]
 pInput = pLines pData
 
 -- Part 1
 
-part1 :: [()] -> Int
+part1 :: [(Point,Direction)] -> Int
 part1 _ = 1
 
 -- Part 2
 
-part2 :: [()] -> Int
+part2 :: [(Point,Direction)] -> Int
 part2 _ = 2
