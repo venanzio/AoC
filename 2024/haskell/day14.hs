@@ -47,14 +47,22 @@ pInput = pLines pData
 
 sizeX = 11 --101
 sizeY = 7 --103
+midX = sizeX `div` 2
+midY = sizeY `div` 2
 
-move :: (Point,Direction) -> Int -> Point
-move ((x,y),(vx,vy)) secs = ((x + vx*secs) `mod` sizeX, (y + vy*secs) `mod` sizeY) 
+move :: Int -> (Point,Direction) -> Point
+move secs ((x,y),(vx,vy)) = ((x + vx*secs) `mod` sizeX,
+                             (y + vy*secs) `mod` sizeY) 
 
-
+quadrant :: Int -> [Point] -> Int
+quadrant 1 = length . filter (\(x,y) -> x < midX && y < midY)
+quadrant 2 = length . filter (\(x,y) -> x > midX && y < midY) 
+quadrant 3 = length . filter (\(x,y) -> x < midX && y > midY)
+quadrant 4 = length . filter (\(x,y) -> x > midX && y > midY)
+quadrant n = error ("quadrant " ++  show n ++ " doesn't exist")
 
 part1 :: [(Point,Direction)] -> Int
-part1 _ = 1
+part1 rs = product $  map (flip quadrant $ map (move 100) rs) [1,2,3,4]
 
 -- Part 2
 
