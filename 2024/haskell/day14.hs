@@ -21,9 +21,10 @@ puzzle :: String -> IO ()
 puzzle fileName = do
   input <- readFile fileName
   let rs = parseAll pInput input
-  putStrLn (showPoints '#' (map fst rs))
   putStrLn ("Part 1: " ++ show (part1 rs))
-  putStrLn ("Part 2: " ++ show (part2 rs))
+  let (n,rs0) = countSecs rs
+  putStrLn (showPoints '#' (map fst rs0))
+  putStrLn ("Part 2: " ++ show n)
 
 -- Parsing the input
 
@@ -93,11 +94,11 @@ step :: (Point,Direction) -> (Point,Direction)
 step (p,v) = (wrap $ pMove p v,v)
 
 bigCluster :: [Point] -> Bool
-bigCluster ps = largestCluster ps > 100
+bigCluster ps = largestCluster ps > 50
 
-countSecs :: [(Point,Direction)] -> Int
-countSecs =  fst . iterSat (bigCluster . map fst) (map step) 
+countSecs :: [(Point,Direction)] -> (Int,[(Point,Direction)])
+countSecs =  iterSat (bigCluster . map fst) (map step) 
   -- fst . iterSat (symmetric . map fst) (map step) 
 
 part2 :: [(Point,Direction)] -> Int
-part2 = countSecs
+part2 = fst. countSecs
