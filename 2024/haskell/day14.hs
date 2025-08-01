@@ -75,8 +75,12 @@ step :: (Point,Direction) -> (Point,Direction)
 step (p,v) = (wrap $ pMove p v,v)
 
 countSecs :: [(Point,Direction)] -> Int
-countSecs pvs = if symmetric (map fst pvs) then 0
+countSecs = fst . iterSat (symmetric . map fst) (map step) 
+
+{-
+  if symmetric (map fst pvs) then 0
                   else countSecs (map step pvs) + 1
+-}
 
 part2 :: [(Point,Direction)] -> Int
 part2 = countSecs

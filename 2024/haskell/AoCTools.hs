@@ -472,7 +472,10 @@ maximumB :: Ord a => a -> [a] -> a
 maximumB x xs = maximum (x:xs)
 
 
-
+-- iterate a function until it satisfies a condition
+iterSat :: (a -> Bool) -> (a -> a) -> a -> (Int,a)
+iterSat cond f x = iterCount x 0 where
+  iterCount x n = if cond x then (n,x) else iterCount (f x) (n+1)
   
 
 -- ORBITS OF FUNCIONS
