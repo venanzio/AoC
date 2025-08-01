@@ -69,10 +69,15 @@ symmetric :: [Point] -> Bool
 symmetric ps = all (\(x,y) -> (sizeX - x - 1,y) `elem` ps) ps
 
 cluster :: [Point] ->  Point -> (Int,[Point])
-cluster ps p =
-  let qs = [q | q <- neighboursHV p, q `elem` ps]
-      ps0 = ps \\ qs
-  in undefined
+cluster ps p = clusterAux 0 ps [p]
+
+clusterAux :: Int -> [Point] ->  [Point] -> (Int,[Point])
+clusterAux n ps [] = (n,ps)
+clusterAux n ps (p:rs) = clusterAux (n+1) ps0 (qs++rs)
+  where qs = [q | q <- neighboursHV p, q `elem` ps]
+        ps0 = ps \\ qs
+        
+
 
 largestCluster :: [Point] -> Int
 largestCluster = lcAux 0 where
