@@ -58,6 +58,29 @@ pY = snd
 
 type Map2D a = M.Map Point a
 
+-- user-friendly picture of a map
+
+minMaxPoints :: [Point] -> (Point,Point)
+minMaxPoints ps = ((minX,minY),(maxX,maxY))
+  where xs = map pX ps
+        ys = map pY ps
+        minX = minimum xs
+        maxX = maximum xs
+        minY = minimum ys
+        maxY = maximum ys
+
+showPoints :: Char -> [Point] -> String
+showPoints c ps = unlines  [[sh (i,j) | i <- [minX..maxX]] | j <- [minY..maxY]]
+  where ((minX,minY),(maxX,maxY)) = minMaxPoints ps
+        sh p = if p `elem` ps then c else '.'
+
+showMap :: (a -> Char) -> Map2D a -> String
+showMap sa m = unlines [[sha (i,j) | i <- [minX..maxX]] | j <- [minY..maxY]]
+  where ((minX,minY),(maxX,maxY)) = minMaxPoints (M.keys m)
+        sha p = case M.lookup p m of
+          Nothing -> '.'
+          Just x -> sa x
+
 -- list to index map with indices as keys, starting at index i0
 listMap :: Int -> [a] -> M.Map Int a
 listMap i0 = M.fromAscList . (zip [i0..])
@@ -148,8 +171,6 @@ mTrace m p d = case M.lookup p m of
 mOccurrences :: Eq a => [a] -> Map2D a -> Int
 mOccurrences l m = length [(p,d) | p <- M.keys m, d <- directions,
                                    l `isPrefixOf` mTrace m p d]
-
-
 -- occurrence of a submap at a point
 subOccur :: Eq a => Map2D a -> Map2D a -> Point -> Bool
 subOccur sub map p =
