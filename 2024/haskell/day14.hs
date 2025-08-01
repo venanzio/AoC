@@ -45,10 +45,20 @@ pInput = pLines pData
 
 -- Part 1
 
+sizeX = 11 --101
+sizeY = 7 --103
+
+move :: (Point,Direction) -> Int -> Point
+move ((x,y),(vx,vy)) secs = ((x + vx*secs) `mod` sizeX, (y + vy*secs) `mod` sizeY) 
+
+
+
 part1 :: [(Point,Direction)] -> Int
 part1 _ = 1
 
 -- Part 2
+
+
 
 part2 :: [(Point,Direction)] -> Int
 part2 _ = 2
