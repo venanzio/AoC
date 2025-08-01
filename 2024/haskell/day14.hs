@@ -4,7 +4,7 @@
 module Main where
 
 import System.Environment
--- import Data.List
+import Data.List
 -- import Data.Char
 -- import Control.Applicative
 -- import qualified Data.Map as M
@@ -67,6 +67,16 @@ part1 rs = product $  map (flip quadrant $ map (move 100) rs) [1,2,3,4]
 
 symmetric :: [Point] -> Bool
 symmetric ps = all (\(x,y) -> (sizeX - x - 1,y) `elem` ps) ps
+
+cluster :: [Point] ->  Point -> (Int,[Point])
+cluster ps p =
+  let qs = [q | q <- neighboursHV p, q `elem` ps]
+      ps0 = ps \\ qs
+  in undefined
+
+largestCluster :: [Point] -> Int
+largestCluster = lcAux 0 where
+  lcAux = undefined
 
 wrap :: Point -> Point
 wrap (x,y) = (x `mod` sizeX, y `mod` sizeY)
