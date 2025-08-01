@@ -21,7 +21,6 @@ puzzle :: String -> IO ()
 puzzle fileName = do
   input <- readFile fileName
   let rs = parseAll pInput input
-  putStrLn (show rs)
   putStrLn ("Part 1: " ++ show (part1 rs))
   putStrLn ("Part 2: " ++ show (part2 rs))
 
@@ -45,8 +44,8 @@ pInput = pLines pData
 
 -- Part 1
 
-sizeX = 11 --101
-sizeY = 7 --103
+sizeX = 101
+sizeY = 103
 midX = sizeX `div` 2
 midY = sizeY `div` 2
 
