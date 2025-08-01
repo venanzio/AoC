@@ -5,9 +5,6 @@ module Main where
 
 import System.Environment
 import Data.List
--- import Data.Char
--- import Control.Applicative
--- import qualified Data.Map as M
 
 import FunParser
 import AoCTools
@@ -22,9 +19,9 @@ puzzle fileName = do
   input <- readFile fileName
   let rs = parseAll pInput input
   putStrLn ("Part 1: " ++ show (part1 rs))
-  let (n,rs0) = countSecs rs
-  putStrLn (showPoints '#' (map fst rs0))
-  putStrLn ("Part 2: " ++ show n)
+--  let (n,rs0) = countSecs rs
+--  putStrLn (showPoints '#' (map fst rs0))
+  putStrLn ("Part 2: " ++ show (part2 rs))
 
 -- Parsing the input
 
@@ -98,7 +95,6 @@ bigCluster ps = largestCluster ps > 50
 
 countSecs :: [(Point,Direction)] -> (Int,[(Point,Direction)])
 countSecs =  iterSat (bigCluster . map fst) (map step) 
-  -- fst . iterSat (symmetric . map fst) (map step) 
 
 part2 :: [(Point,Direction)] -> Int
 part2 = fst. countSecs
