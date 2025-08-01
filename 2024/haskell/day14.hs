@@ -23,7 +23,7 @@ puzzle fileName = do
   let rs = parseAll pInput input
   putStrLn (showPoints '#' (map fst rs))
   putStrLn ("Part 1: " ++ show (part1 rs))
---  putStrLn ("Part 2: " ++ show (part2 rs))
+  putStrLn ("Part 2: " ++ show (part2 rs))
 
 -- Parsing the input
 
@@ -92,8 +92,12 @@ wrap (x,y) = (x `mod` sizeX, y `mod` sizeY)
 step :: (Point,Direction) -> (Point,Direction)
 step (p,v) = (wrap $ pMove p v,v)
 
+bigCluster :: [Point] -> Bool
+bigCluster ps = largestCluster ps > 100
+
 countSecs :: [(Point,Direction)] -> Int
-countSecs = fst . iterSat (symmetric . map fst) (map step) 
+countSecs =  fst . iterSat (bigCluster . map fst) (map step) 
+  -- fst . iterSat (symmetric . map fst) (map step) 
 
 part2 :: [(Point,Direction)] -> Int
 part2 = countSecs
