@@ -65,7 +65,18 @@ part1 rs = product $  map (flip quadrant $ map (move 100) rs) [1,2,3,4]
 
 -- Part 2
 
+symmetric :: [Point] -> Bool
+symmetric ps = all (\(x,y) -> (sizeX - x - 1,y) `elem` ps) ps
 
+wrap :: Point -> Point
+wrap (x,y) = (x `mod` sizeX, y `mod` sizeY)
+
+step :: (Point,Direction) -> (Point,Direction)
+step (p,v) = (wrap $ pMove p v,v)
+
+countSecs :: [(Point,Direction)] -> Int
+countSecs pvs = if symmetric (map fst pvs) then 0
+                  else countSecs (map step pvs) + 1
 
 part2 :: [(Point,Direction)] -> Int
-part2 _ = 2
+part2 = countSecs
