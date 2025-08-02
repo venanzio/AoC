@@ -24,7 +24,9 @@ puzzle fileName = do
   -- stepMoves (robot h) ms h
   putStrLn ("Part 1: " ++ show (part1 h ms))
   let wh = largeWH h
+      wh' = movesRobot (robot wh) ms wh
   putStrLn (showMap id wh)
+  putStrLn (showMap id wh')
   putStrLn ("Part 2: " ++ show (part2 h ms))
 
 -- Parsing the input
@@ -101,28 +103,69 @@ largeWH = M.foldrWithKey enlarge M.empty where
   enlarge (x,y) '@' = M.insert (2*x,y) '@'
 
 moveBox :: Point -> Direction -> Map2D Char -> Maybe (Map2D Char)
-moveBox p dLeft wh = undefined
-moveBox p dRight wh = undefined
-moveBox p d wh = case (M.lookup p0 wh) (M.lookup p0 wh) of
-  Nothing  Nothing   -> mMove p p0 $ mMove p' p0' wh
-  (Just '[') _       -> case moveBox p0 wh of
-                           Nothing -> Nothing
-                           Just wh0 -> Just $ mMove p p0 $ mMove p' p0' wh0
-  (Just ']') Nothing -> case moveBox (pMove p0 dLeft) wh of
-                           Nothing -> Nothing
-                           Just wh0 -> Just $ mMove p p0 $ mMove p' p0' wh0
-  Nothing (Just '[') -> case moveBox p0' wh of
-                           Nothing -> Nothing
-                           Just wh0 -> Just $ mMove p p0 $ mMove p' p0' wh0           (Just ']') (Just '[') ->
-      case moveBox (pMove p0 dLeft) wh of
+moveBox p dLeft wh = case M.lookup p0 wh of
+  Nothing  -> Just $ mMove p' p0' $ mMove p p0 wh
+  Just ']' -> case moveBox p' dLeft wh of
+                Nothing -> Nothing
+                Just wh0 -> Just $ mMove p' p0' $ mMove p p0 wh0
+  _ -> Nothing
+  where p' = pMove p dRight
+        p0 = pMove p dLeft
+        p0' = p
+moveBox p dRight wh = case M.lookup p0 wh of
+  Nothing  -> Just $ mMove p p0 $ mMove p' p0' wh
+  Just ']' -> case moveBox (pMove p0 dRight) dLeft wh of
+                Nothing -> Nothing
+                Just wh0 -> Just $ mMove p p0 $ mMove p' p0' wh0
+  _ -> Nothing
+  where p' = pMove p dRight
+        p0 = p'
+        p0' = pMove p0 dRight 
+moveBox p d wh = case (M.lookup p0 wh, M.lookup p0 wh) of
+  (Nothing , Nothing ) -> Just $ mMove p p0 $ mMove p' p0' wh
+  (Just '[', _       ) -> case moveBox p0 d wh of
+                            Nothing -> Nothing
+                            Just wh0 -> Just $ mMove p d $ mMove p' d wh0
+  (Just ']', Nothing ) -> case moveBox (pMove p0 dLeft) d wh of
+                            Nothing -> Nothing
+                            Just wh0 -> Just $ mMove p d $ mMove p' d wh0
+  (Nothing , Just '[') -> case moveBox p0' d wh of
+                            Nothing -> Nothing
+                            Just wh0 -> Just $ mMove p d $ mMove p' d wh0
+  (Just ']', Just '[') ->
+      case moveBox (pMove p0 dLeft) d wh of
         Nothing -> Nothing
-        Just wh0 -> case moveBox p0' wh0 of
+        Just wh0 -> case moveBox p0' d wh0 of
                       Nothing -> Nothing
-                      Just wh1 -> Just $ mMove p p0 $ mMove p' p0' wh1     
-  otherwise = Nothing
+                      Just wh1 -> Just $ mMove p d $ mMove p' d wh1     
+  _ -> Nothing
   where p' = pMove p dRight
         p0 = pMove p d
         p0' = pMove p' d
- 
+        
+moveWH :: Point -> Direction -> Map2D Char -> Maybe (Map2D Char)
+moveWH p d wh = let p0 = pMove p d in
+  case M.lookup p0 wh of
+    Nothing -> Just $ mMove p p0 wh
+    Just '#' -> Nothing
+    Just '[' -> case moveBox p0 d wh of
+                  Nothing -> Nothing
+                  Just wh0 -> Just $ mMove p p0 wh0
+    Just ']' -> case moveBox (pMove p0 dLeft) d wh of
+                  Nothing -> Nothing
+                  Just wh0 -> Just $ mMove p p0 wh0
+    _ -> error ("unexpected character at "++show p0)
+
+moveRobot :: Point -> Direction -> Map2D Char -> (Point,Map2D Char)
+moveRobot p d h = case moveWH p d h of
+  Nothing -> (p,h)
+  Just h0 -> (pMove p d,h0)
+
+movesRobot :: Point -> String -> Map2D Char -> Map2D Char
+movesRobot p [] wh = wh
+movesRobot p (m:ms) wh = let d = mDir m
+                             (p0,wh0) = moveRobot p d wh
+                         in movesRobot p0 ms wh0
+    
 part2 :: Map2D Char -> String -> Int
 part2 h ms = 2
