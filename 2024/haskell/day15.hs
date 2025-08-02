@@ -100,5 +100,29 @@ largeWH = M.foldrWithKey enlarge M.empty where
   enlarge (x,y) 'O' = M.insert (2*x,y) '[' . M.insert (2*x+1,y) ']'
   enlarge (x,y) '@' = M.insert (2*x,y) '@'
 
+moveBox :: Point -> Direction -> Map2D Char -> Maybe (Map2D Char)
+moveBox p dLeft wh = undefined
+moveBox p dRight wh = undefined
+moveBox p d wh = case (M.lookup p0 wh) (M.lookup p0 wh) of
+  Nothing  Nothing   -> mMove p p0 $ mMove p' p0' wh
+  (Just '[') _       -> case moveBox p0 wh of
+                           Nothing -> Nothing
+                           Just wh0 -> Just $ mMove p p0 $ mMove p' p0' wh0
+  (Just ']') Nothing -> case moveBox (pMove p0 dLeft) wh of
+                           Nothing -> Nothing
+                           Just wh0 -> Just $ mMove p p0 $ mMove p' p0' wh0
+  Nothing (Just '[') -> case moveBox p0' wh of
+                           Nothing -> Nothing
+                           Just wh0 -> Just $ mMove p p0 $ mMove p' p0' wh0           (Just ']') (Just '[') ->
+      case moveBox (pMove p0 dLeft) wh of
+        Nothing -> Nothing
+        Just wh0 -> case moveBox p0' wh0 of
+                      Nothing -> Nothing
+                      Just wh1 -> Just $ mMove p p0 $ mMove p' p0' wh1     
+  otherwise = Nothing
+  where p' = pMove p dRight
+        p0 = pMove p d
+        p0' = pMove p' d
+ 
 part2 :: Map2D Char -> String -> Int
 part2 h ms = 2

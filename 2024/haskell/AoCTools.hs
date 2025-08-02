@@ -129,6 +129,7 @@ extract k m = case M.lookup k m of
   Nothing -> Nothing
   Just x -> return (x, M.delete k m)
 
+-- move a point on a map
 mMove :: Ord k => k -> k -> M.Map k a -> M.Map k a
 mMove k1 k2 m = case extract k1 m of
   Nothing -> m
