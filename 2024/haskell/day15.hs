@@ -20,9 +20,9 @@ main = do
 puzzle :: String -> IO ()
 puzzle fileName = do
   input <- readFile fileName
-  let xs = parseAll pInput input
-  putStrLn ("Part 1: " ++ show (part1 xs))
-  putStrLn ("Part 2: " ++ show (part2 xs))
+  let (h,ms) = parseAll pInput input
+  putStrLn ("Part 1: " ++ show (part1 h ms))
+  putStrLn ("Part 2: " ++ show (part2 h ms))
 
 -- Parsing the input
 
@@ -31,24 +31,23 @@ pMapLine = do char '#'
               s <- chars
               return ('#':s)
 
-pMap :: Parser (Map2D Char)
-pMap = do some pMapLine >>= return.stringsMap
+pHouse :: Parser (Map2D Char)
+pHouse = do some pMapLine >>= return.stringsMap
              
 pMoves :: Parser String
-pMoves = undefined
+pMoves = some (choice (map (token.char) "^v<>"))
 
-pData :: Parser ()
-pData = return ()
-
-pInput :: Parser [()]
-pInput = pLines pData
+pInput :: Parser (Map2D Char, String)
+pInput = do h <- pHouse
+            ms <- pMoves
+            return (h,ms)
 
 -- Part 1
 
-part1 :: [()] -> Int
-part1 _ = 1
+part1 :: Map2D Char -> String -> Int
+part1 h ms = 1
 
 -- Part 2
 
-part2 :: [()] -> Int
-part2 _ = 2
+part2 :: Map2D Char -> String -> Int
+part2 h ms = 2
