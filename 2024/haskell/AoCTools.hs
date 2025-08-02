@@ -124,6 +124,16 @@ mMapFP = matrixMapFP (0,0)
 pMove :: Point -> Direction -> Point
 pMove (x,y) (dx,dy) = (x+dx,y+dy)
 
+extract :: Ord k => k -> M.Map k a -> Maybe (a,M.Map k a)
+extract k m = case M.lookup k m of
+  Nothing -> Nothing
+  Just x -> return (x, M.delete k m)
+
+mMove :: Ord k => k -> k -> M.Map k a -> M.Map k a
+mMove k1 k2 m = case extract k1 m of
+  Nothing -> m
+  Just (x,m0) -> M.insert k2 x m0
+
 -- vector distance between two points
 pDist :: Point -> Point -> Direction
 pDist (x1,y1) (x2,y2) = (x2-x1,y2-y1)
