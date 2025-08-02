@@ -23,6 +23,8 @@ puzzle fileName = do
   let (h,ms) = parseAll pInput input
   -- stepMoves (robot h) ms h
   putStrLn ("Part 1: " ++ show (part1 h ms))
+  let wh = largeWH h
+  putStrLn (showMap id wh)
   putStrLn ("Part 2: " ++ show (part2 h ms))
 
 -- Parsing the input
@@ -91,6 +93,12 @@ part1 :: Map2D Char -> String -> Int
 part1 h ms = sum $ map gps $ mFind 'O' (movesR (robot h) ms h)
 
 -- Part 2
+
+largeWH :: Map2D Char -> Map2D Char
+largeWH = M.foldrWithKey enlarge M.empty where
+  enlarge (x,y) '#' = M.insert (2*x,y) '#' . M.insert (2*x+1,y) '#'
+  enlarge (x,y) 'O' = M.insert (2*x,y) '[' . M.insert (2*x+1,y) ']'
+  enlarge (x,y) '@' = M.insert (2*x,y) '@'
 
 part2 :: Map2D Char -> String -> Int
 part2 h ms = 2
