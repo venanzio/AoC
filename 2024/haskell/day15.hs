@@ -21,13 +21,15 @@ puzzle :: String -> IO ()
 puzzle fileName = do
   input <- readFile fileName
   let (h,ms) = parseAll pInput input
+  putStrLn ms
   -- stepMoves (robot h) ms h
   putStrLn ("Part 1: " ++ show (part1 h ms))
   let wh = largeWH h
       wh' = movesRobot (robot wh) ms wh
+  -- stepWH (robot wh) ms wh
   putStrLn (showMap id wh)
   putStrLn (showMap id wh')
-  putStrLn ("Part 2: " ++ show (part2 h ms))
+  putStrLn ("Part 2: " ++ show (part2 wh ms))
 
 -- Parsing the input
 
@@ -101,9 +103,10 @@ largeWH = M.foldrWithKey enlarge M.empty where
   enlarge (x,y) '#' = M.insert (2*x,y) '#' . M.insert (2*x+1,y) '#'
   enlarge (x,y) 'O' = M.insert (2*x,y) '[' . M.insert (2*x+1,y) ']'
   enlarge (x,y) '@' = M.insert (2*x,y) '@'
+e (x,y) '@' = M.insert (2*x,y) '@'
 
 moveBox :: Point -> Direction -> Map2D Char -> Maybe (Map2D Char)
-moveBox p dLeft wh = case M.lookup p0 wh of
+moveBox p (-1,0) wh = case M.lookup p0 wh of
   Nothing  -> Just $ mMove p' p0' $ mMove p p0 wh
   Just ']' -> case moveBox p' dLeft wh of
                 Nothing -> Nothing
@@ -112,32 +115,32 @@ moveBox p dLeft wh = case M.lookup p0 wh of
   where p' = pMove p dRight
         p0 = pMove p dLeft
         p0' = p
-moveBox p dRight wh = case M.lookup p0 wh of
+moveBox p (1,0) wh = case M.lookup p0' wh of
   Nothing  -> Just $ mMove p p0 $ mMove p' p0' wh
-  Just ']' -> case moveBox (pMove p0 dRight) dLeft wh of
+  Just '[' -> case moveBox p0' dRight wh of
                 Nothing -> Nothing
                 Just wh0 -> Just $ mMove p p0 $ mMove p' p0' wh0
   _ -> Nothing
   where p' = pMove p dRight
         p0 = p'
-        p0' = pMove p0 dRight 
-moveBox p d wh = case (M.lookup p0 wh, M.lookup p0 wh) of
+        p0' = pMove p' dRight 
+moveBox p d wh = case (M.lookup p0 wh, M.lookup p0' wh) of
   (Nothing , Nothing ) -> Just $ mMove p p0 $ mMove p' p0' wh
   (Just '[', _       ) -> case moveBox p0 d wh of
                             Nothing -> Nothing
-                            Just wh0 -> Just $ mMove p d $ mMove p' d wh0
+                            Just wh0 -> Just $ mMove p p0 $ mMove p' p0' wh0
   (Just ']', Nothing ) -> case moveBox (pMove p0 dLeft) d wh of
                             Nothing -> Nothing
-                            Just wh0 -> Just $ mMove p d $ mMove p' d wh0
+                            Just wh0 -> Just $ mMove p p0 $ mMove p' p0' wh0
   (Nothing , Just '[') -> case moveBox p0' d wh of
                             Nothing -> Nothing
-                            Just wh0 -> Just $ mMove p d $ mMove p' d wh0
+                            Just wh0 -> Just $ mMove p p0 $ mMove p' p0' wh0
   (Just ']', Just '[') ->
       case moveBox (pMove p0 dLeft) d wh of
         Nothing -> Nothing
         Just wh0 -> case moveBox p0' d wh0 of
                       Nothing -> Nothing
-                      Just wh1 -> Just $ mMove p d $ mMove p' d wh1     
+                      Just wh1 -> Just $ mMove p p0 $ mMove p' p0' wh1     
   _ -> Nothing
   where p' = pMove p dRight
         p0 = pMove p d
@@ -166,6 +169,15 @@ movesRobot p [] wh = wh
 movesRobot p (m:ms) wh = let d = mDir m
                              (p0,wh0) = moveRobot p d wh
                          in movesRobot p0 ms wh0
+
+stepWH :: Point -> String -> Map2D Char -> IO ()
+stepWH p [] h = putStrLn (showMap id h)
+stepWH p (m:ms) h  = do
+    putStrLn (showMap id h)
+    putStrLn (show p ++ [m])
+    let d = mDir m
+        (p0,h0) = moveRobot p d h
+    stepWH p0 ms h0
     
 part2 :: Map2D Char -> String -> Int
-part2 h ms = 2
+part2 wh ms = sum $ map gps $ mFind '[' (movesRobot (robot wh) ms wh)
