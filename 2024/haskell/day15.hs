@@ -21,8 +21,6 @@ puzzle :: String -> IO ()
 puzzle fileName = do
   input <- readFile fileName
   let (h,ms) = parseAll pInput input
-  putStrLn (showMap id h)
-  putStrLn (showMap id $ movesR (robot h) ms h)
   -- stepMoves (robot h) ms h
   putStrLn ("Part 1: " ++ show (part1 h ms))
   putStrLn ("Part 2: " ++ show (part2 h ms))
@@ -88,8 +86,6 @@ movesR p (m:ms) h = let d = mDir m
 
 gps :: Point -> Int
 gps (x,y) = 100*y + x
-
-
 
 part1 :: Map2D Char -> String -> Int
 part1 h ms = sum $ map gps $ mFind 'O' (movesR (robot h) ms h)
