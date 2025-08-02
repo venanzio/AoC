@@ -199,6 +199,9 @@ token p = do space
              v <- p
              space
              return v
+             
+chars :: Parser String
+chars = token label
 
 word :: Parser String
 word = token (some alphanum)
