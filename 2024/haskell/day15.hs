@@ -86,12 +86,13 @@ movesR p (m:ms) h = let d = mDir m
                         (p0,h0) = moveR p d h
                     in movesR p0 ms h0
 
-
+gps :: Point -> Int
+gps (x,y) = 100*y + x
 
 
 
 part1 :: Map2D Char -> String -> Int
-part1 h ms = 1
+part1 h ms = sum $ map gps $ mFind 'O' (movesR (robot h) ms h)
 
 -- Part 2
 
