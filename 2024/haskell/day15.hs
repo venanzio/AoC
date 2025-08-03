@@ -105,15 +105,25 @@ e (x,y) '@' = M.insert (2*x,y) '@'
 -- moving a box with its left edge at p
 moveBox :: Point -> Direction -> Map2D Char -> Maybe (Map2D Char)
 moveBox p d wh
-  | d == dLeft = case M.lookup p0 wh of
-    Nothing  -> Just $ mMove p' p0' $ mMove p p0 wh
-    Just ']' -> case moveBox (pMove p0 dLeft) dLeft wh of
-                  Nothing -> Nothing
-                  Just wh0 -> Just $ mMove p' p0' $ mMove p p0 wh0
+  | d == dLeft = do
+      let p' = pMove p dRight
+          p0 = pMove p dLeft
+          p0' = p
+      wh0 <- case M.lookup p0 wh of
+               Nothing  -> return wh 
+               Just ']' -> moveBox (pMove p0 dLeft) dLeft wh
+               _        -> empty
+      return (mMove p' p0' $ mMove p p0 wh0)
+{-
+    case M.lookup p0 wh of
+    Nothing  -> return (mMove p' p0' $ mMove p p0 wh)
+    Just ']' -> do wh0 <- moveBox (pMove p0 dLeft) dLeft wh
+                   return (mMove p' p0' $ mMove p p0 wh0)
     _ -> Nothing
     where p' = pMove p dRight
           p0 = pMove p dLeft
           p0' = p
+-}
 moveBox p (1,0) wh = case M.lookup p0' wh of
   Nothing  -> Just $ mMove p p0 $ mMove p' p0' wh
   Just '[' -> case moveBox p0' dRight wh of
