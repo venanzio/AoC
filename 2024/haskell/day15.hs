@@ -24,8 +24,6 @@ puzzle fileName = do
   let wh = largeWH h
       wh' = movesRobot (robot wh) ms wh
   -- stepWH (robot wh) ms wh
-  -- putStrLn (showMap id wh)
-  -- putStrLn (showMap id wh')
   putStrLn ("Part 2: " ++ show (part2 wh ms))
 
 -- Parsing the input
@@ -60,11 +58,10 @@ mDir '>' = dRight
 moveH :: Point -> Direction -> Map2D Char -> Maybe (Map2D Char)
 moveH p d h = let p0 = pMove p d in
   case M.lookup p0 h of
-    Nothing -> Just $ mMove p p0 h
+    Nothing -> return $ mMove p p0 h
     Just '#' -> Nothing
-    Just 'O' -> case moveH p0 d h of
-                  Nothing -> Nothing
-                  Just h0 -> Just $ mMove p p0 h0
+    Just 'O' -> do h0 <- moveH p0 d h
+                   return $ mMove p p0 h0
     _ -> error ("unexpected character at "++show p0)
 
 moveR :: Point -> Direction -> Map2D Char -> (Point,Map2D Char)
@@ -76,7 +73,8 @@ stepMoves :: Point -> String -> Map2D Char -> IO ()
 stepMoves p [] h = putStrLn (showMap id h)
 stepMoves p (m:ms) h  = do
     putStrLn (showMap id h)
-    putStrLn (show p)
+    putStrLn (show p ++ m:"  press any key to step")
+    getChar
     let d = mDir m
         (p0,h0) = moveR p d h
     stepMoves p0 ms h0
@@ -162,10 +160,10 @@ stepWH :: Point -> String -> Map2D Char -> IO ()
 stepWH p [] h = putStrLn (showMap id h)
 stepWH p (m:ms) h  = do
     putStrLn (showMap id h)
-    let d = mDir m
-        (p0,h0) = moveRobot p d h
     putStrLn (show p ++ m:"  press any key to step")
     getChar
+    let d = mDir m
+        (p0,h0) = moveRobot p d h
     stepWH p0 ms h0
     
 part2 :: Map2D Char -> String -> Int
