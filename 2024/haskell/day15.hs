@@ -135,17 +135,17 @@ moveBox p d wh
 
 -- moving the robot, shifting boxes if needed        
 moveWH :: Point -> Direction -> Map2D Char -> Maybe (Map2D Char)
-moveWH p d wh = let p0 = pMove p d in
+moveWH p d wh = do
+  let p0 = pMove p d
   case M.lookup p0 wh of
-    Nothing -> Just $ mMove p p0 wh
-    Just '#' -> Nothing
-    Just '[' -> case moveBox p0 d wh of
-                  Nothing -> Nothing
-                  Just wh0 -> Just $ mMove p p0 wh0
-    Just ']' -> case moveBox (pMove p0 dLeft) d wh of
-                  Nothing -> Nothing
-                  Just wh0 -> Just $ mMove p p0 wh0
+    Nothing -> return $ mMove p p0 wh
+    Just '#' -> empty
+    Just '[' -> do wh0 <- moveBox p0 d wh
+                   return $ mMove p p0 wh0
+    Just ']' -> do wh0 <- moveBox (pMove p0 dLeft) d wh
+                   return $ mMove p p0 wh0
     _ -> error ("unexpected character at "++show p0)
+
 
 moveRobot :: Point -> Direction -> Map2D Char -> (Point,Map2D Char)
 moveRobot p d h = case moveWH p d h of
