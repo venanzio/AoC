@@ -108,7 +108,7 @@ e (x,y) '@' = M.insert (2*x,y) '@'
 moveBox :: Point -> Direction -> Map2D Char -> Maybe (Map2D Char)
 moveBox p (-1,0) wh = case M.lookup p0 wh of
   Nothing  -> Just $ mMove p' p0' $ mMove p p0 wh
-  Just ']' -> case moveBox p' dLeft wh of
+  Just ']' -> case moveBox (pMove p0 dLeft) dLeft wh of
                 Nothing -> Nothing
                 Just wh0 -> Just $ mMove p' p0' $ mMove p p0 wh0
   _ -> Nothing
