@@ -106,53 +106,31 @@ e (x,y) '@' = M.insert (2*x,y) '@'
 moveBox :: Point -> Direction -> Map2D Char -> Maybe (Map2D Char)
 moveBox p d wh
   | d == dLeft = do
-      let p' = pMove p dRight
-          p0 = pMove p dLeft
-          p0' = p
       wh0 <- case M.lookup p0 wh of
                Nothing  -> return wh 
                Just ']' -> moveBox (pMove p0 dLeft) dLeft wh
                _        -> empty
       return (mMove p' p0' $ mMove p p0 wh0)
-{-
-    case M.lookup p0 wh of
-    Nothing  -> return (mMove p' p0' $ mMove p p0 wh)
-    Just ']' -> do wh0 <- moveBox (pMove p0 dLeft) dLeft wh
-                   return (mMove p' p0' $ mMove p p0 wh0)
-    _ -> Nothing
-    where p' = pMove p dRight
-          p0 = pMove p dLeft
-          p0' = p
--}
-moveBox p (1,0) wh = case M.lookup p0' wh of
-  Nothing  -> Just $ mMove p p0 $ mMove p' p0' wh
-  Just '[' -> case moveBox p0' dRight wh of
-                Nothing -> Nothing
-                Just wh0 -> Just $ mMove p p0 $ mMove p' p0' wh0
-  _ -> Nothing
-  where p' = pMove p dRight
-        p0 = p'
-        p0' = pMove p' dRight 
-moveBox p d wh = case (M.lookup p0 wh, M.lookup p0' wh) of
-  (Nothing , Nothing ) -> Just $ mMove p p0 $ mMove p' p0' wh
-  (Just '[', _       ) -> case moveBox p0 d wh of
-                            Nothing -> Nothing
-                            Just wh0 -> Just $ mMove p p0 $ mMove p' p0' wh0
-  (Just ']', Nothing ) -> case moveBox (pMove p0 dLeft) d wh of
-                            Nothing -> Nothing
-                            Just wh0 -> Just $ mMove p p0 $ mMove p' p0' wh0
-  (Nothing , Just '[') -> case moveBox p0' d wh of
-                            Nothing -> Nothing
-                            Just wh0 -> Just $ mMove p p0 $ mMove p' p0' wh0
-  (Just ']', Just '[') ->
-      case moveBox (pMove p0 dLeft) d wh of
-        Nothing -> Nothing
-        Just wh0 -> case moveBox p0' d wh0 of
-                      Nothing -> Nothing
-                      Just wh1 -> Just $ mMove p p0 $ mMove p' p0' wh1     
-  _ -> Nothing
-  where p' = pMove p dRight
-        p0 = pMove p d
+  | d == dRight = do
+      wh0 <- case M.lookup p0' wh of
+               Nothing  -> return wh 
+               Just '[' -> moveBox p0' dRight wh
+               _        -> empty
+      return (mMove p p0 $ mMove p' p0' wh0)
+  | otherwise = do
+      wh0 <- case M.lookup p0 wh of
+               Nothing  -> return wh
+               Just '[' -> moveBox p0 d wh
+               Just ']' -> moveBox (pMove p0 dLeft) d wh
+               _        -> empty
+      wh1 <- case M.lookup p0' wh0 of
+               Nothing  -> return wh0
+               Just ']' -> return wh0
+               Just '[' -> moveBox p0' d wh0
+               _        -> empty
+      return (mMove p p0 $ mMove p' p0' wh1)
+  where p'  = pMove p dRight
+        p0  = pMove p d
         p0' = pMove p' d
 
 -- moving the robot, shifting boxes if needed        
