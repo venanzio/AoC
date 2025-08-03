@@ -162,9 +162,10 @@ stepWH :: Point -> String -> Map2D Char -> IO ()
 stepWH p [] h = putStrLn (showMap id h)
 stepWH p (m:ms) h  = do
     putStrLn (showMap id h)
-    putStrLn (show p ++ [m])
     let d = mDir m
         (p0,h0) = moveRobot p d h
+    putStrLn (show p ++ m:"  press any key to step")
+    getChar
     stepWH p0 ms h0
     
 part2 :: Map2D Char -> String -> Int
