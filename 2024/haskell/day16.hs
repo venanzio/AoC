@@ -7,7 +7,7 @@ import System.Environment
 -- import Data.List
 -- import Data.Char
 -- import Control.Applicative
--- import qualified Data.Map as M
+import qualified Data.Map as M
 
 import FunParser
 import AoCTools
@@ -25,17 +25,22 @@ puzzle fileName = do
   putStrLn ("Part 1: " ++ show (part1 maze))
   putStrLn ("Part 2: " ++ show (part2 maze))
 
--- Parsing the input
-
-pData :: Parser ()
-pData = return ()
-
-pInput :: Parser [()]
-pInput = pLines pData
-
 -- Part 1
 
+mazeGraph :: Map2D Char -> Graph (Point,Direction)
+mazeGraph maze = M.fromList [(n,step n) | i <- [1..maxX], j <- [1..maxY],
+                                          n <- node (i,j)]
+  where (maxX,maxY) = fst $ M.findMax maze
+        node p = case M.lookup p maze of
+          Just '#' -> []
+          _ -> map (\d -> (p,d)) directionsHV
+        step (p,d)   = if M.lookup p maze /= Just '#'
+                         then [((pMove p d,d),1)]
+                         else []
+                       ++ [((p,dRTurn d),1000),
+                           ((p,dLTurn d),1000)]
 
+  
 part1 :: Map2D Char -> Int
 part1 _ = 1
 

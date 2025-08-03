@@ -68,7 +68,7 @@ minMaxPoints ps = ((minX,minY),(maxX,maxY))
         maxX = maximum xs
         minY = minimum ys
         maxY = maximum ys
-
+  
 showPoints :: Char -> [Point] -> String
 showPoints c ps = unlines  [[sh (i,j) | i <- [minX..maxX]] | j <- [minY..maxY]]
   where ((minX,minY),(maxX,maxY)) = minMaxPoints ps
@@ -740,6 +740,7 @@ infinite = maxBound `div` 2 :: Int
 minimumInf :: [Int] -> Int
 minimumInf xs = minimum (infinite:xs)
 
+-- A graph maps a node to the nodes reachable in one step, with distance
 type Graph a = M.Map a [(a,Int)]
 
 type Queue a = M.Map a Int
@@ -749,8 +750,8 @@ relax graph queue x dx =
   foldl (\q (y,dxy) -> M.adjust (\dy -> min dy (dx+dxy)) y q) queue (graph  M.! x)
            -- M.insertWith min y (dx+dxy) q) queue (graph  M.! x)
 
-dijkstra :: Ord a => Graph a -> a -> a -> Int
-dijkstra graph s t =
+dijkstra :: Ord a => Graph a -> a -> (a->Bool) -> Int
+dijkstra graph s end =
   dijkstra_aux $ M.fromList ((s,0) : [(v,infinite) | v <- M.keys graph, v /= s])
   where dijkstra_aux queue =
           let (x,dx) = minimumBy (compare `on` snd) (M.toAscList queue)
@@ -758,7 +759,7 @@ dijkstra graph s t =
               v = graph M.! x
               relax y dy = min dy (d + dist graph x y)
               -}
-          in if x==t then dx
+          in if end x then dx
                else dijkstra_aux (relax graph (M.delete x queue) x dx)
                     -- [(y, relax y dy) | (y,dy) <- queue, y/=x]
  
