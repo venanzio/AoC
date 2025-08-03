@@ -750,8 +750,8 @@ relax graph queue x dx =
   foldl (\q (y,dxy) -> M.adjust (\dy -> min dy (dx+dxy)) y q) queue (graph  M.! x)
            -- M.insertWith min y (dx+dxy) q) queue (graph  M.! x)
 
-dijkstra :: Ord a => Graph a -> a -> (a->Bool) -> Int
-dijkstra graph s end =
+dijkstra :: Ord a => Graph a -> a -> a -> Int
+dijkstra graph s t =
   dijkstra_aux $ M.fromList ((s,0) : [(v,infinite) | v <- M.keys graph, v /= s])
   where dijkstra_aux queue =
           let (x,dx) = minimumBy (compare `on` snd) (M.toAscList queue)
@@ -759,7 +759,7 @@ dijkstra graph s end =
               v = graph M.! x
               relax y dy = min dy (d + dist graph x y)
               -}
-          in if end x then dx
+          in if x == t then dx
                else dijkstra_aux (relax graph (M.delete x queue) x dx)
                     -- [(y, relax y dy) | (y,dy) <- queue, y/=x]
  

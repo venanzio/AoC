@@ -28,9 +28,12 @@ puzzle fileName = do
 -- Part 1
 
 mazeGraph :: Map2D Char -> Graph (Point,Direction)
-mazeGraph maze = M.fromList [(n,step n) | i <- [1..maxX], j <- [1..maxY],
-                                          n <- node (i,j)]
+mazeGraph maze = M.fromList $ [(n,step n) | i <- [1..maxX], j <- [1..maxY],
+                                            n <- node (i,j)] ++
+                              [((pE,d),[((pE,(0,0)),0)]) | d <- directionsHV] ++
+                              [((pE,(0,0)),[])]
   where (maxX,maxY) = fst $ M.findMax maze
+        pE = head $ mFind 'E' maze
         node p = case M.lookup p maze of
           Just '#' -> []
           _ -> map (\d -> (p,d)) directionsHV
@@ -42,7 +45,9 @@ mazeGraph maze = M.fromList [(n,step n) | i <- [1..maxX], j <- [1..maxY],
 
   
 part1 :: Map2D Char -> Int
-part1 _ = 1
+part1 maze = dijkstra (mazeGraph maze)
+                      (head $ mFind 'S' maze, dRight)
+                      (head $ mFind 'S' maze, (0,0))
 
 -- Part 2
 
