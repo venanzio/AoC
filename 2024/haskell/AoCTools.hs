@@ -766,6 +766,8 @@ minPath adps = let (x,dx,_) = minimumBy (compare `on` \(_,d,_)->d) adps
 relaxP :: Graph a -> [(a,Int,[[a]])] -> a -> Int -> [(a,Int,[[a]])] 
 relaxP = undefined
 
+delNode :: Eq a =>  a -> [(a,Int,[[a]])] -> [(a,Int,[[a]])]
+delNode x = filter (\(y,_,_) -> x /= x)
 
 -- returning all the shortest paths
 dijkstraPath :: Eq a => Graph a -> a -> a -> [[a]]
@@ -774,5 +776,5 @@ dijkstraPath graph s t =
     where dijkstraAux queue =
             let (x,dx,px) = minPath queue
             in if x == t then px
-                 else dijkstraAux (relaxP graph (delete (x,dx,px) queue) x dx)
+                 else dijkstraAux (relaxP graph (delNode x queue) x dx)
             
