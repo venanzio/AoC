@@ -4,8 +4,6 @@
 module Main where
 
 import System.Environment
--- import Data.List
--- import Data.Char
 import Control.Applicative
 import qualified Data.Map as M
 
@@ -21,14 +19,13 @@ puzzle :: String -> IO ()
 puzzle fileName = do
   input <- readFile fileName
   let (h,ms) = parseAll pInput input
-  putStrLn ms
   -- stepMoves (robot h) ms h
   putStrLn ("Part 1: " ++ show (part1 h ms))
   let wh = largeWH h
       wh' = movesRobot (robot wh) ms wh
   -- stepWH (robot wh) ms wh
-  putStrLn (showMap id wh)
-  putStrLn (showMap id wh')
+  -- putStrLn (showMap id wh)
+  -- putStrLn (showMap id wh')
   putStrLn ("Part 2: " ++ show (part2 wh ms))
 
 -- Parsing the input
@@ -105,16 +102,18 @@ largeWH = M.foldrWithKey enlarge M.empty where
   enlarge (x,y) '@' = M.insert (2*x,y) '@'
 e (x,y) '@' = M.insert (2*x,y) '@'
 
+-- moving a box with its left edge at p
 moveBox :: Point -> Direction -> Map2D Char -> Maybe (Map2D Char)
-moveBox p (-1,0) wh = case M.lookup p0 wh of
-  Nothing  -> Just $ mMove p' p0' $ mMove p p0 wh
-  Just ']' -> case moveBox (pMove p0 dLeft) dLeft wh of
-                Nothing -> Nothing
-                Just wh0 -> Just $ mMove p' p0' $ mMove p p0 wh0
-  _ -> Nothing
-  where p' = pMove p dRight
-        p0 = pMove p dLeft
-        p0' = p
+moveBox p d wh
+  | d == dLeft = case M.lookup p0 wh of
+    Nothing  -> Just $ mMove p' p0' $ mMove p p0 wh
+    Just ']' -> case moveBox (pMove p0 dLeft) dLeft wh of
+                  Nothing -> Nothing
+                  Just wh0 -> Just $ mMove p' p0' $ mMove p p0 wh0
+    _ -> Nothing
+    where p' = pMove p dRight
+          p0 = pMove p dLeft
+          p0' = p
 moveBox p (1,0) wh = case M.lookup p0' wh of
   Nothing  -> Just $ mMove p p0 $ mMove p' p0' wh
   Just '[' -> case moveBox p0' dRight wh of
@@ -145,7 +144,8 @@ moveBox p d wh = case (M.lookup p0 wh, M.lookup p0' wh) of
   where p' = pMove p dRight
         p0 = pMove p d
         p0' = pMove p' d
-        
+
+-- moving the robot, shifting boxes if needed        
 moveWH :: Point -> Direction -> Map2D Char -> Maybe (Map2D Char)
 moveWH p d wh = let p0 = pMove p d in
   case M.lookup p0 wh of
