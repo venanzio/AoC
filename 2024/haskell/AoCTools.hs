@@ -748,18 +748,31 @@ type Queue a = M.Map a Int
 relax :: Ord a => Graph a -> Queue a -> a -> Int -> Queue a
 relax graph queue x dx =
   foldl (\q (y,dxy) -> M.adjust (\dy -> min dy (dx+dxy)) y q) queue (graph  M.! x)
-           -- M.insertWith min y (dx+dxy) q) queue (graph  M.! x)
 
+-- Length of shortest path between two nodes
 dijkstra :: Ord a => Graph a -> a -> a -> Int
 dijkstra graph s t =
   dijkstra_aux $ M.fromList ((s,0) : [(v,infinite) | v <- M.keys graph, v /= s])
   where dijkstra_aux queue =
           let (x,dx) = minimumBy (compare `on` snd) (M.toAscList queue)
-              {-
-              v = graph M.! x
-              relax y dy = min dy (d + dist graph x y)
-              -}
           in if x == t then dx
                else dijkstra_aux (relax graph (M.delete x queue) x dx)
-                    -- [(y, relax y dy) | (y,dy) <- queue, y/=x]
- 
+
+minPath :: Eq a => [(a,Int,[[a]])] -> (a,Int,[[a]])
+minPath adps = let (x,dx,_) = minimumBy (compare `on` \(_,d,_)->d) adps
+                   xps = concat [py | (y,dy,py) <- adps, y==x, dy==dx]
+               in (x,dx,xps)
+
+relaxP :: Graph a -> [(a,Int,[[a]])] -> a -> Int -> [(a,Int,[[a]])] 
+relaxP = undefined
+
+
+-- returning all the shortest paths
+dijkstraPath :: Eq a => Graph a -> a -> a -> [[a]]
+dijkstraPath graph s t =
+  dijkstraAux $ (s,0,[[s]]) : [(v,infinite,[]) | v <- M.keys graph, v /= s]
+    where dijkstraAux queue =
+            let (x,dx,px) = minPath queue
+            in if x == t then px
+                 else dijkstraAux (relaxP graph (delete (x,dx,px) queue) x dx)
+            

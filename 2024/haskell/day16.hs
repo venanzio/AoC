@@ -21,7 +21,6 @@ puzzle :: String -> IO ()
 puzzle fileName = do
   input <- readFile fileName
   let maze = stringsMap (lines input)
-  putStrLn (show (mazeGraph maze))
   putStrLn ("Part 1: " ++ show (part1 maze))
   putStrLn ("Part 2: " ++ show (part2 maze))
 
