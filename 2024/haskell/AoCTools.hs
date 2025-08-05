@@ -751,8 +751,8 @@ minD n1@(_,(d1,_)) n2@(_,(d2,_)) =
   if d1 <= d2 then n1 else n2
 
 -- update elements of the queue with new node x
-relax :: Ord a => Graph a -> Queue a -> a -> Int -> [[a]] -> Queue a
-relax graph queue x dx psx =
+relax :: Ord a => Graph a -> Queue a -> a -> (Int,[[a]]) -> Queue a
+relax graph queue x (dx,psx) =
   foldl (\q (y,dxy) -> M.adjust (\(dy,psy) -> bestPaths y dy psy dxy) y q)
         queue (graph M.! x)
   where bestPaths y dy psy dxy
@@ -776,7 +776,10 @@ dijkstraPaths :: Ord a => Graph a -> a -> a -> (Int,[[a]])
 dijkstraPaths graph s t = dijkstraAux queue0
   where queue0 = M.fromList ((s,(0,[[]])) :
                              [(v,(infinite,[])) | v <- M.keys graph, v /= s])
-        dijkstraAux = undefined
+        dijkstraAux queue =
+          let (x,dpsx) = qMinimum queue
+          in if x == t then dpsx
+               else dijkstraAux (relax graph (M.delete x queue) x dpsx)
 
 
 
