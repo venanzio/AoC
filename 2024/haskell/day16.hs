@@ -5,8 +5,6 @@ module Main where
 
 import System.Environment
 import Data.List
--- import Data.Char
--- import Control.Applicative
 import qualified Data.Map as M
 
 import FunParser
@@ -26,9 +24,7 @@ puzzle fileName = do
       pE = head $ mFind 'E' maze
       (score,paths) = dijkstraPaths graph (pS, dRight) (pE, (0,0))
   putStrLn ("Part 1: " ++ show score)
-  putStrLn ("Part 2: " ++ show (part2 paths))
-
--- Part 1
+  putStrLn ("Part 2: " ++ show (length $ nub $ map fst $ concat paths))
 
 mazeGraph :: Map2D Char -> Graph (Point,Direction)
 mazeGraph maze = M.fromList $ [(n,step n) | i <- [1..maxX], j <- [1..maxY],
@@ -44,12 +40,3 @@ mazeGraph maze = M.fromList $ [(n,step n) | i <- [1..maxX], j <- [1..maxY],
           | M.lookup (pMove p d) maze /= Just '#' = ((pMove p d,d),1) : turns
           | otherwise = turns
           where turns = [((p,dRTurn d),1000),((p,dLTurn d),1000)]
-
-  
-part1 :: Graph (Point,Direction) -> Point -> Point -> Int
-part1 graph pS pE = dijkstra graph (pS, dRight) (pE, (0,0))
-
--- Part 2
-
-part2 :: [[(Point,Direction)]] -> Int
-part2 ps = length $ nub $ map fst $ concat ps
