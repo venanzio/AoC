@@ -751,9 +751,9 @@ minD n1@(_,(d1,_)) n2@(_,(d2,_)) =
   if d1 <= d2 then n1 else n2
 
 -- update elements of the queue with new node x
-relax :: Graph a -> Queue a -> a -> Int -> [[a]] -> Queue a
+relax :: Ord a => Graph a -> Queue a -> a -> Int -> [[a]] -> Queue a
 relax graph queue x dx psx =
-  foldl (\q (y,dxy) -> M.adjust (\(dy,psy) -> bestPaths y dy psy dxy))
+  foldl (\q (y,dxy) -> M.adjust (\(dy,psy) -> bestPaths y dy psy dxy) y q)
         queue (graph M.! x)
   where bestPaths y dy psy dxy
           | dy' < dy = (dy', psy')
@@ -766,12 +766,16 @@ relax graph queue x dx psx =
 qMinimum :: Queue a -> (a,(Int,[[a]]))
 qMinimum queue = M.foldrWithKey (\x dpsx -> minD (x,dpsx))
                                 (M.findMin queue) queue
-                      
 
-  
 -- Length of shortest path between two nodes
 dijkstra :: Ord a => Graph a -> a -> a -> Int
-dijkstra = undefined
+dijkstra graph s t = fst (dijkstraPaths graph s t)
+
+-- Also returning all the shortest paths
+dijkstraPaths :: Ord a => Graph a -> a -> a -> (Int,[[a]])
+dijkstraPaths graph s t = undefined
+
+
 
 {-
 type Queue a = M.Map a Int
