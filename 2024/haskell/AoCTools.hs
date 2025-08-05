@@ -773,7 +773,10 @@ dijkstra graph s t = fst (dijkstraPaths graph s t)
 
 -- Also returning all the shortest paths
 dijkstraPaths :: Ord a => Graph a -> a -> a -> (Int,[[a]])
-dijkstraPaths graph s t = undefined
+dijkstraPaths graph s t = dijkstraAux queue0
+  where queue0 = M.fromList ((s,(0,[[]])) :
+                             [(v,(infinite,[])) | v <- M.keys graph, v /= s])
+        dijkstraAux = undefined
 
 
 
