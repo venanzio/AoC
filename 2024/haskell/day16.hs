@@ -26,7 +26,7 @@ puzzle fileName = do
       pE = head $ mFind 'E' maze
       (score,paths) = dijkstraPaths graph (pS, dRight) (pE, (0,0))
   putStrLn ("Part 1: " ++ show score)
-  putStrLn ("Part 2: " ++ show (part2 maze))
+  putStrLn ("Part 2: " ++ show (part2 paths))
 
 -- Part 1
 
@@ -51,5 +51,5 @@ part1 graph pS pE = dijkstra graph (pS, dRight) (pE, (0,0))
 
 -- Part 2
 
-part2 :: Map2D Char -> Int
-part2 _ = 2
+part2 :: [[(Point,Direction)]] -> Int
+part2 ps = length $ nub $ map fst $ concat ps

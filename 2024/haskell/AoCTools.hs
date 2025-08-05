@@ -781,19 +781,19 @@ qMinimum :: QueueP a -> (a,(Int,[[a]]))
 qMinimum queue = M.foldrWithKey (\x dpsx -> minD (x,dpsx))
                                 (M.findMin queue) queue
                  
-{-
-dijkstra :: Ord a => Graph a -> a -> a -> Int
-dijkstra graph s t = fst (dijkstraPaths graph s t)
--}
-
 dijkstraPaths :: Ord a => Graph a -> a -> a -> (Int,[[a]])
 dijkstraPaths graph s t = dijkstraAux queue0
-  where queue0 = M.fromList ((s,(0,[[]])) :
+  where queue0 = M.fromList ((s,(0,[[s]])) :
                              [(v,(infinite,[])) | v <- M.keys graph, v /= s])
         dijkstraAux queue =
           let (x,dpsx) = qMinimum queue
           in if x == t then dpsx
                else dijkstraAux (relaxP graph (M.delete x queue) x dpsx)
+
+{-
+dijkstra :: Ord a => Graph a -> a -> a -> Int
+dijkstra graph s t = fst (dijkstraPaths graph s t)
+-}
 
 
 
