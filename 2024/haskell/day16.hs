@@ -21,7 +21,11 @@ puzzle :: String -> IO ()
 puzzle fileName = do
   input <- readFile fileName
   let maze = stringsMap (lines input)
-  putStrLn ("Part 1: " ++ show (part1 maze))
+      graph = mazeGraph maze
+      pS = head $ mFind 'S' maze
+      pE = head $ mFind 'E' maze
+      (score,paths) = dijkstraPaths graph (pS, dRight) (pE, (0,0))
+  putStrLn ("Part 1: " ++ show score)
   putStrLn ("Part 2: " ++ show (part2 maze))
 
 -- Part 1
@@ -42,10 +46,8 @@ mazeGraph maze = M.fromList $ [(n,step n) | i <- [1..maxX], j <- [1..maxY],
           where turns = [((p,dRTurn d),1000),((p,dLTurn d),1000)]
 
   
-part1 :: Map2D Char -> Int
-part1 maze = dijkstra (mazeGraph maze)
-                      (head $ mFind 'S' maze, dRight)
-                      (head $ mFind 'E' maze, (0,0))
+part1 :: Graph (Point,Direction) -> Point -> Point -> Int
+part1 graph pS pE = dijkstra graph (pS, dRight) (pE, (0,0))
 
 -- Part 2
 

@@ -737,57 +737,9 @@ mapFst f (x,y) = (f x,y)
 
 infinite = maxBound `div` 2 :: Int
 
-{-
-minimumInf :: [Int] -> Int
-minimumInf xs = minimum (infinite:xs)
--}
-
 -- A graph maps a node to the nodes reachable in one step, with distance
 type Graph a = M.Map a [(a,Int)]
 
-
-{-
--- a queue maps a node to: distance from source, paths from source (reversed)
-type Queue a = M.Map a (Int,[[a]])
-
-minD :: (a,(Int,[[a]])) -> (a,(Int,[[a]])) -> (a,(Int,[[a]]))
-minD n1@(_,(d1,_)) n2@(_,(d2,_)) =
-  if d1 <= d2 then n1 else n2
-
--- update elements of the queue with new node x
-relax :: Ord a => Graph a -> Queue a -> a -> (Int,[[a]]) -> Queue a
-relax graph queue x (dx,psx) =
-  foldl (\q (y,dxy) -> M.adjust (\(dy,psy) -> bestPaths y dy psy dxy) y q)
-        queue (graph M.! x)
-  where bestPaths y dy psy dxy
-          | dy' < dy = (dy', psy')
-          | dy' > dy = (dy , psy )
-          | otherwise = (dy, psy ++ psy')
-          where dy' = dxy + dx
-                psy' = map (y:) psx
-
--- Minumum distance in a non-empty queue
-qMinimum :: Queue a -> (a,(Int,[[a]]))
-qMinimum queue = M.foldrWithKey (\x dpsx -> minD (x,dpsx))
-                                (M.findMin queue) queue
-
--- Length of shortest path between two nodes
-dijkstra :: Ord a => Graph a -> a -> a -> Int
-dijkstra graph s t = fst (dijkstraPaths graph s t)
-
--- Also returning all the shortest paths
-dijkstraPaths :: Ord a => Graph a -> a -> a -> (Int,[[a]])
-dijkstraPaths graph s t = dijkstraAux queue0
-  where queue0 = M.fromList ((s,(0,[[]])) :
-                             [(v,(infinite,[])) | v <- M.keys graph, v /= s])
-        dijkstraAux queue =
-          let (x,dpsx) = qMinimum queue
-          in if x == t then dpsx
-               else dijkstraAux (relax graph (M.delete x queue) x dpsx)
-
-
-
--}
 type Queue a = M.Map a Int
 
 relax :: Ord a => Graph a -> Queue a -> a -> Int -> Queue a
@@ -802,3 +754,46 @@ dijkstra graph s t =
           let (x,dx) = minimumBy (compare `on` snd) (M.toAscList queue)
           in if x == t then dx
                else dijkstra_aux (relax graph (M.delete x queue) x dx)
+
+-- Version of Dijkstra also returning all the shortest paths
+
+-- a queue maps a node to: distance from source, paths from source (reversed)
+type QueueP a = M.Map a (Int,[[a]])
+
+minD :: (a,(Int,[[a]])) -> (a,(Int,[[a]])) -> (a,(Int,[[a]]))
+minD n1@(_,(d1,_)) n2@(_,(d2,_)) =
+  if d1 <= d2 then n1 else n2
+
+-- update elements of the queue with new node x
+relaxP :: Ord a => Graph a -> QueueP a -> a -> (Int,[[a]]) -> QueueP a
+relaxP graph queue x (dx,psx) =
+  foldl (\q (y,dxy) -> M.adjust (\(dy,psy) -> bestPaths y dy psy dxy) y q)
+        queue (graph M.! x)
+  where bestPaths y dy psy dxy
+          | dy' < dy = (dy', psy')
+          | dy' > dy = (dy , psy )
+          | otherwise = (dy, psy ++ psy')
+          where dy' = dxy + dx
+                psy' = map (y:) psx
+
+-- Minumum distance in a non-empty queue
+qMinimum :: QueueP a -> (a,(Int,[[a]]))
+qMinimum queue = M.foldrWithKey (\x dpsx -> minD (x,dpsx))
+                                (M.findMin queue) queue
+                 
+{-
+dijkstra :: Ord a => Graph a -> a -> a -> Int
+dijkstra graph s t = fst (dijkstraPaths graph s t)
+-}
+
+dijkstraPaths :: Ord a => Graph a -> a -> a -> (Int,[[a]])
+dijkstraPaths graph s t = dijkstraAux queue0
+  where queue0 = M.fromList ((s,(0,[[]])) :
+                             [(v,(infinite,[])) | v <- M.keys graph, v /= s])
+        dijkstraAux queue =
+          let (x,dpsx) = qMinimum queue
+          in if x == t then dpsx
+               else dijkstraAux (relaxP graph (M.delete x queue) x dpsx)
+
+
+
