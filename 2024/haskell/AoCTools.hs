@@ -737,12 +737,16 @@ mapFst f (x,y) = (f x,y)
 
 infinite = maxBound `div` 2 :: Int
 
+{-
 minimumInf :: [Int] -> Int
 minimumInf xs = minimum (infinite:xs)
+-}
 
 -- A graph maps a node to the nodes reachable in one step, with distance
 type Graph a = M.Map a [(a,Int)]
 
+
+{-
 -- a queue maps a node to: distance from source, paths from source (reversed)
 type Queue a = M.Map a (Int,[[a]])
 
@@ -783,7 +787,7 @@ dijkstraPaths graph s t = dijkstraAux queue0
 
 
 
-{-
+-}
 type Queue a = M.Map a Int
 
 relax :: Ord a => Graph a -> Queue a -> a -> Int -> Queue a
@@ -798,25 +802,3 @@ dijkstra graph s t =
           let (x,dx) = minimumBy (compare `on` snd) (M.toAscList queue)
           in if x == t then dx
                else dijkstra_aux (relax graph (M.delete x queue) x dx)
-
-minPath :: Eq a => [(a,Int,[[a]])] -> (a,Int,[[a]])
-minPath adps = let (x,dx,_) = minimumBy (compare `on` \(_,d,_)->d) adps
-                   xps = concat [py | (y,dy,py) <- adps, y==x, dy==dx]
-               in (x,dx,xps)
-
-relaxP :: Graph a -> [(a,Int,[[a]])] -> a -> Int -> [(a,Int,[[a]])] 
-relaxP = undefined
-
-delNode :: Eq a =>  a -> [(a,Int,[[a]])] -> [(a,Int,[[a]])]
-delNode x = filter (\(y,_,_) -> x /= x)
-
--- returning all the shortest paths
-dijkstraPath :: Eq a => Graph a -> a -> a -> [[a]]
-dijkstraPath graph s t =
-  dijkstraAux $ (s,0,[[s]]) : [(v,infinite,[]) | v <- M.keys graph, v /= s]
-    where dijkstraAux queue =
-            let (x,dx,px) = minPath queue
-            in if x == t then px
-                 else dijkstraAux (relaxP graph (delNode x queue) x dx)
-            
--}
