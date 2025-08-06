@@ -47,6 +47,31 @@ pInput = do regs <- pRegisters
 
 -- Part 1
 
+readA :: (Int,Int,Int) -> Int
+readA (a,b,c) = a
+
+readB :: (Int,Int,Int) -> Int
+readB (a,b,c) = b
+
+readC :: (Int,Int,Int) -> Int
+readC (a,b,c) = c
+
+writeA :: Int -> (Int,Int,Int) -> (Int,Int,Int)
+writeA a (_,b,c) = (a,b,c)
+
+writeB :: Int -> (Int,Int,Int) -> (Int,Int,Int)
+writeB b (a,_,c) = (a,b,c)
+
+writeC :: Int -> (Int,Int,Int) -> (Int,Int,Int)
+writeC c (a,b,_) = (a,b,c)
+
+
+runProg :: [Int] -> Int -> (Int,Int,Int) -> [Int]
+runProg prog counter (a,b,c)
+  | counter >= progL = []
+  where progL = length prog
+
+
 part1 :: (Int,Int,Int) -> [Int] -> Int
 part1 regs prog = 1
 
