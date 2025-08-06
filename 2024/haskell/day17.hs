@@ -71,6 +71,10 @@ runProg prog pointer reg = if pointer >= progL then []
    else case opcode of
           0 -> continue (writeR 'A' rdiv reg) -- adv
           1 -> continue (writeR 'B' (readR 'B' reg `xor` lop) reg) -- bxl
+          2 -> continue (writeR 'B' (cop `mod` 8) reg) -- bst
+          3 -> case (readR 'A' reg) of -- jnz
+                 0 -> continue reg
+                 p -> jump p
           _ -> undefined
   where progL = length prog
         opcode  = prog!!pointer
@@ -78,6 +82,7 @@ runProg prog pointer reg = if pointer >= progL then []
         cop = combo lop reg
         pointer' = pointer+2
         continue = runProg prog pointer'
+        jump p = runProg prog p reg
         rdiv = readR 'A' reg `div` (2^cop)
 
 part1 :: (Int,Int,Int) -> [Int] -> Int
