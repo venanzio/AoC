@@ -5,13 +5,8 @@ module Main where
 
 import System.Environment
 import Data.Bits
--- import Data.List
--- import Data.Char
--- import Control.Applicative
--- import qualified Data.Map as M
 
 import FunParser
--- import AoCTools
 
 main :: IO ()
 main = do
@@ -22,10 +17,8 @@ puzzle :: String -> IO ()
 puzzle fileName = do
   input <- readFile fileName
   let (regs,prog) = parseAll pInput input
-  putStrLn (show regs)
-  putStrLn (show prog)
   putStrLn ("Part 1: " ++ part1 regs prog)
-  -- putStrLn ("Part 2: " ++ show (part2 regs prog))
+  putStrLn ("Part 2: " ++ show (part2 regs prog))
 
 -- Parsing the input
 
@@ -113,17 +106,17 @@ searchA a b c prog = if runProg prog 0 (a,b,c) == prog then a
    * There are 8 possible values for A before each division
 -}
 
+-- backTracking one run of the cycle (assuming A is divided by 8 at each cycle)
 backTrack :: [Int] -> Int -> Int -> [Int]
 backTrack prog out finalA =
   filter (\a -> runProg prog 0 (a,0,0) == [out]) $ map (finalA * 8 +) [0..7]
 
+-- Finding the initial values that give the correct result
 inverseRun :: [Int] -> [Int]
 inverseRun prog = inverseAux (reverse prog) [0]
-  where prog' = drop 4 prog
-        exp = (dropWhile (/=0) prog)!!1  -- exponent to divide A by
-        inverseAux :: [Int] -> [Int] -> [Int]
+  where prog' = take (length prog - 2) prog
         inverseAux [] as = as
-        inverseAux (out:os) as =
+        inverseAux (out:os) as = inverseAux os $
            concat $ map (backTrack prog' out) as           
           
 part2 :: (Int,Int,Int) -> [Int] -> Int
