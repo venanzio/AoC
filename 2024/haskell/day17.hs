@@ -65,10 +65,16 @@ writeB b (a,_,c) = (a,b,c)
 writeC :: Int -> (Int,Int,Int) -> (Int,Int,Int)
 writeC c (a,b,_) = (a,b,c)
 
+operand :: Int -> (Int,Int,Int) -> Int
+operand 4 (a,b,c) = a
+operand 5 (a,b,c) = b
+operand 6 (a,b,c) = c
+operand 7 _       = error "invalid operand 7"
+operand n _       = n
 
 runProg :: [Int] -> Int -> (Int,Int,Int) -> [Int]
-runProg prog counter (a,b,c)
-  | counter >= progL = []
+runProg prog pointer (a,b,c)
+  | pointer >= progL = []
   where progL = length prog
 
 
