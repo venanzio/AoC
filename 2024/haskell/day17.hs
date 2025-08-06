@@ -57,18 +57,21 @@ writeR 'A' a (_,b,c) = (a,b,c)
 writeR 'B' b (a,_,c) = (a,b,c)
 writeR 'C' c (a,b,_) = (a,b,c)
 
-operand :: Int -> (Int,Int,Int) -> Int
-operand 4 (a,b,c) = a
-operand 5 (a,b,c) = b
-operand 6 (a,b,c) = c
-operand 7 _       = error "invalid operand 7"
-operand n _       = n
+operandV :: Int -> (Int,Int,Int) -> Int
+operandV 4 = readR 'A'
+operandV 5 = readR 'B'
+operandV 6 = readR 'c'
+operandV 7 = \_ -> error "invalid operand 7"
+operandV n = \_ -> n
 
 runProg :: [Int] -> Int -> (Int,Int,Int) -> [Int]
-runProg prog pointer (a,b,c)
-  | pointer >= progL = []
+runProg prog pointer (a,b,c) = if pointer >= progL then []
+   else case opcode of
+          _ -> undefined
   where progL = length prog
-
+        opcode  = prog!!pointer
+        opreand = operandV $ prog!!(pointer+1)
+        
 
 part1 :: (Int,Int,Int) -> [Int] -> Int
 part1 regs prog = 1
