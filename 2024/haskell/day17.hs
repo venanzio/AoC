@@ -63,7 +63,7 @@ combo 4 = readR 'A'
 combo 5 = readR 'B'
 combo 6 = readR 'c'
 combo 7 = \_ -> error "invalid combo operand 7"
-combo n = \_ -> 2
+combo n = \_ -> n
 
 runProg :: [Int] -> Int -> (Int,Int,Int) -> [Int]
 runProg prog pointer reg = if pointer >= progL then []
@@ -71,9 +71,7 @@ runProg prog pointer reg = if pointer >= progL then []
           0 -> continue $ writeR 'A' rdiv reg -- adv
           1 -> continue $ writeR 'B' (readR 'B' reg `xor` lop) reg -- bxl
           2 -> continue $ writeR 'B' (cop `mod` 8) reg -- bst
-          3 -> case (readR 'A' reg) of -- jnz
-                 0 -> continue reg
-                 p -> jump p
+          3 -> if (readR 'A' reg) == 0 then continue reg else jump lop -- jnz
           4 -> continue $ writeR 'B' (readR 'B' reg `xor` readR 'C' reg) reg -- bxc
           5 -> cop `mod` 8 : continue reg -- out
           6 -> continue $ writeR 'B' rdiv reg -- bdv
