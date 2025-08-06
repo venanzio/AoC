@@ -24,7 +24,7 @@ puzzle fileName = do
   let (regs,prog) = parseAll pInput input
   putStrLn (show regs)
   putStrLn (show prog)
-  putStrLn ("Part 1: " ++ show (part1 regs prog))
+  putStrLn ("Part 1: " ++ part1 regs prog)
   putStrLn ("Part 2: " ++ show (part2 regs prog))
 
 -- Parsing the input
@@ -65,7 +65,6 @@ combo 6 = readR 'c'
 combo 7 = \_ -> error "invalid combo operand 7"
 combo n = \_ -> 2
 
-
 runProg :: [Int] -> Int -> (Int,Int,Int) -> [Int]
 runProg prog pointer reg = if pointer >= progL then []
    else case opcode of
@@ -89,8 +88,13 @@ runProg prog pointer reg = if pointer >= progL then []
         jump p = runProg prog p reg
         rdiv = readR 'A' reg `div` (2^cop)
 
-part1 :: (Int,Int,Int) -> [Int] -> Int
-part1 regs prog = 1
+showOut :: [Int] -> String
+showOut [] = ""
+showOut [x] = show x
+showOut (x:xs) = show x ++ "," ++ showOut xs
+
+part1 :: (Int,Int,Int) -> [Int] -> String
+part1 regs prog = showOut $ runProg prog 0 regs
 
 -- Part 2
 
