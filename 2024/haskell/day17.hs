@@ -4,6 +4,7 @@
 module Main where
 
 import System.Environment
+import Data.Bits
 -- import Data.List
 -- import Data.Char
 -- import Control.Applicative
@@ -57,21 +58,27 @@ writeR 'A' a (_,b,c) = (a,b,c)
 writeR 'B' b (a,_,c) = (a,b,c)
 writeR 'C' c (a,b,_) = (a,b,c)
 
-operandV :: Int -> (Int,Int,Int) -> Int
-operandV 4 = readR 'A'
-operandV 5 = readR 'B'
-operandV 6 = readR 'c'
-operandV 7 = \_ -> error "invalid operand 7"
-operandV n = \_ -> n
+combo :: Int -> (Int,Int,Int) -> Int
+combo 4 = readR 'A'
+combo 5 = readR 'B'
+combo 6 = readR 'c'
+combo 7 = \_ -> error "invalid combo operand 7"
+combo n = \_ -> 2
+
 
 runProg :: [Int] -> Int -> (Int,Int,Int) -> [Int]
-runProg prog pointer (a,b,c) = if pointer >= progL then []
+runProg prog pointer reg = if pointer >= progL then []
    else case opcode of
+          0 -> continue (writeR 'A' rdiv reg) -- adv
+          1 -> continue (writeR 'B' (readR 'B' reg `xor` lop) reg) -- bxl
           _ -> undefined
   where progL = length prog
         opcode  = prog!!pointer
-        opreand = operandV $ prog!!(pointer+1)
-        
+        lop = prog!!(pointer+1)
+        cop = combo lop reg
+        pointer' = pointer+2
+        continue = runProg prog pointer'
+        rdiv = readR 'A' reg `div` (2^cop)
 
 part1 :: (Int,Int,Int) -> [Int] -> Int
 part1 regs prog = 1
