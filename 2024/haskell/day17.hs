@@ -113,8 +113,18 @@ searchA a b c prog = if runProg prog 0 (a,b,c) == prog then a
    * There are 8 possible values for A before each division
 -}
 
-cycle :: [Int] -> Int -> Int -> [Int]
-cycle prog out finalA = map (finalA * 8 +) [0..7]
+backTrack :: [Int] -> Int -> Int -> [Int]
+backTrack prog out finalA =
+  filter (\a -> runProg prog 0 (a,0,0) == [out]) $ map (finalA * 8 +) [0..7]
 
+inverseRun :: [Int] -> [Int]
+inverseRun prog = inverseAux (reverse prog) [0]
+  where prog' = drop 4 prog
+        exp = (dropWhile (/=0) prog)!!1  -- exponent to divide A by
+        inverseAux :: [Int] -> [Int] -> [Int]
+        inverseAux [] as = as
+        inverseAux (out:os) as =
+           concat $ map (backTrack prog' out) as           
+          
 part2 :: (Int,Int,Int) -> [Int] -> Int
-part2 (a,b,c) prog = searchA a b c prog
+part2 (a,b,c) prog = minimum $ inverseRun prog -- searchA a b c prog
