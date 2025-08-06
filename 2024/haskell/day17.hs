@@ -47,23 +47,15 @@ pInput = do regs <- pRegisters
 
 -- Part 1
 
-readA :: (Int,Int,Int) -> Int
-readA (a,b,c) = a
+readR :: Char -> (Int,Int,Int) -> Int
+readR 'A' (a,b,c) = a
+readR 'B' (a,b,c) = b
+readR 'C' (a,b,c) = c
 
-readB :: (Int,Int,Int) -> Int
-readB (a,b,c) = b
-
-readC :: (Int,Int,Int) -> Int
-readC (a,b,c) = c
-
-writeA :: Int -> (Int,Int,Int) -> (Int,Int,Int)
-writeA a (_,b,c) = (a,b,c)
-
-writeB :: Int -> (Int,Int,Int) -> (Int,Int,Int)
-writeB b (a,_,c) = (a,b,c)
-
-writeC :: Int -> (Int,Int,Int) -> (Int,Int,Int)
-writeC c (a,b,_) = (a,b,c)
+writeR :: Char -> Int -> (Int,Int,Int) -> (Int,Int,Int)
+writeR 'A' a (_,b,c) = (a,b,c)
+writeR 'B' b (a,_,c) = (a,b,c)
+writeR 'C' c (a,b,_) = (a,b,c)
 
 operand :: Int -> (Int,Int,Int) -> Int
 operand 4 (a,b,c) = a
