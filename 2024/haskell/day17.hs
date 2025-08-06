@@ -96,5 +96,9 @@ part1 regs prog = showOut $ runProg prog 0 regs
 
 -- Part 2
 
+searchA :: Int -> Int -> Int -> [Int] -> Int
+searchA a b c prog = if runProg prog 0 (a,b,c) == prog then a
+                       else searchA (a+1) b c prog
+
 part2 :: (Int,Int,Int) -> [Int] -> Int
-part2 regs prog = 2
+part2 (a,b,c) prog = searchA a b c prog
