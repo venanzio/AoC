@@ -69,12 +69,16 @@ combo n = \_ -> 2
 runProg :: [Int] -> Int -> (Int,Int,Int) -> [Int]
 runProg prog pointer reg = if pointer >= progL then []
    else case opcode of
-          0 -> continue (writeR 'A' rdiv reg) -- adv
-          1 -> continue (writeR 'B' (readR 'B' reg `xor` lop) reg) -- bxl
-          2 -> continue (writeR 'B' (cop `mod` 8) reg) -- bst
+          0 -> continue $ writeR 'A' rdiv reg -- adv
+          1 -> continue $ writeR 'B' (readR 'B' reg `xor` lop) reg -- bxl
+          2 -> continue $ writeR 'B' (cop `mod` 8) reg -- bst
           3 -> case (readR 'A' reg) of -- jnz
                  0 -> continue reg
                  p -> jump p
+          4 -> continue $ writeR 'B' (readR 'B' reg `xor` readR 'C' reg) reg -- bxc
+          5 -> cop `mod` 8 : continue reg -- out
+          6 -> continue $ writeR 'B' rdiv reg -- bdv
+          7 -> continue $ writeR 'C' rdiv reg -- cdv
           _ -> undefined
   where progL = length prog
         opcode  = prog!!pointer
