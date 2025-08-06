@@ -25,7 +25,7 @@ puzzle fileName = do
   putStrLn (show regs)
   putStrLn (show prog)
   putStrLn ("Part 1: " ++ part1 regs prog)
-  putStrLn ("Part 2: " ++ show (part2 regs prog))
+  -- putStrLn ("Part 2: " ++ show (part2 regs prog))
 
 -- Parsing the input
 
@@ -96,9 +96,25 @@ part1 regs prog = showOut $ runProg prog 0 regs
 
 -- Part 2
 
+-- BRUTE FORCE
 searchA :: Int -> Int -> Int -> [Int] -> Int
 searchA a b c prog = if runProg prog 0 (a,b,c) == prog then a
                        else searchA (a+1) b c prog
+
+{- OBSERVATIONS:
+   * Only one jump instruction 3,0 at the end:
+     if A=0 stop, otherwise start from the beginning
+   * only one print instruction 5,4 (test) or 5,5 (input)
+     print A mod 8 (test) or B mod 8 (input)
+   * only one adv instruction 0,1 (test1) or 0,3 (test2,input)
+     divide A by 2 (test1) or by 8 (test2,input)
+   * the values of B and C are calculated from that of A
+     at the beginning of each repetition (their initial values don't matter)
+   * There are 8 possible values for A before each division
+-}
+
+cycle :: [Int] -> Int -> Int -> [Int]
+cycle prog out finalA = map (finalA * 8 +) [0..7]
 
 part2 :: (Int,Int,Int) -> [Int] -> Int
 part2 (a,b,c) prog = searchA a b c prog
