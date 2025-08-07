@@ -67,9 +67,11 @@ allBlocked paths (p:ps) =
   in if paths' == [] then ([],p:ps) else (p:pre,post)
 
 
-exitPath :: Graph Point -> [[Point]] -> [Point] -> Maybe [Point]
-exitPath graph = undefined
-
+cutOff :: [[Point]] -> [Point] -> [Point] -> Point
+cutOff paths qs ps =
+  if paths == [] then p else cutOff paths (p:pre++qs) post
+  where (pre,p:post) = allBlocked paths ps
+        paths = snd $ dijkstraPaths (spaceGraph (p:pre)) (0,0) (maxX,maxY)
 
 part2 :: [Point] -> Int
 part2 _ = 2
