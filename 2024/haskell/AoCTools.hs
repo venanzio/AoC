@@ -74,6 +74,13 @@ showPoints c ps = unlines  [[sh (i,j) | i <- [minX..maxX]] | j <- [minY..maxY]]
   where ((minX,minY),(maxX,maxY)) = minMaxPoints ps
         sh p = if p `elem` ps then c else '.'
 
+showManyPoints :: [(Char,[Point])] -> String
+showManyPoints pmap =
+  let ps = concat (map snd pmap)
+      ((minX,minY),(maxX,maxY)) = minMaxPoints ps
+      pchar p = head ([c | (c,qs) <- pmap, p `elem` qs] ++ ".")
+  in unlines [[pchar (i,j) | i <- [minX..maxX]] | j <- [minY..maxY]]
+
 showMap :: (a -> Char) -> Map2D a -> String
 showMap sa m = unlines [[sha (i,j) | i <- [minX..maxX]] | j <- [minY..maxY]]
   where ((minX,minY),(maxX,maxY)) = minMaxPoints (M.keys m)
