@@ -795,5 +795,13 @@ dijkstra :: Ord a => Graph a -> a -> a -> Int
 dijkstra graph s t = fst (dijkstraPaths graph s t)
 -}
 
-
-
+{- find any path -}
+findPath :: Eq a => Graph a -> a -> a -> [a]
+findPath graph s t = fpAux s [t] --(delete s $ M.keys graph)
+  where fpAux s [t] = [t]
+        fpAux s queue
+          | t `elem` ns = [t]
+          | ps == []    = []
+          | otherwise   = s:head ps
+          where (ns,queue') = partition (`elem` map fst (graph M.! s)) queue
+                ps = [p | n <- ns, p <- fpAux n queue', p /= []] 

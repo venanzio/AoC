@@ -4,7 +4,7 @@
 module Main where
 
 import System.Environment
--- import Data.List
+import Data.List
 -- import Data.Char
 -- import Control.Applicative
 import qualified Data.Map as M
@@ -43,9 +43,16 @@ spaceGraph maxX maxY corrupt =
                            i <- [0..maxX], j <- [0..maxY]]
           
 part1 :: [Point] -> Int
-part1 xs = dijkstra (spaceGraph 6 6 (take 12 xs)) (0,0) (6,6)
+part1 xs = dijkstra (spaceGraph 70 70 (take 1024 xs)) (0,0) (70,70)
 
 -- Part 2
+
+{- Idea: chose a path (initially directly diagonally)
+         revise when one of the bytes fall on it -}
+
+exitPath :: Graph Point -> Maybe [Point]
+exitPath graph = undefined
+
 
 part2 :: [Point] -> Int
 part2 _ = 2
