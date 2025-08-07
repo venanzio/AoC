@@ -21,11 +21,12 @@ puzzle :: String -> IO ()
 puzzle fileName = do
   input <- readFile fileName
   let xs = parseAll pInput input
-      graph = spaceGraph (take drops xs)
+      (pre,post) = splitAt drops xs
+      graph = spaceGraph pre
       (len,paths) = dijkstraPaths graph (0,0) (maxX,maxY)
-  putStrLn (showManyPoints [('#',take drops xs),('O',head paths)])
+  putStrLn (showManyPoints [('#',pre),('O',head paths)])
   putStrLn ("Part 1: " ++ show len)
-  putStrLn ("Part 2: " ++ show (part2 xs))
+  putStrLn ("Part 2: " ++ show (cutOff paths pre post))
 
 -- Parsing the input
 
