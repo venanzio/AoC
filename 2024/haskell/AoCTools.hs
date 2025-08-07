@@ -796,12 +796,12 @@ dijkstra graph s t = fst (dijkstraPaths graph s t)
 -}
 
 {- find any path -}
-findPath :: Eq a => Graph a -> a -> a -> [a]
-findPath graph s t = fpAux s [t] --(delete s $ M.keys graph)
-  where fpAux s [t] = [t]
+findPath :: Ord a => Graph a -> a -> a -> Maybe [a]
+findPath graph s t = fpAux s (delete s $ M.keys graph)
+  where fpAux s [t] = Just [t]
         fpAux s queue
-          | t `elem` ns = [t]
-          | ps == []    = []
-          | otherwise   = s:head ps
+          | t `elem` ns = Just [s,t]
+          | ps == []    = Nothing
+          | otherwise   = Just $ s : head ps
           where (ns,queue') = partition (`elem` map fst (graph M.! s)) queue
-                ps = [p | n <- ns, p <- fpAux n queue', p /= []] 
+                ps = [p | Just p <- map (\n -> fpAux n queue') ns] 
