@@ -57,6 +57,7 @@ part1 xs = dijkstra (spaceGraph (take drops xs)) (0,0) (maxX,maxY)
 {- Idea: chose some paths from an intermediate point
          then recompute when they're all blocked -}
 
+{-
 -- breaking at the point where all paths are blocked
 allBlocked :: Eq a => [[a]] -> [a] -> ([a],[a])
 allBlocked paths []     = ([],[])
@@ -68,6 +69,15 @@ cutOff :: [Point] -> [Point] -> Point
 cutOff qs ps = if paths == [] then head qs else cutOff (p:pre++qs) post
   where paths = snd $ dijkstraPaths (spaceGraph qs) (0,0) (maxX,maxY)
         (pre,p:post) = allBlocked paths ps
+-}
+
+blocked :: Eq a => [a] -> [a] -> ([a],[a])
+blocked path ps = span (not . (`elem` path)) ps
+
+cutOff :: [Point] -> [Point] -> Point
+cutOff qs ps = if paths == [] then head qs else cutOff (p:pre++qs) post
+  where paths = snd $ dijkstraPaths (spaceGraph qs) (0,0) (maxX,maxY)
+        (pre,p:post) = blocked (head paths) ps
 
 part2 :: [Point] -> Point
 part2 xs = let (pre,post) = splitAt 3000 xs in cutOff pre post
