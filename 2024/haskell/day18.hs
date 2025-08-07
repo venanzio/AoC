@@ -21,6 +21,8 @@ puzzle :: String -> IO ()
 puzzle fileName = do
   input <- readFile fileName
   let xs = parseAll pInput input
+  putStrLn (show $ length xs)
+  putStrLn (show (head xs))
   putStrLn ("Part 1: " ++ show (part1 xs))
   putStrLn ("Part 2: " ++ show (part2 xs))
 
@@ -52,7 +54,7 @@ part1 xs = dijkstra (spaceGraph (take drops xs)) (0,0) (maxX,maxY)
 
 -- Part 2
 
-{- Idea: chose some path (initially that from part 1)
+{- Idea: chose some paths from an intermediate point
          then recompute when they're all blocked -}
 
 -- breaking at the point where all paths are blocked
@@ -62,20 +64,11 @@ allBlocked paths (p:ps) = if paths' == [] then ([],p:ps) else (p:pre,post)
   where paths' = [path | path <- paths, not (p `elem` path)]
         (pre,post) = allBlocked paths' ps
 
-
 cutOff :: [Point] -> [Point] -> Point
 cutOff qs ps = if paths == [] then head qs else cutOff (p:pre++qs) post
   where paths = snd $ dijkstraPaths (spaceGraph qs) (0,0) (maxX,maxY)
         (pre,p:post) = allBlocked paths ps
-          
-{-
-cutOff :: [[Point]] -> [Point] -> [Point] -> Point
-cutOff paths qs ps =
-  if paths == [] then p else cutOff paths (p:pre++qs) post
-  where (pre,p:post) = allBlocked paths ps
-        paths = snd $ dijkstraPaths (spaceGraph (p:pre)) (0,0) (maxX,maxY)
--}
 
 part2 :: [Point] -> Point
-part2 xs = let (pre,post) = splitAt 1000 xs in cutOff pre post
+part2 xs = let (pre,post) = splitAt 3000 xs in cutOff pre post
 
