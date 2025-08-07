@@ -22,9 +22,9 @@ puzzle fileName = do
   input <- readFile fileName
   let xs = parseAll pInput input
       graph = spaceGraph (take drops xs)
-      path = head $ snd $ dijkstraPaths graph (0,0) (maxX,maxY) -- findPath graph (0,0) (maxX,maxY)
-  putStrLn (showManyPoints [('#',take drops xs),('O',path)])
-  putStrLn ("Part 1: " ++ show (part1 xs))
+      (len,paths) = dijkstraPaths graph (0,0) (maxX,maxY)
+  putStrLn (showManyPoints [('#',take drops xs),('O',head paths)])
+  putStrLn ("Part 1: " ++ show len)
   putStrLn ("Part 2: " ++ show (part2 xs))
 
 -- Parsing the input
@@ -55,11 +55,20 @@ part1 xs = dijkstra (spaceGraph (take drops xs)) (0,0) (maxX,maxY)
 
 -- Part 2
 
-{- Idea: chose a path (initially directly diagonally)
-         revise when one of the bytes fall on it -}
+{- Idea: chose some path (initially that from part 1)
+         then recompute when they're all blocked -}
 
-exitPath :: Graph Point -> Maybe [Point]
-exitPath graph = findPath graph (0,0) (maxX,maxY)
+-- breaking at the point where all paths are blocked
+allBlocked :: [[Point]] -> [Point] -> ([Point],[Point])
+allBlocked paths []     = ([],[])
+allBlocked paths (p:ps) =
+  let paths' = [path | path <- paths, not (p `elem` path)]
+      (pre,post) = allBlocked paths' ps
+  in if paths' == [] then ([],p:ps) else (p:pre,post)
+
+
+exitPath :: Graph Point -> [[Point]] -> [Point] -> Maybe [Point]
+exitPath graph = undefined
 
 
 part2 :: [Point] -> Int
