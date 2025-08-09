@@ -47,6 +47,15 @@ mkDes patterns [] = True
 mkDes patterns design = any (mkDes patterns)
   [pTail | Just pTail <- map (\p -> stripPrefix p design) patterns]
 
+
+cutInfix :: String -> String -> [(String,String)]
+cutInfix pat des =
+  [prepost | Just prepost <- map (\i -> cutInfixAt i pat des) [0..length des]]
+
+cutInfixAt :: Int -> String -> String -> Maybe (String,String)
+cutInfixAt i pat des = let (pre,rest) = splitAt i des
+                       in stripPrefix pat rest >>= \post -> return (pre,post)
+
 part1 :: [String] -> [String] -> Int
 part1 patterns designs = length (filter (mkDes patterns) designs)
 
