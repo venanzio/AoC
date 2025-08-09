@@ -18,8 +18,7 @@ main = do
 puzzle :: String -> IO ()
 puzzle fileName = do
   input <- readFile fileName
-  let (patterns',designs) = parseAll pInput input
-      patterns = reverse $ sortOn length patterns'
+  let (patterns,designs) = parseAll pInput input
   putStrLn ("Part 1: " ++ show (part1 patterns designs))
   putStrLn ("Part 2: " ++ show (part2 patterns designs))
 
