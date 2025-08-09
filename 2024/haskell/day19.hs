@@ -4,7 +4,7 @@
 module Main where
 
 import System.Environment
--- import Data.List
+import Data.List
 -- import Data.Char
 import Control.Applicative
 -- import qualified Data.Map as M
@@ -20,7 +20,10 @@ main = do
 puzzle :: String -> IO ()
 puzzle fileName = do
   input <- readFile fileName
-  let (patterns,designs) = parseAll pInput input
+  let (patterns',designs) = parseAll pInput input
+      patterns = reverse $ sortOn length patterns'
+  putStrLn (show patterns)
+  putStrLn (show designs)
   putStrLn ("Part 1: " ++ show (part1 patterns designs))
   putStrLn ("Part 2: " ++ show (part2 patterns designs))
 
@@ -39,8 +42,13 @@ pInput = do patterns <- pPatterns
             
 -- Part 1
 
+mkDes :: [String] -> String -> Bool
+mkDes patterns [] = True
+mkDes patterns design = any (mkDes patterns)
+  [pTail | Just pTail <- map (\p -> stripPrefix p design) patterns]
+
 part1 :: [String] -> [String] -> Int
-part1 _ _ = 1
+part1 patterns designs = length (filter (mkDes patterns) designs)
 
 -- Part 2
 
