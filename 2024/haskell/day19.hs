@@ -58,5 +58,12 @@ part1 patterns designs = length (filter (correct patterns) designs)
 
 -- Part 2
 
+correctCount :: [String] -> String -> Int
+correctCount pats des = countTable M.! des
+  where countTable = M.fromList [(sub,subCount sub) | sub <- nub (sublists des)]
+        subCount [] = 1
+        subCount design = sum $ map (countTable M.!)
+          [pTail | Just pTail <- map (\p -> stripPrefix p design) pats]
+          
 part2 ::  [String] -> [String] -> Int
-part2 _ _ = 2
+part2 patterns designs = sum $ map (correctCount patterns) designs
