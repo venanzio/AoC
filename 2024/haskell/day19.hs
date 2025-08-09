@@ -7,7 +7,7 @@ import System.Environment
 import Data.List
 -- import Data.Char
 import Control.Applicative
--- import qualified Data.Map as M
+import qualified Data.Map as M
 
 import FunParser
 -- import AoCTools
@@ -47,6 +47,7 @@ mkDes patterns [] = True
 mkDes patterns design = any (mkDes patterns)
   [pTail | Just pTail <- map (\p -> stripPrefix p design) patterns]
 
+--
 
 correctDes :: [String] -> String -> Bool
 correctDes pats [] = True
@@ -63,9 +64,25 @@ cutInfix pat des =
 cutInfixAt :: Int -> String -> String -> Maybe (String,String)
 cutInfixAt i pat des = let (pre,rest) = splitAt i des
                        in stripPrefix pat rest >>= \post -> return (pre,post)
+--
 
+sublists :: [a] -> [[a]]
+sublists = concat. map inits1 . tails
+  where inits1 [] = [[]]
+        inits1 (x:xs) = map (x:) (inits xs)
+
+
+correct :: [String] -> String -> Bool
+correct pats des = correctTable M.! des
+  where correctTable = M.fromList [(sub,subOK sub) | sub <- nub (sublists des)]
+        subOK [] = True
+        subOK design = any (correctTable M.!)
+          [pTail | Just pTail <- map (\p -> stripPrefix p design) pats]
+        
+
+        
 part1 :: [String] -> [String] -> Int
-part1 patterns designs = length (filter (correctDes patterns) designs)
+part1 patterns designs = length (filter (correct patterns) designs)
 
 -- Part 2
 
