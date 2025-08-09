@@ -1,0 +1,48 @@
+-- Advent of Code 2024, day 19
+--  Venanzio Capretta
+
+module Main where
+
+import System.Environment
+-- import Data.List
+-- import Data.Char
+import Control.Applicative
+-- import qualified Data.Map as M
+
+import FunParser
+-- import AoCTools
+
+main :: IO ()
+main = do
+  args <- getArgs
+  puzzle (head args)
+
+puzzle :: String -> IO ()
+puzzle fileName = do
+  input <- readFile fileName
+  let (patterns,designs) = parseAll pInput input
+  putStrLn ("Part 1: " ++ show (part1 patterns designs))
+  putStrLn ("Part 2: " ++ show (part2 patterns designs))
+
+-- Parsing the input
+
+pPatterns :: Parser [String]
+pPatterns = someSepStr word ","
+
+pDesigns :: Parser [String]
+pDesigns = some word
+
+pInput :: Parser ([String],[String])
+pInput = do patterns <- pPatterns
+            designs <- pDesigns
+            return (patterns,designs)
+            
+-- Part 1
+
+part1 :: [String] -> [String] -> Int
+part1 _ _ = 1
+
+-- Part 2
+
+part2 ::  [String] -> [String] -> Int
+part2 _ _ = 2
