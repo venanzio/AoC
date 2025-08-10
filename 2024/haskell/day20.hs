@@ -58,10 +58,12 @@ graph mp = M.fromList [((p,i), map (\q->(q,1)) (step (p,i))) |
 mdGraph :: Map2D Char -> Graph Point
 mdGraph md = M.fromList [(p,step p) | p <- allPoints pMin pMax]
   where (pMin,pMax) = minMaxPoints (M.keys md)
-        step p = undefined
+        step p = if md M.! p == '#' then [] else
+          [(q,1) | q <- neighboursHV p, pInside pMin pMax q]
 
 part1 :: Map2D Char -> Int
 part1 md = undefined
+  where gr = mdGraph md
 
 -- Part 2
 
