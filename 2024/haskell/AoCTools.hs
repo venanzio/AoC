@@ -763,6 +763,17 @@ dijkstra graph s t =
           in if x == t then dx
                else dijkstra_aux (relax graph (M.delete x queue) x dx)
 
+-- to all targets
+dijkstraAll :: Ord a => Graph a -> a -> M.Map a Int
+dijkstraAll graph s =
+  dijkstraAux $ M.fromList ((s,0) : [(v,infinite) | v <- M.keys graph, v /= s])
+  where dijkstraAux queue = if null queue then M.empty else
+          let (x,dx) = minimumBy (compare `on` snd) (M.toAscList queue)
+          in M.insert x dx $ dijkstraAux (relax graph (M.delete x queue) x dx)
+
+
+
+  
 -- Version of Dijkstra also returning all the shortest paths
 
 -- a queue maps a node to: distance from source, paths from source (reversed)
@@ -813,6 +824,10 @@ findPath graph s t = fpAux s (delete s $ M.keys graph)
           | otherwise   = Just $ s : head ps
           where (ns,queue') = partition (`elem` map fst (graph M.! s)) queue
                 ps = [p | Just p <- map (\n -> fpAux n queue') ns] 
+
+
+
+
 
 -- Creating a graph from a maze
 
