@@ -29,7 +29,8 @@ puzzle fileName = do
       toE = dijkstraAll gr end
   putStrLn ("shortest path (from S): " ++ show (fromS M.! end))
   putStrLn ("shortest path (to E): " ++ show (toE M.! start))
-  putStrLn ("Part 1: " ++ show (part1 mp))
+  putStrLn ("cheat time: " ++ show (cheatTime fromS toE (8,1) (9,1)))
+   putStrLn ("Part 1: " ++ show (part1 mp))
   putStrLn ("Part 2: " ++ show (part2 mp))
 
 -- Parsing the input
@@ -61,11 +62,16 @@ graph mp = M.fromList [((p,i), map (\q->(q,1)) (step (p,i))) |
 mpGraph :: Map2D Char -> Graph Point
 mpGraph mp = M.fromList [(p,step p) | p <- allPoints pMin pMax]
   where (pMin,pMax) = minMaxPoints (M.keys mp)
-        step p = if mp M.! p == '#' then [] else
-          [(q,1) | q <- neighboursHV p, pInside pMin pMax q]
+        step p = case M.lookup p mp of
+          Just '#' -> []
+          _        -> [(q,1) | q <- neighboursHV p, pInside pMin pMax q]
+
+cheatTime :: M.Map Point Int -> M.Map Point Int -> Point -> Point -> Int
+cheatTime fromS toE ch1 ch2 =
+  fromS M.! ch1 + toE M.! ch2 + 1
 
 part1 :: Map2D Char -> Int
-part1 mp = undefined
+part1 mp = 1
         
 
 -- Part 2
