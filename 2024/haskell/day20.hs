@@ -22,10 +22,13 @@ puzzle fileName = do
   input <- readFile fileName
   let mp = stringsMap $ lines input
       wall = M.keys $ M.filter (=='#') mp
-      gr = mazeGraph wall
+      gr =  mpGraph mp
       start = head $ mFind 'S' mp
       end = head $ mFind 'E' mp
-      
+      fromS = dijkstraAll gr start
+      toE = dijkstraAll gr end
+  putStrLn ("shortest path (from S): " ++ show (fromS M.! end))
+  putStrLn ("shortest path (to E): " ++ show (toE M.! start))
   putStrLn ("Part 1: " ++ show (part1 mp))
   putStrLn ("Part 2: " ++ show (part2 mp))
 
@@ -55,15 +58,15 @@ graph mp = M.fromList [((p,i), map (\q->(q,1)) (step (p,i))) |
           where (fs,ws) = partition free (neighboursHV p) 
 -}
 
-mdGraph :: Map2D Char -> Graph Point
-mdGraph md = M.fromList [(p,step p) | p <- allPoints pMin pMax]
-  where (pMin,pMax) = minMaxPoints (M.keys md)
-        step p = if md M.! p == '#' then [] else
+mpGraph :: Map2D Char -> Graph Point
+mpGraph mp = M.fromList [(p,step p) | p <- allPoints pMin pMax]
+  where (pMin,pMax) = minMaxPoints (M.keys mp)
+        step p = if mp M.! p == '#' then [] else
           [(q,1) | q <- neighboursHV p, pInside pMin pMax q]
 
 part1 :: Map2D Char -> Int
-part1 md = undefined
-  where gr = mdGraph md
+part1 mp = undefined
+        
 
 -- Part 2
 
