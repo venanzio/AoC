@@ -21,16 +21,18 @@ puzzle :: String -> IO ()
 puzzle fileName = do
   input <- readFile fileName
   let mp = stringsMap $ lines input
+      (pMin,pMax) = minMaxPoints (M.keys mp)
       wall = M.keys $ M.filter (=='#') mp
       gr =  mpGraph mp
       start = head $ mFind 'S' mp
       end = head $ mFind 'E' mp
       fromS = dijkstraAll gr start
       toE = dijkstraAll gr end
+      chs = cheats pMin pMax wall
+      noCheat = fromS M.! end -- toE M.! start
   putStrLn ("shortest path (from S): " ++ show (fromS M.! end))
   putStrLn ("shortest path (to E): " ++ show (toE M.! start))
-  putStrLn ("cheat time: " ++ show (cheatTime fromS toE (8,1) (9,1)))
-   putStrLn ("Part 1: " ++ show (part1 mp))
+  putStrLn ("Part 1: " ++ show (bestCheats fromS toE chs (noCheat - 20)))
   putStrLn ("Part 2: " ++ show (part2 mp))
 
 -- Parsing the input
@@ -69,6 +71,14 @@ mpGraph mp = M.fromList [(p,step p) | p <- allPoints pMin pMax]
 cheatTime :: M.Map Point Int -> M.Map Point Int -> Point -> Point -> Int
 cheatTime fromS toE ch1 ch2 =
   fromS M.! ch1 + toE M.! ch2 + 1
+
+cheats :: Point -> Point -> [Point] -> [(Point,Point)]
+cheats pMin pMax wall = [(p,q) | p <- wall,
+                                 q <- neighboursHV p, pInside pMin pMax q]
+
+bestCheats :: M.Map Point Int -> M.Map Point Int -> [(Point,Point)] -> Int -> Int
+bestCheats fromS toE chs maxd = length $
+  filter (\(ch1,ch2) -> cheatTime fromS toE ch1 ch2 <= maxd) chs 
 
 part1 :: Map2D Char -> Int
 part1 mp = 1
