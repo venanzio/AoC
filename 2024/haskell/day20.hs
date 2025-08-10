@@ -4,7 +4,7 @@
 module Main where
 
 import System.Environment
--- import Data.List
+import Data.List
 -- import Data.Char
 -- import Control.Applicative
 import qualified Data.Map.Strict as M
@@ -21,11 +21,8 @@ puzzle :: String -> IO ()
 puzzle fileName = do
   input <- readFile fileName
   let mp = stringsMap $ lines input
-      wall = M.keys (M.filter (=='#') mp)
       start = head $ mFind 'S' mp
       end = head $ mFind 'E' mp
-      mGraph = mazeGraph wall
-  putStrLn (show $ dijkstra mGraph start end)  
   putStrLn ("Part 1: " ++ show (part1 mp))
   putStrLn ("Part 2: " ++ show (part2 mp))
 
@@ -38,6 +35,20 @@ pInput :: Parser [()]
 pInput = pLines pData
 
 -- Part 1
+
+-- Extended graph: each point has an int indicating the cheats
+--  0 = no cheat, 1 = first step of the cheat, 2 = used the cheat
+graph :: Map2D Char -> Graph (Point,Int)
+graph mp = M.fromList [((p,i), map (\q->(q,1)) (step (p,i))) |
+                       p <- allPoints pMin pMax, i <- [0,1,2]]
+  where wall = M.keys (M.filter (=='#') mp)
+        (pMin,pMax) = minMaxPoints wall
+        free p = not $ p `elem` wall
+        step (p,i) = case i of
+          0 -> map (\q->(q,0)) fs ++ map (\q->(q,1)) ws
+          1 ->  undefined
+          2 -> undefined
+          where (fs,ws) = partition free (neighboursHV p) 
 
 part1 :: Map2D Char -> Int
 part1 _ = 1
