@@ -7,7 +7,7 @@ import System.Environment
 -- import Data.List
 -- import Data.Char
 -- import Control.Applicative
-import qualified Data.Map as M
+import qualified Data.Map.Strict as M
 
 import FunParser
 import AoCTools
@@ -21,8 +21,11 @@ puzzle :: String -> IO ()
 puzzle fileName = do
   input <- readFile fileName
   let mp = stringsMap $ lines input
-      wall = M.keys mp
-  putStrLn (show (mazeGraph wall))
+      wall = M.keys (M.filter (=='#') mp)
+      start = head $ mFind 'S' mp
+      end = head $ mFind 'E' mp
+      mGraph = mazeGraph wall
+  putStrLn (show $ dijkstra mGraph start end)  
   putStrLn ("Part 1: " ++ show (part1 mp))
   putStrLn ("Part 2: " ++ show (part2 mp))
 
