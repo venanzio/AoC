@@ -46,8 +46,8 @@ graph mp = M.fromList [((p,i), map (\q->(q,1)) (step (p,i))) |
         free p = not $ p `elem` wall
         step (p,i) = case i of
           0 -> map (\q->(q,0)) fs ++ map (\q->(q,1)) ws
-          1 ->  undefined
-          2 -> undefined
+          1 -> map (\q->(q,2)) (neighboursHV p) 
+          2 -> map (\q->(q,2)) fs
           where (fs,ws) = partition free (neighboursHV p) 
 
 part1 :: Map2D Char -> Int
