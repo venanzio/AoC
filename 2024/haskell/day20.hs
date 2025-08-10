@@ -32,7 +32,7 @@ puzzle fileName = do
       noCheat = fromS M.! end -- toE M.! start
   putStrLn ("shortest path (from S): " ++ show (fromS M.! end))
   putStrLn ("shortest path (to E): " ++ show (toE M.! start))
-  putStrLn ("Part 1: " ++ show (bestCheats fromS toE chs (noCheat - 20)))
+  putStrLn ("Part 1: " ++ show (bestCheats fromS toE chs (noCheat - 2)))
   putStrLn ("Part 2: " ++ show (part2 mp))
 
 -- Parsing the input
@@ -73,8 +73,8 @@ cheatTime fromS toE ch1 ch2 =
   fromS M.! ch1 + toE M.! ch2 + 1
 
 cheats :: Point -> Point -> [Point] -> [(Point,Point)]
-cheats pMin pMax wall = [(p,q) | p <- wall,
-                                 q <- neighboursHV p, pInside pMin pMax q]
+cheats pMin pMax wall = [(p,q) | p <- wall, q <- neighboursHV p,
+                                 pInside pMin pMax q, not (q `elem` wall)]
 
 bestCheats :: M.Map Point Int -> M.Map Point Int -> [(Point,Point)] -> Int -> Int
 bestCheats fromS toE chs maxd = length $
