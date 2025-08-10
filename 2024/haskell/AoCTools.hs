@@ -68,6 +68,7 @@ minMaxPoints ps = ((minX,minY),(maxX,maxY))
         maxX = maximum xs
         minY = minimum ys
         maxY = maximum ys
+
   
 showPoints :: Char -> [Point] -> String
 showPoints c ps = unlines  [[sh (i,j) | i <- [minX..maxX]] | j <- [minY..maxY]]
@@ -812,3 +813,15 @@ findPath graph s t = fpAux s (delete s $ M.keys graph)
           | otherwise   = Just $ s : head ps
           where (ns,queue') = partition (`elem` map fst (graph M.! s)) queue
                 ps = [p | Just p <- map (\n -> fpAux n queue') ns] 
+
+-- Creating a graph from a maze
+
+allPoints :: Point -> Point -> [Point]
+allPoints (minX,minY) (maxX,maxY) = [(i,j) | i <- [minX..maxX], j <- [minY..maxY]]
+  
+mazeGraph :: [Point] -> Graph Point
+mazeGraph wall = M.fromList [(p,next p) | p <- free]
+  where (pMin,pMax) = minMaxPoints wall
+        free = filter (not . flip elem wall) (allPoints pMin pMax)
+        next p = [(q,1) | q <- neighboursHV p \\ wall]
+ 
