@@ -29,12 +29,13 @@ puzzle fileName = do
       end = head $ mFind 'E' mp
       fromS = dijkstraAll gr start
       toE = dijkstraAll gr end
-      chs = cheats pMin pMax wall
       noCheat = fromS M.! end -- toE M.! start
+      chs = cheats pMin pMax wall
+      chs2 = cheats pMin pMax wall
   putStrLn ("shortest path (from S): " ++ show (fromS M.! end))
   putStrLn ("shortest path (to E): " ++ show (toE M.! start))
   putStrLn ("Part 1: " ++ show (bestCheats fromS toE chs (noCheat - 100)))
-  putStrLn ("Part 2: " ++ show (part2 mp))
+  putStrLn ("Part 2: " ++ show (bestCheats fromS toE chs2 (noCheat - 100)))
 
 -- Parsing the input
 
