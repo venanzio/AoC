@@ -31,7 +31,7 @@ puzzle fileName = do
       toE = dijkstraAll gr end
       noCheat = fromS M.! end -- toE M.! start
       chs = cheats pMin pMax wall
-      chs2 = cheats pMin pMax wall
+      chs2 = cheats2 pMin pMax wall
   putStrLn ("shortest path (from S): " ++ show (fromS M.! end))
   putStrLn ("shortest path (to E): " ++ show (toE M.! start))
   putStrLn ("Part 1: " ++ show (bestCheats fromS toE chs (noCheat - 100)))
@@ -72,7 +72,7 @@ mpGraph mp = M.fromList [(p,step p) | p <- allPoints pMin pMax]
 
 cheatTime :: M.Map Point Int -> M.Map Point Int -> Point -> Point -> Int
 cheatTime fromS toE ch1 ch2 =
-  fromS M.! ch1 + toE M.! ch2 + 1
+  fromS M.! ch1 + toE M.! ch2 + distM ch1 ch2
 
 cheats :: Point -> Point -> [Point] -> [(Point,Point)]
 cheats pMin pMax wall = [(p,q) | p <- wall, q <- neighboursHV p,
