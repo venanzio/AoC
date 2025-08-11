@@ -56,6 +56,10 @@ pX = fst
 pY :: Point -> Int
 pY = snd
 
+-- Manhattan distance
+distM :: Point -> Point -> Int
+distM (x1,y1) (x2,y2) = abs (x2-x1) + abs (y2-y1)
+
 type Map2D a = M.Map Point a
 
 -- user-friendly picture of a map

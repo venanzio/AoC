@@ -32,7 +32,7 @@ puzzle fileName = do
       noCheat = fromS M.! end -- toE M.! start
   putStrLn ("shortest path (from S): " ++ show (fromS M.! end))
   putStrLn ("shortest path (to E): " ++ show (toE M.! start))
-  putStrLn ("Part 1: " ++ show (bestCheats fromS toE chs (noCheat - 2)))
+  putStrLn ("Part 1: " ++ show (bestCheats fromS toE chs (noCheat - 100)))
   putStrLn ("Part 2: " ++ show (part2 mp))
 
 -- Parsing the input
@@ -85,6 +85,10 @@ part1 mp = 1
         
 
 -- Part 2
+
+cheats2 :: Point -> Point -> [Point] -> [(Point,Point)]
+cheats2 pMin pMax wall = [(p,q) | p <- wall, q <- neighboursHV p,
+                                 pInside pMin pMax q, not (q `elem` wall)]
 
 part2 :: Map2D Char -> Int
 part2 _ = 2
