@@ -23,6 +23,7 @@ puzzle fileName = do
   let mp = stringsMap $ lines input
       (pMin,pMax) = minMaxPoints (M.keys mp)
       wall = M.keys $ M.filter (=='#') mp
+      free = allPoints pMin pMax \\ wall
       gr =  mpGraph mp
       start = head $ mFind 'S' mp
       end = head $ mFind 'E' mp
@@ -87,8 +88,7 @@ part1 mp = 1
 -- Part 2
 
 cheats2 :: Point -> Point -> [Point] -> [(Point,Point)]
-cheats2 pMin pMax wall = [(p,q) | p <- wall, q <- neighboursHV p,
-                                 pInside pMin pMax q, not (q `elem` wall)]
+cheats2 pMin pMax free = [(p,q) | p <- free, q <- free, distM p q <= 20]
 
 part2 :: Map2D Char -> Int
 part2 _ = 2
