@@ -30,11 +30,11 @@ puzzle fileName = do
       fromS = dijkstraAll gr start
       toE = dijkstraAll gr end
       noCheat = fromS M.! end -- toE M.! start
-      chs = cheats pMin pMax wall
-      chs2 = cheats2 pMin pMax wall
+      chs1 = cheats1 pMin pMax free
+      chs2 = cheats2 pMin pMax free
   putStrLn ("shortest path (from S): " ++ show (fromS M.! end))
   putStrLn ("shortest path (to E): " ++ show (toE M.! start))
-  putStrLn ("Part 1: " ++ show (bestCheats fromS toE chs (noCheat - 100)))
+  putStrLn ("Part 1: " ++ show (bestCheats fromS toE chs1 (noCheat - 100)))
   putStrLn ("Part 2: " ++ show (bestCheats fromS toE chs2 (noCheat - 100)))
 
 -- Parsing the input
@@ -77,6 +77,9 @@ cheatTime fromS toE ch1 ch2 =
 cheats :: Point -> Point -> [Point] -> [(Point,Point)]
 cheats pMin pMax wall = [(p,q) | p <- wall, q <- neighboursHV p,
                                  pInside pMin pMax q, not (q `elem` wall)]
+
+cheats1 :: Point -> Point -> [Point] -> [(Point,Point)]
+cheats1 pMin pMax free = [(p,q) | p <- free, q <- free, distM p q == 2]
 
 bestCheats :: M.Map Point Int -> M.Map Point Int -> [(Point,Point)] -> Int -> Int
 bestCheats fromS toE chs maxd = length $
