@@ -5,7 +5,7 @@ based on chapter 13 of "Programming in Haskell" (2nd edition)
 Graham Hutton, Cambridge University Press, 2016.
 -}
 
-module FunParser where
+module FunParser_old where
 
 import Control.Applicative
 import Data.Char

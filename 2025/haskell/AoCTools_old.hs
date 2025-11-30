@@ -1,7 +1,7 @@
 -- Advent of Code: Useful Functions
 --  Venanzio Capretta 2020 - 2025
 
-module AoCTools where
+module AoCTools_old where
 
 import Data.List
 import Data.Function (on)
