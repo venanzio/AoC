@@ -4,13 +4,9 @@
 module Main where
 
 import System.Environment
-import Data.List
-import Data.Char
 import Control.Applicative
-import qualified Data.Map as M
 
-import FunParser_old
-import AoCTools_old
+import FunParser
 
 main :: IO ()
 main = do
@@ -39,8 +35,10 @@ pInput = pLines pData
 rotate :: [Int] -> Int
 rotate = rotateAux 50 where
   rotateAux x [] = 0
-  rotateAux x (y:ys) = let x' = (x+y) `mod` 100
-                       in if x' == 0 then 1 + rotateAux x' ys else rotateAux x' ys
+  rotateAux x (y:ys) =
+    let x' = (x+y) `mod` 100
+        inc = if x' == 0 then 1 else 0
+    in inc + rotateAux x' ys
 
 
 part1 :: [Int] -> Int

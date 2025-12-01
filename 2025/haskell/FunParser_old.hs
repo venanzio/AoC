@@ -268,6 +268,10 @@ repN n p = do x <- p
 
 -- parsing lines
 
+-- any non-empty string
+pAll :: Parser String
+pAll = satisfy (some item) (not . (all isSpace))
+
 -- parse a single line
 line :: Parser String
 line = (do c <- item
@@ -285,6 +289,15 @@ pLine p = do l <- line
 pLines :: Parser a -> Parser [a]
 pLines p = many (token $ pLine p)
 
+
+
+
+
+
+
+------------------------------------
+--  NOT YET COPIED TO NEW VERSION --
+------------------------------------
 
 -- Parsing blocks of data separated by empty lines
 
@@ -342,12 +355,6 @@ afterNL = do
   if c=='\n' then (many emptyLine) >> return ""
              else beforeNL >>= return . (("\n" ++ blanks ++ [c]) ++)
 
-
--- any non-empty string
-pAll :: Parser String
-pAll = satisfy (some item) (not . (all isSpace))
-
-  
 
 sepDNL :: Parser [String]
 sepDNL = (beforeNL >>= \s -> sepDNL >>= \ss -> return (s:ss))
