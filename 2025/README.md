@@ -6,13 +6,13 @@ The circular dial has 100 numbers, so to determine the position of the arrow aft
 
 For **Part 1** we just need to check if the new position is 0, in which case we increase the password number by 1.
 
-For **Part 2** we need to check how many times we pass through 0 in rotating the dial.
+For **Part 2** we need to check how many times we point at 0 in rotating the dial.
 In the example we only have rotations that point at 1 at most once, but it the actual input there are longer rotations that point at 0 several times.
 For example if we are pointing at 42 and we rotate right by 390 clicks, we will point at 0 4 times.
 This number is obtained by dividing the sum of the initial position and the rotation distance (42 + 390 = 432) by 100 (4).
 
-In the case of left rotation, we may point at 0 even if this sum is smaller than 100.
+In the case of left rotations, we may point at 0 even if this sum is smaller than 100.
 For example, if we're pointing at 5 and we rotate left by 10, the sum will be -5 (because left rotations are negative) but we will point at 0 once.
 
-A way of solving it is to see left rotations as mirror of right rotation: take the mirror image of the dial, the position of the arrow will be 100 minus the original position (or just 0 if it is 0), and rotate right instead.
+A way of solving it is to see left rotations as mirrors of right rotation: take the mirror image of the dial, the position of the arrow will be 100 minus the original position (or just 0 if it is 0), and rotate right instead.
 In our case, the mirror position is 95 (100-5), rotating right by 10 gives 105, dividing by 100 gives 1.
