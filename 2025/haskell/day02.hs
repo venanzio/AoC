@@ -92,9 +92,15 @@ res x m = x - (x `div` 10^m) * 10^m
 
 repDigs :: Int -> Int -> Bool
 repDigs x m = isRepeat x where
-  res = x - (x `div` 10^m) * 10^m
+  rx = res x m
   isRepeat 0 = True
-  isRepeat y = False
+  isRepeat y = res y m == rx && isRepeat (y `div` 10^m)
 
+repetition :: Int -> Bool
+repetition x = or [repDigs x m | m <- [2..log10 x-1]]
+
+repRange :: Int -> Int -> [Int]
+repRange x y = filter repetition [x..y]
+                    
 part2 :: [(Int,Int)] -> Int
-part2 _ = 2
+part2 xys = sum $ concat [repRange x y | (x,y) <- xys]
