@@ -91,13 +91,16 @@ res :: Int -> Int -> Int
 res x m = x - (x `div` 10^m) * 10^m
 
 repDigs :: Int -> Int -> Bool
-repDigs x m = isRepeat x where
+repDigs x m = rx >= 10^(m-1) && repeats x >= 2 where
+  n = log10 x
   rx = res x m
+  repeats 0 = 0
+  repeats y = if res y m == rx then 1+repeats (y `div` 10^m) else -n
   isRepeat 0 = True
   isRepeat y = res y m == rx && isRepeat (y `div` 10^m)
 
 repetition :: Int -> Bool
-repetition x = or [repDigs x m | m <- [2..log10 x-1]]
+repetition x = or [repDigs x m | m <- [1..log10 x-1]]
 
 repRange :: Int -> Int -> [Int]
 repRange x y = filter repetition [x..y]
