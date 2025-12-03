@@ -32,43 +32,16 @@ pData = do x <- natural
 pInput :: Parser [(Int,Int)]
 pInput = someSepStr pData ","
 
--- Part 1
+-- Solutions (Parts 1 and 2 unified)
 
--- take the first n digits of x
-
+-- take the first m digits of x
 takeDigs :: Int -> Int -> Int
-takeDigs n x = x `div` 10^(dig10 x - n)
+takeDigs m x = x `div` 10^(dig10 x - m)
 
 -- iterate given digits k times
 itDigs :: Int -> Int -> Int
-itDigs 0 x = 1
-itDigs 1 x = x
+itDigs 0 x = 0
 itDigs k x = (itDigs (k-1) x) * 10^(dig10 x) + x
-
--- minimum duplicate number larger than x
-firstDupl :: Int -> Int
-firstDupl x = if itDigs 2 y < x then y+1 else y
-  where  n = dig10 x
-         m = n `div` 2
-         y = if even n then takeDigs m x else 10^m
-
--- maximum duplicate number smaller than x
-lastDupl :: Int -> Int
-lastDupl x = if itDigs 2 y > x then y-1 else y
-  where  n = dig10 x
-         m = n `div` 2
-         y = if even n then takeDigs m x else 10^m-1
-
--- all invalid IDs in a range
-invalid :: Int -> Int -> [Int]
-invalid x y = [itDigs 2 z | z <- [firstDupl x .. lastDupl y]]
-
-----
-
-part1 :: [(Int,Int)] -> Int
-part1 xys = sum $ concat [invalid x y | (x,y) <- xys]
-
--- Part 2
 
 -- minimum k-repeating number larger than x
 firstRep :: Int -> Int -> Int
@@ -91,6 +64,9 @@ invalidRep k x y = [itDigs k z | z <- [firstRep k x .. lastRep k y]]
 -- all repetition for any k
 invalidAll :: Int -> Int -> [Int]
 invalidAll x y = nub $ concat [invalidRep k x y | k <- [2 .. dig10 y]]
+
+part1 :: [(Int,Int)] -> Int
+part1 xys = sum $ concat [invalidRep 2 x y | (x,y) <- xys]
 
 part2 :: [(Int,Int)] -> Int
 part2 xys = sum $ concat [invalidAll x y | (x,y) <- xys]
