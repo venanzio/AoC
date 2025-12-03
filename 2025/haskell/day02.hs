@@ -36,6 +36,7 @@ log10 :: Int -> Int
 log10 0 = 0
 log10 x = 1 + log10 (x `div` 10)
 
+{-
 splitUp :: Int -> (Int,Int)
 splitUp x = if even n then (x1,x2) else (x',x') where
   n = log10 x
@@ -71,7 +72,6 @@ invDown x | odd n = x'-1
 dupl :: Int -> Int
 dupl x = x * (1 + 10^(log10 x))
 
-{-
 invalid :: Int -> Int -> [Int]
 invalid x y = map dupl [invUp x .. invDown y] where
   (x1,x2) = splitUp x
@@ -92,21 +92,21 @@ itDigs k x = (itDigs (k-1) x) * 10^(log10 x) + x
 
 -- minimum duplicate number larger than x
 firstDupl :: Int -> Int
-firstDupl x = if itDigs 2 y < x then itDigs 2 (y+1) else itDigs 2 y
+firstDupl x = if itDigs 2 y < x then y+1 else y
   where  n = log10 x
          m = n `div` 2
-         y = if even n then takeDigs m x else 10^(m+1)
+         y = if even n then takeDigs m x else 10^m
 
 -- maximum duplicate number smaller than x
 lastDupl :: Int -> Int
-lastDupl x = if itDigs 2 y > x then itDigs 2 (y-1) else itDigs 2 y
+lastDupl x = if itDigs 2 y > x then y-1 else y
   where  n = log10 x
          m = n `div` 2
-         y = if even n then takeDigs m x else 10^(m-1)
+         y = if even n then takeDigs m x else 10^m-1
 
 -- all invalid IDs in a range
 invalid :: Int -> Int -> [Int]
-invalid x y = [firstDupl x .. lastDupl y]
+invalid x y = [itDigs 2 z | z <- [firstDupl x .. lastDupl y]]
 
 ----
 
