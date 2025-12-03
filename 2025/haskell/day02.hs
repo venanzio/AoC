@@ -4,13 +4,8 @@
 module Main where
 
 import System.Environment
-import Data.List
-import Data.Char
-import Control.Applicative
-import qualified Data.Map as M
 
-import FunParser_old
-import AoCTools_old
+import FunParser
 
 main :: IO ()
 main = do
@@ -80,7 +75,29 @@ invalid :: Int -> Int -> [Int]
 invalid x y = map dupl [invUp x .. invDown y] where
   (x1,x2) = splitUp x
   (y1,y2) = splitDown y
-  
+
+----
+
+-- take the first n digits of x
+
+takeDigs :: Int -> Int -> Int
+takeDigs n x = x `div` 10^(log10 x - n)
+
+-- iterate given digits k times
+itDigs :: Int -> Int -> Int
+itDigs 0 x = 1
+itDigs 1 x = x
+itDigs k x = (itDigs (k-1) x) * 10^(log10 x) + x
+
+-- minimum duplicate number larger than the given
+firstDupl :: Int -> Int
+firstDupl x
+  | even n = undefined
+  where  n = log10 x
+         m = n `div` 2
+         y1 = x `div` 10^m
+
+----
 
 part1 :: [(Int,Int)] -> Int
 part1 xys = sum $ concat [invalid x y | (x,y) <- xys]
