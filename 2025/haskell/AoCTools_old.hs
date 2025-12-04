@@ -159,6 +159,9 @@ pNeg (v1,v2) = (-v1,-v2)
 directions :: [Direction]
 directions = [(dx,dy) | dx <- [-1..1], dy <- [-1..1]] \\ [(0,0)]
 
+neighbours :: Point -> [Point]
+neighbours p = map (pMove p) directions
+
 dUp    = (0,-1) :: Direction
 dDown  = (0,1)  :: Direction
 dLeft  = (-1,0) :: Direction
