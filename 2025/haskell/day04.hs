@@ -5,9 +5,9 @@ module Main where
 
 import System.Environment
 import Data.List
-import Data.Char
-import Control.Applicative
-import qualified Data.Map as M
+-- import Data.Char
+-- import Control.Applicative
+-- import qualified Data.Map as M
 
 import FunParser_old
 import AoCTools_old
