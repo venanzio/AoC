@@ -16,6 +16,9 @@ dig10 n = if n<10 then 1 else 1 + dig10 (n `div` 10)
 divisible :: Int -> Int -> Bool
 divisible x y = rem x y == 0
 
+divisors :: Int -> [Int]
+divisors x = [y | y <- [1 .. x `div` 2], divisible x y]
+
 -- LINEAR DIOPHANTINE EQUATIONS
 
 -- Extended Euclidean Algorithm

@@ -5,12 +5,10 @@ module Main where
 
 import System.Environment
 import Data.List
--- import Data.Char
--- import Control.Applicative
--- import qualified Data.Map as M
+import qualified Data.Map as M
 
-import FunParser_old
-import AoCTools_old
+import FunParser
+import AoCTools
 
 main :: IO ()
 main = do
@@ -21,9 +19,9 @@ puzzle :: String -> IO ()
 puzzle fileName = do
   input <- readFile fileName
   let xs = parseAll pInput input
-  putStrLn (show xs)
-  putStrLn ("Part 1: " ++ show (part1 xs))
-  putStrLn ("Part 2: " ++ show (part2 xs))
+      grid = rollCount xs (initRolls xs)
+  putStrLn ("Part 1: " ++ show (part1 grid))
+  putStrLn ("Part 2: " ++ show (part2 grid))
 
 -- Parsing the input
 
@@ -36,18 +34,32 @@ pInput = do rows <- pLines pData
             return [(x,y) | x <- [0 .. length rows -1], y <- rows!!x]
 -- Part 1
 
-access :: [Point] -> Point -> Bool
-access grid p = length (intersect grid (neighbours p)) < 4
+initRolls :: [Point] -> Map2D Int
+initRolls = M.fromList . map (\p -> (p,0))
 
-part1 :: [Point] -> Int
-part1 grid = length $ filter (access grid) grid
+rollCount :: [Point] -> Map2D Int -> Map2D Int
+rollCount [] grid = grid
+rollCount (p:ps) grid = rollCount ps (foldr (M.adjust (+1))  grid (neighbours p))
+
+accessible :: Map2D Int -> [Point]
+accessible = M.keys . M.filter (<4)
+
+part1 :: Map2D Int -> Int
+part1 grid = length $ accessible grid
 
 -- Part 2
 
-remove :: [Point] -> Int
-remove grid = if as == [] then 0 else length as + remove grid' where
-  as = filter (access grid) grid
-  grid' = grid \\ as
+rollDec :: [Point] -> Map2D Int -> Map2D Int
+rollDec [] grid = grid
+rollDec (p:ps) grid = rollDec ps (foldr (M.adjust (\x -> x-1))  grid (neighbours p))
 
-part2 :: [Point] -> Int
+rollOff :: [Point] -> Map2D Int -> Map2D Int
+rollOff ps grid = rollDec ps (foldr M.delete grid ps)
+
+remove :: Map2D Int -> Int
+remove grid = if as == [] then 0 else length as + remove grid' where
+  as = accessible grid
+  grid' = rollOff as grid
+
+part2 :: Map2D Int -> Int
 part2 = remove

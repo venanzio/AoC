@@ -297,3 +297,76 @@ pLine p = do l <- line
 -- parse many lines (ignoring empty lines)
 pLines :: Parser a -> Parser [a]
 pLines p = many (token $ pLine p)
+
+
+
+
+
+--------------------
+--  TO BE REVISED --
+--------------------
+
+-- Parsing blocks of data separated by empty lines
+
+block :: Parser a -> Parser a
+block p = P $ \src ->
+  case parse chunk src of
+    [(ch,src')] -> case parse p ch of
+      [(a,ch')] -> if all isSpace ch' then [(a,src')] else []
+      _         -> []
+    _ -> []
+
+blocks :: Parser a -> Parser [a]
+blocks = many . block
+
+
+-- parse a string until empty line(s) or eof
+
+chunk :: Parser String
+chunk = do many emptyLn
+           ls <- some neLine
+           return (unlines ls)
+           
+-- empty line
+emptyLine :: Parser ()
+emptyLine = (many (char ' ')) >> char '\n' >> return ()
+
+
+
+-- non-empty line
+neLine :: Parser String
+neLine = satisfy line (not . all (isSpace))
+  
+  
+-- next line (skipping new-line characters)
+ln :: Parser String
+ln = do many (char '\n')
+        l <- some (sat (/='\n'))
+        (string "\n" <|> return "")
+        return l
+
+-- empty line (may be all spaces)
+emptyLn :: Parser String
+emptyLn = string "\n" <|> satisfy ln (all isSpace)
+
+beforeNL :: Parser String
+beforeNL = do
+  c <- item
+  if c=='\n' then afterNL
+             else beforeNL >>= return . (c:)
+
+afterNL :: Parser String
+afterNL = do
+  blanks <- many (char ' ')
+  c <- item
+  if c=='\n' then (many emptyLine) >> return ""
+             else beforeNL >>= return . (("\n" ++ blanks ++ [c]) ++)
+
+
+sepDNL :: Parser [String]
+sepDNL = (beforeNL >>= \s -> sepDNL >>= \ss -> return (s:ss))
+         <|> (pAll >>= \s -> return [s])
+
+-- skip ahead to correct parsing (ignoring everything else)
+skipTo :: Parser a -> Parser a
+skipTo p = p <|> (item >> skipTo p)
