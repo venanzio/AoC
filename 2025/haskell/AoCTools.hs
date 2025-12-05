@@ -335,6 +335,9 @@ iIntersection (x0,y0) (x1,y1) = (max x0 x1, min y0 y1)
 --   operations preserve ordering and non-overlapping property
 type Range = [Interval]
 
+inRange :: Int -> Range -> Bool
+inRange x r = or [inInterval x i | i <- r]
+
 emptyR :: Range
 emptyR = []
 
