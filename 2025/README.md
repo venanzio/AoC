@@ -39,3 +39,9 @@ This is quite inefficient because you count the same rolls each time.
 A more efficient way is to use a map that associate to the coordinates of each roll the number of adjacent rolls: starting with 0 for all, for each roll increase the count of its neighbours by one.
 
 In **Part 2** remove the accessible ones and decrease the count of their neighbours by 1.
+
+## Day 5: Cafeteria
+
+**Part 1**: for every food ID, check if it is within any of the range.
+
+**Part 2**: first fuse overlapping ranges together, then add up their sizes.
