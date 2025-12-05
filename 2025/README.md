@@ -42,6 +42,6 @@ In **Part 2** remove the accessible ones and decrease the count of their neighbo
 
 ## Day 5: Cafeteria
 
-**Part 1**: for every food ID, check if it is within any of the range.
+**Part 1**: for every food ID, check if it is within any of the ranges.
 
 **Part 2**: first fuse overlapping ranges together, then add up their sizes.
