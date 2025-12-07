@@ -21,6 +21,8 @@ puzzle :: String -> IO ()
 puzzle fileName = do
   input <- readFile fileName
   let xs = parseAll pInput input
+      (w,h,m) = xs
+  putStrLn (showMap id m)
   putStrLn ("Part 1: " ++ show (part1 xs))
   putStrLn ("Part 2: " ++ show (part2 xs))
 
@@ -37,6 +39,15 @@ pInput = do ls <- some line
             return (width, height, manifold)
 
 -- Part 1
+
+toSplitter :: Int -> Map2D Char -> Point -> (Int, Map2D Char)
+toSplitter height manifold (x,y)
+  | y == height || nextP == Just '|' = (0, manifold)
+  | nextP == Nothing = toSplitter height (M.insert (x,y) '|' manifold) (x,y+1)
+  | nextP == Just '^' = (nL+nR, splitR)
+  where nextP = M.lookup (x,y) manifold
+        (nL, splitL) = toSplitter height manifold (x-1,y)
+        (nR, splitR) = toSplitter height splitL (x+1,y)
 
 part1 :: (Int, Int, Map2D Char) -> Int
 part1 _ = 1
