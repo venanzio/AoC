@@ -21,7 +21,6 @@ puzzle :: String -> IO ()
 puzzle fileName = do
   input <- readFile fileName
   let xs = parseAll pInput input
-  putStrLn (unlines $ transpose $ fst xs)
   putStrLn ("Part 1: " ++ show (part1 xs))
   putStrLn ("Part 2: " ++ show (part2 xs))
 
@@ -54,4 +53,4 @@ nums2 :: [String] -> [[Int]]
 nums2 ls = map (map read) $ splitList (all isSpace) (transpose ls)
 
 part2 :: ([String], [[Int]->Int]) -> Int
-part2 _ = 2
+part2 (ls,ops) = sum $ zipWith ($) ops (nums2 ls)
