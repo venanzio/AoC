@@ -4,6 +4,7 @@
 module AoCTools where
 
 import Data.List
+import Data.Maybe
 import Data.Function (on)
 import qualified Data.Map as M
 
@@ -111,6 +112,18 @@ matrixMap (i0,j0) xss = M.fromList [((i0+i,j0+j), xss!!j!!i) |
                         
 mMap :: [[a]] -> Map2D a
 mMap = matrixMap (0,0)
+
+-- a map defined by a function on points, with bounds
+
+pointMapMaybe :: Point -> Point -> (Point -> Maybe a) -> Map2D a
+pointMapMaybe (x0,y0) (x1,y1) f = M.fromList
+  [((x,y), a) | x <- [x0..x1], y <- [y0..y1], a <- maybeToList (f (x,y))]
+
+pointMap :: Point -> Point -> (Point -> a) -> Map2D a
+pointMap (x0,y0) (x1,y1) f = M.fromList
+  [((x,y), f (x,y)) | x <- [x0..x1], y <- [y0..y1]]
+
+
 
 -- map by applying a Maybe-function to elements of a matrix
 matrixMapF :: Point -> (a -> Maybe b) -> [[a]] -> M.Map Point b

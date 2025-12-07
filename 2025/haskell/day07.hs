@@ -6,11 +6,12 @@ module Main where
 import System.Environment
 import Data.List
 import Data.Char
+import Data.Maybe
 import Control.Applicative
 import qualified Data.Map as M
 
-import FunParser_old
-import AoCTools_old
+import FunParser
+import AoCTools
 
 main :: IO ()
 main = do
@@ -55,6 +56,31 @@ part1 (_, height, manifold) = fst $ toSplitter height manifold (xS,yS+1)
   where (xS,yS) = head $ mFind 'S' manifold
 
 -- Part 2
+
+type Timelines = Map2D Int
+
+qSplitter :: Point -> Map2D Char -> Int
+qSplitter (width,height) manifold = M.lookup pS timelines where
+  timelines = pointMap (0,0) (width+1,height) qSplit
+  qSplit (x,y)
+    | y == height = 1
+    | pChar == Nothing = fromJust (M.lookup (x,y+1) timelines)
+    | pChar == Just '^' = fromJust (M.lookup (x-1,y) timelines) +
+                          fromJust (M.lookup (x+1,y) timelines)
+    where pChar = M.lookup (x,y) manifold
+    
+{-
+qSplit :: Point -> Map2D Char -> Point -> Int
+qSplit pM@(width,height) manifold (x,y)
+  | y == height || nextP == Just '|' = 0
+  | nextP == Nothing = qSplit pM (M.insert (x,y) '|' manifold) (x,y+1)
+  | nextP == Just '^' = 1+nL+nR
+  | otherwise = error (show nextP ++ show (x,y))
+  where nextP = M.lookup (x,y) manifold
+        (nL, splitL) = qSplit pM manifold (x-1,y)
+        (nR, splitR) = qSplit pM splitL (x+1,y)
+        timelines = pointMap (0,0) (width,height) (\p -> Nothing)
+-}
 
 part2 :: (Int, Int, Map2D Char) -> Int
 part2 _ = 2
