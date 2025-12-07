@@ -23,7 +23,6 @@ puzzle fileName = do
   input <- readFile fileName
   let xs = parseAll pInput input
       (w,h,m) = xs
-  putStrLn (showMap id m)
   putStrLn ("Part 1: " ++ show (part1 xs))
   putStrLn ("Part 2: " ++ show (part2 xs))
 
@@ -60,27 +59,15 @@ part1 (_, height, manifold) = fst $ toSplitter height manifold (xS,yS+1)
 type Timelines = Map2D Int
 
 qSplitter :: Point -> Map2D Char -> Int
-qSplitter (width,height) manifold = M.lookup pS timelines where
+qSplitter (width,height) manifold = fromJust $ M.lookup pS timelines where
+  pS = head $ mFind 'S' manifold
   timelines = pointMap (0,0) (width+1,height) qSplit
-  qSplit (x,y)
+  qSplit (x,y) 
     | y == height = 1
-    | pChar == Nothing = fromJust (M.lookup (x,y+1) timelines)
+    | pChar == Nothing || pChar == Just 'S' = fromJust (M.lookup (x,y+1) timelines)
     | pChar == Just '^' = fromJust (M.lookup (x-1,y) timelines) +
                           fromJust (M.lookup (x+1,y) timelines)
     where pChar = M.lookup (x,y) manifold
-    
-{-
-qSplit :: Point -> Map2D Char -> Point -> Int
-qSplit pM@(width,height) manifold (x,y)
-  | y == height || nextP == Just '|' = 0
-  | nextP == Nothing = qSplit pM (M.insert (x,y) '|' manifold) (x,y+1)
-  | nextP == Just '^' = 1+nL+nR
-  | otherwise = error (show nextP ++ show (x,y))
-  where nextP = M.lookup (x,y) manifold
-        (nL, splitL) = qSplit pM manifold (x-1,y)
-        (nR, splitR) = qSplit pM splitL (x+1,y)
-        timelines = pointMap (0,0) (width,height) (\p -> Nothing)
--}
 
 part2 :: (Int, Int, Map2D Char) -> Int
-part2 _ = 2
+part2 (width, height, manifold) = qSplitter (width,height) manifold
