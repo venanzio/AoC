@@ -44,13 +44,15 @@ toSplitter :: Int -> Map2D Char -> Point -> (Int, Map2D Char)
 toSplitter height manifold (x,y)
   | y == height || nextP == Just '|' = (0, manifold)
   | nextP == Nothing = toSplitter height (M.insert (x,y) '|' manifold) (x,y+1)
-  | nextP == Just '^' = (nL+nR, splitR)
+  | nextP == Just '^' = (1+nL+nR, splitR)
+  | otherwise = error (show nextP ++ show (x,y))
   where nextP = M.lookup (x,y) manifold
         (nL, splitL) = toSplitter height manifold (x-1,y)
         (nR, splitR) = toSplitter height splitL (x+1,y)
 
 part1 :: (Int, Int, Map2D Char) -> Int
-part1 _ = 1
+part1 (_, height, manifold) = fst $ toSplitter height manifold (xS,yS+1)
+  where (xS,yS) = head $ mFind 'S' manifold
 
 -- Part 2
 
