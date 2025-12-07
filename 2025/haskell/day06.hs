@@ -26,18 +26,21 @@ puzzle fileName = do
 
 -- Parsing the input
 
-pData :: Parser ()
-pData = return ()
+pOper :: Parser (Int -> Int -> Int)
+pOper = (symbol "+" >> return (*)) <|> (symbol "*" >> return (*))
 
-pInput :: Parser [()]
-pInput = pLines pData
+pInput :: Parser ([[Int]], [Int->Int->Int])
+pInput = do numCols <- pLines (some natural)
+            let numRows = transpose numCols
+            ops <- some pOper
+            return (numRows,ops)
 
 -- Part 1
 
-part1 :: [()] -> Int
+part1 :: ([[Int]], [Int->Int->Int]) -> Int
 part1 _ = 1
 
 -- Part 2
 
-part2 :: [()] -> Int
+part2 :: ([[Int]], [Int->Int->Int]) -> Int
 part2 _ = 2
