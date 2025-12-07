@@ -26,18 +26,22 @@ puzzle fileName = do
 
 -- Parsing the input
 
-pData :: Parser ()
-pData = return ()
+pData :: Parser [String]
+pData = some line
 
-pInput :: Parser [()]
-pInput = pLines pData
+pInput :: Parser (Int, Int, Map2D Char)
+pInput = do ls <- some line
+            let width = length (ls!!1)
+                height = length ls
+                manifold = mMapF (\c -> if c=='.' then Nothing else Just c) ls
+            return (width, height, manifold)
 
 -- Part 1
 
-part1 :: [()] -> Int
+part1 :: (Int, Int, Map2D Char) -> Int
 part1 _ = 1
 
 -- Part 2
 
-part2 :: [()] -> Int
+part2 :: (Int, Int, Map2D Char) -> Int
 part2 _ = 2
