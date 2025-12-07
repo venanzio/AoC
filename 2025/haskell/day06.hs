@@ -26,21 +26,23 @@ puzzle fileName = do
 
 -- Parsing the input
 
-pOper :: Parser (Int -> Int -> Int)
-pOper = (symbol "+" >> return (*)) <|> (symbol "*" >> return (*))
+pOper :: Parser ([Int] -> Int)
+pOper = (symbol "+" >> return (sum)) <|> (symbol "*" >> return (product))
 
-pInput :: Parser ([[Int]], [Int->Int->Int])
-pInput = do numCols <- pLines (some natural)
-            let numRows = transpose numCols
-            ops <- some pOper
-            return (numRows,ops)
+pInput :: Parser ([String], [[Int]->Int])
+pInput = do ls <- some line
+            let ops = parseAll (some pOper) (last ls)
+            return (init ls,ops)
 
 -- Part 1
 
-part1 :: ([[Int]], [Int->Int->Int]) -> Int
-part1 _ = 1
+nums1 :: [String] -> [[Int]]
+nums1 ls = transpose (map (parseAll (some natural)) ls) 
+
+part1 :: ([String], [[Int]->Int]) -> Int
+part1 (ls,ops) = sum $ zipWith ($) ops (nums1 ls)
 
 -- Part 2
 
-part2 :: ([[Int]], [Int->Int->Int]) -> Int
+part2 :: ([String], [[Int]->Int]) -> Int
 part2 _ = 2
