@@ -1,4 +1,4 @@
--- Advent of Code 2025, day 0
+-- Advent of Code 2025, day 6
 --  Venanzio Capretta
 
 module Main where
