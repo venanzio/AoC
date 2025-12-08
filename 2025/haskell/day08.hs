@@ -91,24 +91,21 @@ deleteCircuit (c:cs) circuits = deleteCircuit cs (M.delete c circuits)
 fullCircuit :: [Point3D] -> Circuit -> ([Point3D], Circuit)
 fullCircuit [] circuits = ([],circuits)
 fullCircuit (p:ps) circuits =
-  (union connected circuit, circuits2) where
+  (nub (p:connected++circuit), circuits2) where
     connected = M.findWithDefault [] p circuits
     circuits1 = M.delete p circuits
-    (circuit,circuits2) = fullCircuit ps circuits1
+    (circuit,circuits2) = fullCircuit (nub $ connected++ps) circuits1
 
 allCircuits :: [Point3D] -> Circuit -> [[Point3D]]
 allCircuits [] _ = []
-allCircuits (p:ps) circuits = circuit : allCircuits (ps\\circuit) circuits where
-  (circuit, circuits) = fullCircuit [p] circuits
+allCircuits (p:ps) circuits = circuit : allCircuits (ps\\circuit) circuits' where
+  (circuit, circuits') = fullCircuit [p] circuits
   
 part1 :: [Point3D] -> Int
-part1 ps = length c1 * length c2 * length c3 where
+part1 ps = length (cs!!0) * length (cs!!1) * length (cs!!2) where
   circuits = connectAll 10 ps
-  c1 = largestCircuit circuits
-  circuits1 = deleteCircuit c1 circuits
-  c2 = largestCircuit circuits1
-  circuits2 = deleteCircuit c1 circuits1
-  c3 = largestCircuit circuits2
+  cs = sortBy (\l1 l2 -> compare (length l2) (length l1)) $ allCircuits ps circuits
+
 
 -- Part 2
 
