@@ -21,7 +21,6 @@ puzzle :: String -> IO ()
 puzzle fileName = do
   input <- readFile fileName
   let xs = parseAll pInput input
-  putStrLn (show $ take 5 $ connections xs)
   putStrLn ("Part 1: " ++ show (part1 xs))
   putStrLn ("Part 2: " ++ show (part2 xs))
 
@@ -82,11 +81,11 @@ connectAll n ps = connectClose ps (connectAll (n-1) ps)
 
 largestCircuit :: Circuit -> [Point3D]
 largestCircuit = maximumBy (\c0 c1 -> compare (length c0) (length c1)) . M.elems
-
+-}
 deleteCircuit :: [Point3D] -> Circuit -> Circuit
 deleteCircuit [] circuits = circuits
 deleteCircuit (c:cs) circuits = deleteCircuit cs (M.delete c circuits)
-
+{-
 fullCircuit :: [Point3D] -> Circuit -> ([Point3D], Circuit)
 fullCircuit [] circuits = ([],circuits)
 fullCircuit (p:ps) circuits =
@@ -109,14 +108,16 @@ part1 ps = length (cs!!0) * length (cs!!1) * length (cs!!2) where
 connectAll :: [(Point3D,Point3D)] -> Circuit -> Circuit
 connectAll ps circuits = foldl (\c (p0,p1) -> connect p0 p1 c) circuits ps
 
-allCircuits :: [Poit3D] -> Circuit -> [[Point3D]]
-allCircuits ps circuits = if null circuits then []
-  else undefined
+allCircuits :: [Point3D] -> Circuit -> [[Point3D]]
+allCircuits [] circuits = []
+allCircuits (p:ps) circuits = circuit : allCircuits (ps\\circuit) circuits' where
+  circuit = M.findWithDefault [] p circuits
+  circuits' = deleteCircuit circuit circuits
 
 part1 :: [Point3D] -> Int
 part1 ps = product (take 3 lengths) where
-  circuits = connectAll (take 10 (connections ps)) (noConnect ps)
-  lengths = sortBy (\l1 l2 -> compare l2 l1) $ map length $ M.elems circuits
+  circuits = connectAll (take 1000 (connections ps)) (noConnect ps)
+  lengths = sortBy (\l1 l2 -> compare l2 l1) $ map length $ allCircuits ps circuits
 
 -- Part 2
 
