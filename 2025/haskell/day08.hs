@@ -88,11 +88,18 @@ deleteCircuit :: [Point3D] -> Circuit -> Circuit
 deleteCircuit [] circuits = circuits
 deleteCircuit (c:cs) circuits = deleteCircuit cs (M.delete c circuits)
 
-fullCircuit :: [Point3D] -> Circuit -> [Point3D]
-fullCircuit [] _ = []
-fullCircuit (p:ps) circuits = union connected (fullCircuit ps circuits') where
-  connected = M.findWithDefault [] p circuits 
-  circuits' = M.delete p circuits
+fullCircuit :: [Point3D] -> Circuit -> ([Point3D], Circuit)
+fullCircuit [] circuits = ([],circuits)
+fullCircuit (p:ps) circuits =
+  (union connected circuit, circuits2) where
+    connected = M.findWithDefault [] p circuits
+    circuits1 = M.delete p circuits
+    (circuit,circuits2) = fullCircuit ps circuits1
+
+allCircuits :: [Point3D] -> Circuit -> [[Point3D]]
+allCircuits [] _ = []
+allCircuits (p:ps) circuits = circuit : allCircuits (ps\\circuit) circuits where
+  (circuit, circuits) = fullCircuit [p] circuits
   
 part1 :: [Point3D] -> Int
 part1 ps = length c1 * length c2 * length c3 where
