@@ -20,8 +20,9 @@ puzzle :: String -> IO ()
 puzzle fileName = do
   input <- readFile fileName
   let xs = parseAll pInput input
-  putStrLn ("Part 1: " ++ show (part1 xs))
-  putStrLn ("Part 2: " ++ show (part2 xs))
+      cs = connections xs
+  putStrLn ("Part 1: " ++ show (part1 xs cs))
+  putStrLn ("Part 2: " ++ show (part2 xs cs))
 
 -- Parsing the input
 
@@ -72,9 +73,9 @@ allCircuits (p:ps) circuits = circuit : allCircuits (ps\\circuit) circuits' wher
   circuit = M.findWithDefault [] p circuits
   circuits' = deleteCircuit circuit circuits
 
-part1 :: [Point3D] -> Int
-part1 ps = product (take 3 lengths) where
-  circuits = connectAll (take 1000 (connections ps)) (noConnect ps)
+part1 :: [Point3D]-> [(Point3D,Point3D)] -> Int
+part1 ps cs = product (take 3 lengths) where
+  circuits = connectAll (take 1000 cs) (noConnect ps)
   lengths = sortBy (flip compare) $ map length $ allCircuits ps circuits
 
 -- Part 2
@@ -87,6 +88,6 @@ oneCircuit ((p0,p1):cs) circuits =
     else oneCircuit cs circuits'
   where circuits' = connect p0 p1 circuits
 
-part2 :: [Point3D] -> Int
-part2 ps = x0 * x1 where
-  ((x0,_,_),(x1,_,_)) = oneCircuit (connections ps) (noConnect ps)
+part2 :: [Point3D]-> [(Point3D,Point3D)] -> Int
+part2 ps cs = x0 * x1 where
+  ((x0,_,_),(x1,_,_)) = oneCircuit cs (noConnect ps)

@@ -503,15 +503,6 @@ fsCompose :: [a -> a] -> a -> a
 fsCompose [] x = x
 fsCompose (f:fs) x = fsCompose fs (f x)
 
-{- already exists: mapMaybe in Data.Maybe
-findMaybe :: (a -> Maybe b) -> [a] -> [b]
-findMaybe f [] = []
-findMaybe f (x:xs) = let fxs = findMaybe f xs in
-  case (f x) of
-    Just y -> y : fxs
-    Nothing -> fxs
--}
-
 -- Minimum with a highest bound (for empty list)
 minimumBound :: Ord a => a -> [a] -> a
 minimumBound x = minimum . (x:)
