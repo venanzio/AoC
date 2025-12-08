@@ -65,14 +65,21 @@ connect p0 p1 circuits =
   M.update (\c -> Just (union c [p1])) p0 $
     M.update (\c -> Just (union c [p0])) p1 circuits
 
-{-
-connect :: Int -> [(Point3D,Point3D)] -> [[Point3D]]
-connect 0 _ _ = []
-connect n (p0,p1) ps = undefined
--}
+connectAll :: [(Point3D,Point3D)] -> Circuit -> Circuit
+connectAll ps circuits = foldl (\c (p0,p1) -> connect p0 p1 c) circuits ps
 
+largestCircuit :: Circuit -> [Point3D]
+largestCircuit = maximumBy (\c0 c1 -> compare (length c0) (length c1)) . M.elems
+
+deleteCircuit :: [Point3D] -> Circuit -> Circuit
+deleteCircuit [] circuits = circuits
+deleteCircuit (c:cs) circuits = deleteCircuit cs (M.delete c circuits)
+  
 part1 :: [Point3D] -> Int
-part1 _ = 1
+part1 ps = undefined where
+  circuits = connectAll (take 10 (closePairs ps)) (noConnect ps)
+  c1 = largestCircuit circuits
+  circuits1 = deleteCircuit c1 circuits
 
 -- Part 2
 
