@@ -30,7 +30,9 @@ type Point3D = (Int,Int,Int)
   
 pData :: Parser Point3D
 pData = do x <- natural
+           symbol ","
            y <- natural
+           symbol ","
            z <- natural
            return (x,y,z)
 
@@ -47,13 +49,19 @@ closest p [] = ((1000,1000,1000),1000000000)
 closest p (p0:ps) = let d0 = dist p p0
                         (p1,d1) = closest p ps
                     in if d0 < d1 then (p0,d0) else (p1,d1)
-
+{-
 closePairs :: [Point3D] -> [(Point3D,Point3D)]
 closePairs ps = map (\(p0,(p1,_)) -> (p0,p1)) $
   sortBy (\(_,(_,d0)) (_,(_,d1)) -> compare d0 d1) (cpDist ps) where
     cpDist [] = []
     cpDist [p] = []
     cpDist (p:ps) = (p, closest p ps) : cpDist ps
+-}
+
+closePair ::  [Point3D] -> Circuit -> (Point3D,Point3D)
+closePair ps circuits = (\(p0,(p1,_)) -> (p0,p1)) $
+  minimumBy (\(_,(_,d0)) (_,(_,d1)) -> compare d0 d1) $
+  map (\p -> (p, closest p (ps\\M.findWithDefault [] p circuits))) ps
 
 type Circuit = M.Map Point3D [Point3D]
 
@@ -65,8 +73,13 @@ connect p0 p1 circuits =
   M.update (\c -> Just (union c [p1])) p0 $
     M.update (\c -> Just (union c [p0])) p1 circuits
 
-connectAll :: [(Point3D,Point3D)] -> Circuit -> Circuit
-connectAll ps circuits = foldl (\c (p0,p1) -> connect p0 p1 c) circuits ps
+connectClose :: [Point3D] -> Circuit -> Circuit
+connectClose ps circuits = connect p0 p1 circuits where
+  (p0,p1) = closePair ps circuits
+
+connectAll :: Int -> [Point3D] -> Circuit
+connectAll 0 ps = noConnect ps
+connectAll n ps = connectClose ps (connectAll (n-1) ps)
 
 largestCircuit :: Circuit -> [Point3D]
 largestCircuit = maximumBy (\c0 c1 -> compare (length c0) (length c1)) . M.elems
@@ -74,12 +87,21 @@ largestCircuit = maximumBy (\c0 c1 -> compare (length c0) (length c1)) . M.elems
 deleteCircuit :: [Point3D] -> Circuit -> Circuit
 deleteCircuit [] circuits = circuits
 deleteCircuit (c:cs) circuits = deleteCircuit cs (M.delete c circuits)
+
+fullCircuit :: [Point3D] -> Circuit -> [Point3D]
+fullCircuit [] _ = []
+fullCircuit (p:ps) circuits = union connected (fullCircuit ps circuits') where
+  connected = M.findWithDefault [] p circuits 
+  circuits' = M.delete p circuits
   
 part1 :: [Point3D] -> Int
-part1 ps = undefined where
-  circuits = connectAll (take 10 (closePairs ps)) (noConnect ps)
+part1 ps = length c1 * length c2 * length c3 where
+  circuits = connectAll 10 ps
   c1 = largestCircuit circuits
   circuits1 = deleteCircuit c1 circuits
+  c2 = largestCircuit circuits1
+  circuits2 = deleteCircuit c1 circuits1
+  c3 = largestCircuit circuits2
 
 -- Part 2
 
