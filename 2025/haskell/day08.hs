@@ -49,12 +49,25 @@ closest p (p0:ps) = let d0 = dist p p0
                     in if d0 < d1 then (p0,d0) else (p1,d1)
 
 closePairs :: [Point3D] -> [(Point3D,Point3D)]
-closePairs [] = []
-closePairs [p] = []
-closePairs (p:ps) = (p,fst $ closest p ps) : closePairs ps
+closePairs ps = map (\(p0,(p1,_)) -> (p0,p1)) $
+  sortBy (\(_,(_,d0)) (_,(_,d1)) -> compare d0 d1) (cpDist ps) where
+    cpDist [] = []
+    cpDist [p] = []
+    cpDist (p:ps) = (p, closest p ps) : cpDist ps
 
-connect :: Int -> [Point3D] -> [[Point3D]]
-connect = undefined
+type Circuit = M.Map Point3D [Point3D]
+
+noConnect :: [Point3D] -> Circuit
+noConnect = M.fromList . map (\p -> (p,[p]))
+
+connect :: Point3D -> Point3D -> Circuit -> Circuit
+connect p0 p1 circuits = undefined
+
+{-
+connect :: Int -> [(Point3D,Point3D)] -> [[Point3D]]
+connect 0 _ _ = []
+connect n (p0,p1) ps = undefined
+-}
 
 part1 :: [Point3D] -> Int
 part1 _ = 1
