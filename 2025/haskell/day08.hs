@@ -61,7 +61,9 @@ noConnect :: [Point3D] -> Circuit
 noConnect = M.fromList . map (\p -> (p,[p]))
 
 connect :: Point3D -> Point3D -> Circuit -> Circuit
-connect p0 p1 circuits = undefined
+connect p0 p1 circuits =
+  M.update (\c -> Just (union c [p1])) p0 $
+    M.update (\c -> Just (union c [p0])) p1 circuits
 
 {-
 connect :: Int -> [(Point3D,Point3D)] -> [[Point3D]]
