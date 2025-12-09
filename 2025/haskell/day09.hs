@@ -5,6 +5,7 @@ module Main where
 
 import System.Environment
 import Control.Applicative
+import Data.List
 
 import FunParser
 import AoCTools
@@ -97,7 +98,7 @@ rectCenter ((x0,y0),(x1,y1)) = ((x0 + x1) `div` 2, (y0 + y1) `div` 2)
    * all polygon points are outside the rectangle
    * the center of the rectangle is inside the polygon
    * no polygon edge crosses the rectangle
-  Still insufficient: wrong for flat rectangles
+  Still insufficient: wrong for flat rectangles and adjecent edges
 -}
 rectInPolygon :: (Point,Point) -> [Point] -> Bool
 rectInPolygon r@(p0,p1) poly =
@@ -117,6 +118,6 @@ rectangles (p:ps) = map (\q -> corners p q) ps ++  rectangles ps where
   corners (x0,y0) (x1,y1) = ((min x0 x1, min y0 y1), (max x0 x1, max y0 y1))
 
 part2 :: [Point] -> Int
-part2 ps = maximum $ map rectArea rectInside where
-  rs = rectangles ps
+part2 ps = rectArea (head rectInside) where 
+  rs = reverse $ sortOn rectArea $ rectangles ps
   rectInside = filter (\r -> rectInPolygon r ps) rs
