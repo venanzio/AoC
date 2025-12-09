@@ -37,7 +37,6 @@ pInput = some pData
 
 -- Part 1
 
-
 rectArea :: (Point,Point) -> Int
 rectArea (p0,p1) = (1 + max (pX p0) (pX p1) - min (pX p0) (pX p1)) *
                    (1 + max (pY p0) (pY p1) - min (pY p0) (pY p1))
@@ -52,7 +51,7 @@ vertical (p0,p1) = pX p0 == pX p1
 
 horizontal :: (Point,Point) -> Bool
 horizontal (p0,p1) = pY p0 == pY p1
-
+{-
 pVInside :: Point -> (Point,Point) -> Bool
 pVInside p (q0,q1) = pX p == pX q0 &&
                      (min (pY q0) (pY q1) <= pY p) && (max (pY q0) (pY q1) >= pY p)
@@ -82,6 +81,8 @@ lCross p q
   | horizontal p && vertical q = hvCross p q
   | vertical p && vertical q = pX (fst p) == pX (fst q) && not (vInside p q)
   | horizontal p && horizontal q =  pY (fst p) == pY (fst q) && not (hInside p q)
+
+-}
 
 -- Point is inside a rectangle
 pInRect :: Point -> (Point,Point) -> Bool
@@ -137,7 +138,7 @@ crossRect l@((l0X,l0Y),(l1X,l1Y)) r@(q0,q1) =
         lYmax = max l0Y l1Y
         lXmin = min l0X l1X
         lXmax = max l0X l1X
-        
+{-        
 rectSides :: (Point,Point) -> [(Point,Point)]
 rectSides (p0,p1) = [((minX,minY),(maxX,minY)),
                      ((maxX,minY),(maxX,maxY)),
@@ -147,6 +148,7 @@ rectSides (p0,p1) = [((minX,minY),(maxX,minY)),
           maxX = max (pX p0) (pX p1)
           minY = min (pY p0) (pY p1)
           maxY = max (pY p0) (pY p1)
+-}
 
 rectCenter :: (Point,Point) -> Point
 rectCenter (p,q) = (pX p + ((pX q - pX p) `div` 2),
@@ -170,6 +172,7 @@ rectInPolygon p edges = not (pInRect (fst (head edges)) p) &&
   and [not $ lCross pl ql | pl <- rectSides p, ql <- edges]
 -}
 
+
 polyEdges :: [Point] -> [(Point,Point)]
 polyEdges ps = (last ps,head ps) : peAux ps where
   peAux [p] = []
@@ -178,10 +181,10 @@ polyEdges ps = (last ps,head ps) : peAux ps where
 rectangles :: [Point] -> [(Point,Point)]
 rectangles [] = []
 rectangles [p] = []
-rectangles (p:ps) = map (\q -> (p,q)) ps ++  rectangles ps
+rectangles (p:ps) = map (\q -> corners p q) ps ++  rectangles ps where
+  corners (x0,y0) (x1,y1) = ((min x0 x1, min y0 y1), (max x0 x1, max y0 y1))
 
 part2 :: [Point] -> Int
 part2 ps = maximum $ map rectArea rectInside where
-  edges = polyEdges ps
   rs = rectangles ps
   rectInside = filter (\r -> rectInPolygon r ps) rs
