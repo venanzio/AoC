@@ -81,12 +81,6 @@ wind p@(x,y) poly = windAcc 0 (last poly) poly where
     | x0 > x && pX q <= x = windAcc (n+1) q qs
     | otherwise           = windAcc n q qs
 
-{-    
-    | x0 <= x = if pX q > x then windAcc (n-1) q qs
-                                       else windAcc n q qs
-    | otherwise       = if pX q <= x then windAcc (n+1) q qs
-                                     else windAcc n q qs
--}
 -- Point is inside the polygon
 pInPoly :: Point -> [Point] -> Bool
 pInPoly p poly = any (inLine p) edges || wind p poly /= 0
