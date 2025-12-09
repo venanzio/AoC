@@ -100,7 +100,20 @@ pOutRect p r = not $ pInRect p r
 pInPoly :: Point -> [Point] -> Bool
 pInPoly p poly = winding p poly /= 0
 
-
+-- a line crosses a rectangle
+crossRect :: (Point,Point) -> (Point,Point) -> Bool
+crossRect l@((l0X,l0Y),(l1X,l1Y)) r@(q0,q1) =
+  vertical l && minX < l0X && l0X < maxX && lYmin <= minY && lYmax >= maxY ||
+  horizontal l && minY < l0Y && l0Y < maxY && lXmin <= minX && lXmax >= maxX
+  where minX = min (pX q0) (pX q1)
+        maxX = max (pX q0) (pX q1)
+        minY = min (pY q0) (pY q1)
+        maxY = max (pY q0) (pY q1)
+        lYmin = min l0Y l1Y
+        lYmax = max l0Y l1Y
+        lXmin = min l0X l1X
+        lXmax = max l0X l1X
+        
 rectSides :: (Point,Point) -> [(Point,Point)]
 rectSides (p0,p1) = [((minX,minY),(maxX,minY)),
                      ((maxX,minY),(maxX,maxY)),
@@ -115,7 +128,6 @@ rectCenter :: (Point,Point) -> Point
 rectCenter (p,q) = (pX p + ((pX q - pX p) `div` 2),
                     pY p + ((pY q - pY p) `div` 2))
 
-
 {- A rectangle is inside the polygon if:
    * all polygon points are outside the rectangle
    * the center of the rectangle is inside the polygon
@@ -124,8 +136,9 @@ rectCenter (p,q) = (pX p + ((pX q - pX p) `div` 2),
 -}
 rectInPolygon :: (Point,Point) -> [Point] -> Bool
 rectInPolygon r@(p0,p1) poly =
-  all (\p -> pOutRect p r) (map poly) &&
+  all (\p -> pOutRect p r) poly &&
   pInPoly (rectCenter r) poly
+  
 
 {-
 rectInPolygon p edges = not (pInRect (fst (head edges)) p) &&
@@ -141,4 +154,4 @@ part2 :: [Point] -> Int
 part2 ps = maximum $ map rectArea rectInside where
   edges = polyEdges ps
   rectangles = [(p0,p1) | p0 <- ps, p1 <- ps]
-  rectInside = filter (\r -> rectInPolygon r edges) rectangles
+  rectInside = filter (\r -> rectInPolygon r ps) rectangles
