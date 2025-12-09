@@ -21,7 +21,7 @@ puzzle :: String -> IO ()
 puzzle fileName = do
   input <- readFile fileName
   let xs = parseAll pInput input
-  putStrLn (show $ polyEdges xs)
+  putStrLn (show $ xs)
   putStrLn ("Part 1: " ++ show (part1 xs))
   putStrLn ("Part 2: " ++ show (part2 xs))
 
@@ -98,7 +98,23 @@ pOutRect p r = not $ pInRect p r
 
 -- Point is inside the polygon
 pInPoly :: Point -> [Point] -> Bool
-pInPoly p poly = winding p poly /= 0
+pInPoly p poly = any (inLine p edges) || wind p poly /= 0
+  where edges = polyEdges poly
+
+-- A point is on a vertical or horizontal line
+inLine :: Point -> (Point,Point) -> Bool
+inLine = undefined
+
+-- Winding number (if point not on the perimeter)
+wind :: Point -> [Point] -> Int
+wind p poly = windAcc 0 lastX poly where
+  windAcc n prevX ps = undefined
+
+  lastX = undefined
+
+-- a horizontal line crosses above a point
+cross :: Point -> (Point,Point) -> Bool
+cross (px,py) ((x0,y),(x1,_)) = y > py && undefined
 
 -- a line crosses a rectangle
 crossRect :: (Point,Point) -> (Point,Point) -> Bool
@@ -137,7 +153,8 @@ rectCenter (p,q) = (pX p + ((pX q - pX p) `div` 2),
 rectInPolygon :: (Point,Point) -> [Point] -> Bool
 rectInPolygon r@(p0,p1) poly =
   all (\p -> pOutRect p r) poly &&
-  pInPoly (rectCenter r) poly
+  pInPoly (rectCenter r) poly &&
+  and [not $ crossRect l r | l <- polyEdges poly]
   
 
 {-
