@@ -73,14 +73,20 @@ inLine p@(x,y) l@((x0,y0),(x1,y1)) =
 
 -- Winding number (if point not on the perimeter)
 wind :: Point -> [Point] -> Int
-wind p poly = windAcc 0 (last poly) poly where
-  windAcc n prev [] = n
-  windAcc n prec (q:qs)
-    | pY prec >= pY p = windAcc n q qs
-    | pX prec <= pX p = if pX q > pX p then windAcc (n-1) q qs
+wind p@(x,y) poly = windAcc 0 (last poly) poly where
+  windAcc n p0 [] = n
+  windAcc n (x0,y0) (q:qs)
+    | y0 >= y = windAcc n q qs
+    | x0 <= x && pX q > x = windAcc (n-1) q qs
+    | x0 > x && pX q <= x = windAcc (n+1) q qs
+    | otherwise           = windAcc n q qs
+
+{-    
+    | x0 <= x = if pX q > x then windAcc (n-1) q qs
                                        else windAcc n q qs
-    | pX prec > pX p = if pX q <= pX p then windAcc (n+1) q qs
-                                       else windAcc n q qs
+    | otherwise       = if pX q <= x then windAcc (n+1) q qs
+                                     else windAcc n q qs
+-}
 -- Point is inside the polygon
 pInPoly :: Point -> [Point] -> Bool
 pInPoly p poly = any (inLine p) edges || wind p poly /= 0
