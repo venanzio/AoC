@@ -35,12 +35,17 @@ pInput = some pData
 
 -- Part 1
 
+rectangles :: [Point] -> [(Point,Point)]
+rectangles [] = []
+rectangles [p] = []
+rectangles (p:ps) = map (\q -> corners p q) ps ++  rectangles ps where
+  corners (x0,y0) (x1,y1) = ((min x0 x1, min y0 y1), (max x0 x1, max y0 y1))
+  
 rectArea :: (Point,Point) -> Int
-rectArea (p0,p1) = (1 + max (pX p0) (pX p1) - min (pX p0) (pX p1)) *
-                   (1 + max (pY p0) (pY p1) - min (pY p0) (pY p1))
+rectArea ((x0,y0),(x1,y1)) = (1 + x1 - x0) * (1 + y1 - y0)
 
 part1 :: [Point] -> Int
-part1 ps = maximum [rectArea (p0,p1) | p0 <- ps, p1 <- ps]
+part1 = maximum . map rectArea . rectangles
 
 -- Part 2
 
@@ -110,12 +115,6 @@ polyEdges :: [Point] -> [(Point,Point)]
 polyEdges ps = (last ps,head ps) : peAux ps where
   peAux [p] = []
   peAux (p0:p1:ps) = (p0,p1) : peAux (p1:ps)
-
-rectangles :: [Point] -> [(Point,Point)]
-rectangles [] = []
-rectangles [p] = []
-rectangles (p:ps) = map (\q -> corners p q) ps ++  rectangles ps where
-  corners (x0,y0) (x1,y1) = ((min x0 x1, min y0 y1), (max x0 x1, max y0 y1))
 
 part2 :: [Point] -> Int
 part2 ps = rectArea (head rectInside) where 
