@@ -86,7 +86,7 @@ lCross p q
 
 -- Point is inside a rectangle
 pInRect :: Point -> (Point,Point) -> Bool
-pInRect p (q0,q1) = pInside p (minX,minY) (maxX,maxY) where
+pInRect p@(x,y) (q0,q1) = minX < x && x < maxX && minY < y && y < maxY where
   minX = min (pX q0) (pX q1)
   maxX = max (pX q0) (pX q1)
   minY = min (pY q0) (pY q1)
@@ -98,19 +98,28 @@ pOutRect p r = not $ pInRect p r
 
 -- Point is inside the polygon
 pInPoly :: Point -> [Point] -> Bool
-pInPoly p poly = any (inLine p edges) || wind p poly /= 0
+pInPoly p poly = any (inLine p) edges || wind p poly /= 0
   where edges = polyEdges poly
 
 -- A point is on a vertical or horizontal line
 inLine :: Point -> (Point,Point) -> Bool
-inLine = undefined
+inLine p l@(l0,l1) =
+  vertical l && (pX p)==(pX l0) &&
+     (min (pY l0) (pY l1)) <= (pY p) && (max (pY l0) (pY l1)) >= (pY p) ||
+  horizontal l && (pY p)==(pY l0) &&
+     (min (pX l0) (pX l1)) <= (pX p) && (max (pX l0) (pX l1)) >= (pX p)   
 
 -- Winding number (if point not on the perimeter)
 wind :: Point -> [Point] -> Int
-wind p poly = windAcc 0 lastX poly where
-  windAcc n prevX ps = undefined
+wind p poly = windAcc 0 (last poly) poly where
+  windAcc n prev [] = n
+  windAcc n prec (q:qs)
+    | pY prec >= pY p = windAcc n q qs
+    | pX prec <= pX p = if pX q > pX p then windAcc (n-1) q qs
+                                       else windAcc n q qs
+    | pX prec > pX p = if pX q <= pX p then windAcc (n+1) q qs
+                                       else windAcc n q qs
 
-  lastX = undefined
 
 -- a horizontal line crosses above a point
 cross :: Point -> (Point,Point) -> Bool
@@ -167,8 +176,13 @@ polyEdges ps = (last ps,head ps) : peAux ps where
   peAux [p] = []
   peAux (p0:p1:ps) = (p0,p1) : peAux (p1:ps)
 
+rectangles :: [Point] -> [(Point,Point)]
+rectangles [] = []
+rectangles [p] = []
+rectangles (p:ps) = map (\q -> (p,q)) ps ++  rectangles ps
+
 part2 :: [Point] -> Int
 part2 ps = maximum $ map rectArea rectInside where
   edges = polyEdges ps
-  rectangles = [(p0,p1) | p0 <- ps, p1 <- ps]
-  rectInside = filter (\r -> rectInPolygon r ps) rectangles
+  rs = rectangles ps
+  rectInside = filter (\r -> rectInPolygon r ps) rs
