@@ -54,13 +54,13 @@ I'll add explanations later
 
 **Part 1** is trivial: just compute the areas of all the rectangles and take the largest
 
-**Part 2** is much more challenging: the main problem is determining if a rectangle is contained in the loom. To do that I'm checking three properties:
+**Part 2** is much more challenging: the main problem is determining if a rectangle is contained in the loop. To do that I'm checking three properties:
   1. The points of the loop are outside the rectangle, where the perimeter of the rectangle counts as outside;
   2. The centre of the rectangle is inside the loop: I did this by checking that the winding number of the loop with respect to the centre is non-zero;
   3. None of the polygon edges crosses the rectangle.
   
 This worked to solve the puzzle, but it is not completely sound.
 Point 2 may give the wrong answer for flat rectangles, because the centre is on the perimeter.
-Point 3 may give the wrong answer if there are two adjacent edges crossing the triangle in opposite directions, so there won't be any outside space between them.
+Point 3 may give the wrong answer if there are two adjacent edges crossing the rectangle in opposite directions, so there won't be any empty space between them.
 
 Apparently these limit cases did not change the correct answer to the puzzle and the solution worked.
