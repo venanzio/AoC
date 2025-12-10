@@ -83,12 +83,14 @@ jPushInv b joltage = [if i `elem` b then (joltage!!i)-1 else joltage!!i |
                       i <- [0..length joltage-1]]
 
 allPushes :: [Int] -> [Int] -> [(Int,[Int])]
-allPushes b joltage = takeWhile (all (>=0)) $ iterate (jPushInv b) joltage
+allPushes b joltage =
+  [0..] `zip` (takeWhile (all (>=0)) $ iterate (jPushInv b) joltage)
 
+                
 jolt :: [[Int]] -> [Int] -> Int
 jolt bs joltage = if all (==0) joltage then 0 else case bs of
   [] -> sum joltage -- no solution
-  (b:bs) -> minimum []
+  (b:bs) -> minimum [n + jolt bs j | (n,j) <- allPushes b joltage]
 
 part2 :: [Machine] -> Int
 part2 ms = sum $ map (\(_,bs,js) -> jolt bs js) ms

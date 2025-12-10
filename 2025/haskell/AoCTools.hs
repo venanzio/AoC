@@ -44,6 +44,26 @@ dioph2 a b c = let (d,ca,cb) = euclid a b
                    cy = a `div` d
   in if divisible c d then Just (\k -> (x0 + cx*k, y0 - cy*k)) else Nothing
 
+{- Diophantine equation in n variables -}
+diophantine :: [Int] -> Int -> [[Int]]
+diophantine [] y = if y /= 0 then [] else [[]] 
+diophantine [a] y = if divisible y a then [[y `div` a]] else []
+diophantine coefficients results
+  | nzs == [] = undefined -- all values are solutions, to be done later
+  | otherwise = undefined
+  where
+    nzs = [i | i <- [0 .. length coefficients -1], coefficients!!i /=0]
+          -- indices of non-zero coefficients
+    (_,mi,mc) = minimumF (coefficients!!) nzs
+        -- index of minimum non-zero coefficient
+
+
+  
+-- System of Diophantine Equations
+dioSystem :: [[Int]] -> [Int] -> [Int]
+dioSystem = undefined
+
+
   
 {-************
   * GEOMETRY *
@@ -537,7 +557,7 @@ iterN n f = f . iterN (n-1) f
 iterSat :: (a -> Bool) -> (a -> a) -> a -> (Int,a)
 iterSat cond f x = iterCount x 0 where
   iterCount x n = if cond x then (n,x) else iterCount (f x) (n+1)
-  
+
 
 -- ORBITS OF FUNCIONS
 
