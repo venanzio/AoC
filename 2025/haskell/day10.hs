@@ -65,18 +65,6 @@ type Jolt = M.Map [Int] Int
 allJoltages :: [Int] -> [[Int]]
 allJoltages [] = [[]]
 allJoltages (j:js) = concat [map (x:) (allJoltages js) | x <- [0..j]]
-  
-{-
-jolt :: [[Int]] -> [Int] -> Int
-jolt buttons joltage = M.findWithDefault (-1) joltage joltMap where
-  joltMap :: Jolt
-  joltMap = M.fromList $
-    (j0, 0) :
-    [(j, 1 + minimum (1000000 : [M.findWithDefault 0 j' joltMap
-                 | j' <- filter (all (>=0)) [jPushInv j b | b <- buttons]]))
-     | j <- delete j0 $ allJoltages joltage]
-  j0 =  map (const 0) joltage
--}
 
 jPushInv :: [Int] -> [Int] -> [Int]
 jPushInv b joltage = [if i `elem` b then (joltage!!i)-1 else joltage!!i |
