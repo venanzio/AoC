@@ -528,6 +528,10 @@ allPairs (x:xs) = map (\y -> (x,y)) xs ++ allPairs xs
 maximumB :: Ord a => a -> [a] -> a
 maximumB x xs = maximum (x:xs)
 
+-- iterate a function n times
+iterN :: Int -> (a->a) -> a -> a
+iterN 0 f = id
+iterN n f = f . iterN (n-1) f
 
 -- iterate a function until it satisfies a condition
 iterSat :: (a -> Bool) -> (a -> a) -> a -> (Int,a)
