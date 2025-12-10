@@ -44,19 +44,25 @@ dioph2 a b c = let (d,ca,cb) = euclid a b
                    cy = a `div` d
   in if divisible c d then Just (\k -> (x0 + cx*k, y0 - cy*k)) else Nothing
 
-{- Diophantine equation in n variables -}
+{- Diophantine equation in n variables, with natural coefficients and solutions -}
 diophantine :: [Int] -> Int -> [[Int]]
 diophantine [] y = if y /= 0 then [] else [[]] 
 diophantine [a] y = if divisible y a then [[y `div` a]] else []
-diophantine coefficients results
-  | nzs == [] = undefined |  -- all values are solutions, to be done later
-  | otherwise = undefined
+diophantine coefficients y
+  | nzs == [] = if y == 0 then lCombine (take n $ repeat [0..]) -- all values are solutions
+                          else []
+  | length nzs == 1 = if divisible y mc then undefined
+                                        else []
   where
-    nzs = [i | i <- [0 .. length coefficients -1], coefficients!!i /=0]
-          -- indices of non-zero coefficients
+    n = length coefficients
+    nzs = [i | i <- [0 .. n-1], coefficients!!i /=0]
+      -- indices of non-zero coefficients
     (_,mi,mc) = minimumF (coefficients!!) nzs
-        -- minimum non-zero coefficient
+       -- minimum non-zero coefficient
     
+    
+allValues :: Int -> [[Int]]
+allValues n = lCombine (take n $ repeat [0..])
 
 lCombine :: [[a]] -> [[a]]
 lCombine [] = [[]]
