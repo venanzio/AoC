@@ -23,7 +23,10 @@ puzzle :: String -> IO ()
 puzzle fileName = do
   input <- readFile fileName
   let ms = parseAll pInput input
-  putStrLn ("Part 1: " ++ show (part1 ms))
+--  putStrLn ("Part 1: " ++ show (part1 ms))
+  putStrLn (show $ length ms)
+  putStrLn (show $ length $ checkAll ms)
+  putStrLn (show $ head $ checkAll ms)
   putStrLn ("Part 2: " ++ show (part2 ms))
 
 -- Parsing the input
@@ -76,13 +79,6 @@ allPushes :: [Int] -> [Int] -> [(Int,[Int])]
 allPushes b joltage =
   [0..] `zip` (takeWhile (all (>=0)) $ iterate (jPushInv b) joltage)
 
-{-                
-jolt :: [[Int]] -> [Int] -> Int
-jolt bs joltage = if all (==0) joltage then 0 else case bs of
-  [] -> sum joltage -- no solution
-  (b:bs) -> minimum [n + jolt bs j | (n,j) <- allPushes b joltage]
--}
-
 jolt :: [[Int]] -> [Int] -> Int
 jolt buttons joltage = round solution where
   n = length buttons
@@ -92,7 +88,33 @@ jolt buttons joltage = round solution where
   problem = Minimize (take n (repeat 1))
   constraints = Dense [[if i `elem` b then 1 else 0 | b <- bs] :==: (js!!i)
                       | i <- [0..m-1]]
-  Optimal (solution,_) = simplex problem constraints []
+  Optimal (solution,_) = exact problem constraints []
+
+joltP :: [[Int]] -> [Int] -> (Int,[Int])
+joltP buttons joltage = (round solution, map round ps) where
+  n = length buttons
+  m = length joltage
+  bs = map (map fromIntegral) buttons
+  js = map fromIntegral joltage
+  problem = Minimize (take n (repeat 1))
+  constraints = Dense [[if i `elem` b then 1 else 0 | b <- bs] :==: (js!!i)
+                      | i <- [0..m-1]]
+  Optimal (solution,ps) = exact problem constraints []
+
+checkSol :: [[Int]] -> [Int] -> (Int,[Int]) -> Bool
+checkSol buttons joltage (s,bs) =
+  s == sum bs &&
+  [ sum [b | (b,button) <- zip bs buttons, i `elem` button]
+  | i <- [0..length joltage - 1]] == joltage
+
+solJoltage :: [[Int]] -> Int -> [Int] -> [Int]
+solJoltage buttons jn bs =
+  [ sum [b | (b,button) <- zip bs buttons, i `elem` button]
+  | i <- [0..jn - 1]]
+
+checkAll :: [Machine] -> [Machine]
+checkAll = filter mCheck where
+  mCheck (_,bs,js) = not $ checkSol bs js (joltP bs js)
 
 part2 :: [Machine] -> Int
 part2 ms = sum $ map (\(_,bs,js) -> jolt bs js) ms
