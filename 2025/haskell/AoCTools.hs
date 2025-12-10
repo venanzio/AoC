@@ -51,15 +51,24 @@ diophantine [a] y = if divisible y a then [[y `div` a]] else []
 diophantine coefficients y
   | nzs == [] = if y == 0 then lCombine (take n $ repeat [0..]) -- all values are solutions
                           else []
-  | length nzs == 1 = if divisible y mc then undefined
-                                        else []
+  | length nzs == 1 = if divisible y mc
+      then tensor (allValues (length cs1)) (map ((y `div` mc):) (allValues (length cs2)))
+      else []
   where
     n = length coefficients
     nzs = [i | i <- [0 .. n-1], coefficients!!i /=0]
       -- indices of non-zero coefficients
     (_,mi,mc) = minimumF (coefficients!!) nzs
        -- minimum non-zero coefficient
-    
+    (cs1,(_:cs2)) = splitAt mi coefficients
+    drs = [(i,quotRem (coefficients!!i) mc) | i <- delete mi nzs]
+
+
+
+      
+
+tensor :: [[a]] -> [[a]] -> [[a]]
+tensor xss0 xss1 = [xs0++xs1 | xs0 <- xss0, xs1 <- xss1]
     
 allValues :: Int -> [[Int]]
 allValues n = lCombine (take n $ repeat [0..])
