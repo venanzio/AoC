@@ -49,15 +49,30 @@ diophantine :: [Int] -> Int -> [[Int]]
 diophantine [] y = if y /= 0 then [] else [[]] 
 diophantine [a] y = if divisible y a then [[y `div` a]] else []
 diophantine coefficients results
-  | nzs == [] = undefined -- all values are solutions, to be done later
+  | nzs == [] = undefined |  -- all values are solutions, to be done later
   | otherwise = undefined
   where
     nzs = [i | i <- [0 .. length coefficients -1], coefficients!!i /=0]
           -- indices of non-zero coefficients
     (_,mi,mc) = minimumF (coefficients!!) nzs
-        -- index of minimum non-zero coefficient
+        -- minimum non-zero coefficient
+    
 
+lCombine :: [[a]] -> [[a]]
+lCombine [] = [[]]
+lCombine ([]:ass) = []
+lCombine ((a:as):ass) = interleave (map (a:) (lCombine ass)) (lCombine (as:ass))
 
+-- interleave lists
+interleave :: [a] -> [a] -> [a]
+interleave [] l2 = l2
+interleave (a1:l1) l2 = a1 : interleave l2 l1
+
+           
+-- partition a natural into n parts
+partNat :: Int -> Int -> [[Int]]
+partNat 1 x = [[x]]
+partNat n x = [x0 : xs | x0 <- [0..x], xs <- partNat (n-1) (x-x0)]
   
 -- System of Diophantine Equations
 dioSystem :: [[Int]] -> [Int] -> [Int]
