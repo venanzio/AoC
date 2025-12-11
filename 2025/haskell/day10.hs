@@ -79,9 +79,24 @@ allPushes :: [Int] -> [Int] -> [(Int,[Int])]
 allPushes b joltage =
   [0..] `zip` (takeWhile (all (>=0)) $ iterate (jPushInv b) joltage)
 
+optProblem :: [[Int]] -> Optimization
+optProblem buttons = Minimize (take (length buttons) (repeat 1))
+
+constraints :: [[Int]] -> [Int] -> Constraints
+constraints buttons joltage =
+  Dense [[if i `elem` b then 1 else 0 | b <- bs] :==: (js!!i)
+         | i <- [0..m-1]]
+  where m = length joltage
+        bs = map (map fromIntegral) buttons
+        js = map fromIntegral joltage
+
+
 jolt :: [[Int]] -> [Int] -> Int
 jolt buttons joltage = round solution where
-  n = length buttons
+  prob = optProblem buttons
+  constr = constraints buttons joltage
+  Optimal (solution,_) = exact prob constr []
+{-  n = length buttons
   m = length joltage
   bs = map (map fromIntegral) buttons
   js = map fromIntegral joltage
@@ -89,6 +104,7 @@ jolt buttons joltage = round solution where
   constraints = Dense [[if i `elem` b then 1 else 0 | b <- bs] :==: (js!!i)
                       | i <- [0..m-1]]
   Optimal (solution,_) = exact problem constraints []
+-}
 
 joltP :: [[Int]] -> [Int] -> (Int,[Int])
 joltP buttons joltage = (round solution, map round ps) where
