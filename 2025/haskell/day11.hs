@@ -4,8 +4,6 @@
 module Main where
 
 import System.Environment
-import Data.List
-import Data.Char
 import Control.Applicative
 import qualified Data.Map as M
 
@@ -35,12 +33,14 @@ pData = do device <- identifier
 
 pInput :: Parser (Graph String)
 pInput = do input <- pLines pData
-            return (M.fromList (("out",[]):[(d,map (\o -> (o,1)) os) | (d,os) <- input]))
+            return (M.fromList (("out",[]):[(d,map (\o -> (o,1)) os)
+                                           | (d,os) <- input]))
 
 -- Part 1
 
 paths :: Graph String -> M.Map (String,String) Int
 paths g = pathsM where
+  devs = M.keys g
   pathsM = M.fromList [((v0,v1), pathsAux v0 v1) | v0 <- devs, v1 <- devs]
   pathsAux v0 v1
     | v0==v1 = 1
@@ -52,20 +52,10 @@ part1 ps = M.findWithDefault undefined ("you","out") ps
 
 -- Part 2
 
-part2 :: Graph String -> Int
+part2 :: M.Map (String,String) Int -> Int
 part2 ps = M.findWithDefault 0 ("svr", "dac") ps *
            M.findWithDefault 0 ("dac", "fft") ps *
            M.findWithDefault 0 ("fft", "out") ps +
            M.findWithDefault 0 ("svr", "fft") ps *
            M.findWithDefault 0 ("fft", "dac") ps *
            M.findWithDefault 0 ("dac", "out") ps
-{-           
-  where devs = M.keys g
-        pathsM :: M.Map (String,String) Int
-        pathsM = M.fromList [((v0,v1), pathsAux v0 v1) | v0 <- devs, v1 <- devs]
-
-        pathsAux v0 v1
-          | v0==v1 = 1
-          | otherwise = sum $ [M.findWithDefault 0 (w,v1) pathsM
-                              | (w,_) <- M.findWithDefault undefined v0 g]
--}
