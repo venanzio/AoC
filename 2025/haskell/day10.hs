@@ -23,10 +23,7 @@ puzzle :: String -> IO ()
 puzzle fileName = do
   input <- readFile fileName
   let ms = parseAll pInput input
---  putStrLn ("Part 1: " ++ show (part1 ms))
---  putStrLn (show $ length ms)
--- putStrLn (show $ length $ checkAll ms)
---   putStrLn (show $ head $ checkAll ms)
+  putStrLn ("Part 1: " ++ show (part1 ms))
   putStrLn ("Part 2: " ++ show (part2 ms))
 
 -- Parsing the input
@@ -131,9 +128,10 @@ intSolve problem (Dense cs) =
      Optimal (solD,psD) -> if all isWhole psD then floor solD
        else let (i,vx) = iNW psD
                 x = [if j==i then 1 else 0 | j <- [0..length psD - 1]]
-            in min (intSolve problem (Dense (x :<=: floor vx : cs)))
-                   (intSolve problem (Dense (x :>=: ceiling vx : cs)))
-     _ -> 1000000000
+                s0 = intSolve problem (Dense (x :<=: fromIntegral (floor vx) : cs))
+            in if s0 == (floor solD) then s0 else
+                min s0 (intSolve problem (Dense (x :>=: fromIntegral (ceiling vx) : cs)))
+     _ -> 1000000
           
  
 
