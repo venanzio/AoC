@@ -24,9 +24,9 @@ puzzle fileName = do
   input <- readFile fileName
   let ms = parseAll pInput input
 --  putStrLn ("Part 1: " ++ show (part1 ms))
-  putStrLn (show $ length ms)
-  putStrLn (show $ length $ checkAll ms)
-  putStrLn (show $ head $ checkAll ms)
+--  putStrLn (show $ length ms)
+-- putStrLn (show $ length $ checkAll ms)
+--   putStrLn (show $ head $ checkAll ms)
   putStrLn ("Part 2: " ++ show (part2 ms))
 
 -- Parsing the input
@@ -92,7 +92,7 @@ constraints buttons joltage =
 
 
 jolt :: [[Int]] -> [Int] -> Int
-jolt buttons joltage = intSolve (length buttons) (constraints buttons joltage) where -- round solution where
+jolt buttons joltage = intSolve prob constr where -- round solution where
   prob = optProblem buttons
   constr = constraints buttons joltage
 {-  Optimal (solution,_) = exact prob constr []
@@ -121,12 +121,21 @@ joltP buttons joltage = (round solD, map round psD) where
 isWhole :: Double -> Bool
 isWhole x = let n = floor x in x == fromIntegral n 
 
-intSolve :: Int -> Constraints -> Int
-intSolve vn (Dense cs) = iSolve 0 where
-  iSolve x = let Optimal (solD,psD) = simplex (Minimize vars)
-                                              (Dense (vars :>=: (solD+1) : cs)) []
-     in if all isWhole psD then floor solD else iSolve (x+1)
-  vars = take vn (repeat 1)
+iNW :: [Double] -> (Int,Double)
+iNW ds = (i,vi) where i = unJust $ findIndex (not.isWhole) ds
+                      vi = ds!!i
+
+intSolve :: Optimization -> Constraints -> Int
+intSolve problem (Dense cs) =
+  case simplex problem (Dense cs) [] of
+     Optimal (solD,psD) -> if all isWhole psD then floor solD
+       else let (i,vx) = iNW psD
+                x = [if j==i then 1 else 0 | j <- [0..length psD - 1]]
+            in min (intSolve problem (Dense (x :<=: floor vx : cs)))
+                   (intSolve problem (Dense (x :>=: ceiling vx : cs)))
+     _ -> 1000000000
+          
+ 
 
 
 {-
