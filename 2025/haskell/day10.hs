@@ -92,11 +92,11 @@ constraints buttons joltage =
 
 
 jolt :: [[Int]] -> [Int] -> Int
-jolt buttons joltage = round solution where
+jolt buttons joltage = intSolve (length buttons) (constraints buttons joltage) where -- round solution where
   prob = optProblem buttons
   constr = constraints buttons joltage
-  Optimal (solution,_) = exact prob constr []
-{-  n = length buttons
+{-  Optimal (solution,_) = exact prob constr []
+  n = length buttons
   m = length joltage
   bs = map (map fromIntegral) buttons
   js = map fromIntegral joltage
@@ -107,7 +107,7 @@ jolt buttons joltage = round solution where
 -}
 
 joltP :: [[Int]] -> [Int] -> (Int,[Int])
-joltP buttons joltage = (round solution, map round ps) where
+joltP buttons joltage = (round solD, map round psD) where
   n = length buttons
   m = length joltage
   bs = map (map fromIntegral) buttons
@@ -115,7 +115,26 @@ joltP buttons joltage = (round solution, map round ps) where
   problem = Minimize (take n (repeat 1))
   constraints = Dense [[if i `elem` b then 1 else 0 | b <- bs] :==: (js!!i)
                       | i <- [0..m-1]]
-  Optimal (solution,ps) = exact problem constraints []
+  Optimal (solD,psD) = simplex problem constraints []
+
+
+isWhole :: Double -> Bool
+isWhole x = let n = floor x in x == fromIntegral n 
+
+intSolve :: Int -> Constraints -> Int
+intSolve vn (Dense cs) = iSolve 0 where
+  iSolve x = let Optimal (solD,psD) = simplex (Minimize vars)
+                                              (Dense (vars :>=: (solD+1) : cs)) []
+     in if all isWhole psD then floor solD else iSolve (x+1)
+  vars = take vn (repeat 1)
+
+
+{-
+  if all isWhole psD then floor solD else intSolve prob constr'
+  where Optimal (solD,psD) = simplex prob constr []
+        constr' = extendC constr
+        extemdC (Dense cs) = Dense (prob :>=: solD+1 : cs)
+-}
 
 checkSol :: [[Int]] -> [Int] -> (Int,[Int]) -> Bool
 checkSol buttons joltage (s,bs) =
