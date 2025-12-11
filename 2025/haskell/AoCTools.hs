@@ -62,10 +62,7 @@ diophantine coefficients y
        -- minimum non-zero coefficient
     (cs1,(_:cs2)) = splitAt mi coefficients
     drs = [(i,quotRem (coefficients!!i) mc) | i <- delete mi nzs]
-
-
-
-      
+    
 
 tensor :: [[a]] -> [[a]] -> [[a]]
 tensor xss0 xss1 = [xs0++xs1 | xs0 <- xss0, xs1 <- xss1]
