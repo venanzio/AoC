@@ -131,11 +131,11 @@ printModel buttons joltage = vars ++ opt ++ constrs ++ res
         nj = length joltage
         vars = unlines $  map (\i -> "var b"++(show i)++" integer >=0;") [0..nb-1]
         vsum = intercalate " + " (map (('b':).show) [0..nb-1])
-        constr j = "s.t. " ++
+        constr j = "s.t. c" ++ show j++": "++
                    intercalate " + " ["b"++(show i) | i <- [0..nb-1], j `elem` buttons!!i]
                    ++ " = " ++ show (joltage!!j)++";"
         constrs = unlines $ map constr [0..nj-1]
-        opt = "\nminimize obj: " ++ vsum ++ ";\n"
+        opt = "minimize obj: " ++ vsum ++ ";\n"
         res = "solve;\ndisplay "++ vsum ++";\nend;"
         
 
