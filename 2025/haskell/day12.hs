@@ -20,13 +20,17 @@ main = do
 puzzle :: String -> IO ()
 puzzle fileName = do
   input <- readFile fileName
-  let xs = parseAll pInput input
-   putStrLn ("Part 1: " ++ show (part1 xs))
-  putStrLn ("Part 2: " ++ show (part2 xs))
+  let (shs,regs) = parseAll pInput input
+  putStrLn ("Part 1")
+  putStrLn ("  possible : " ++ show (length regs - tooHard shs regs))
+  putStrLn ("  very easy: " ++ show (easy shs regs))
+
 
 -- Parsing the input
 
-pShape :: Parser [Point]
+type Shape = [Point]
+
+pShape :: Parser Shape
 pShape = do natural >> symbol ":"
             sh <- some neLine
             return [(x,y) | y <- [0..length sh -1], x <- [0..length (sh!!y) -1],
@@ -41,17 +45,41 @@ pRegion = do width <- natural
              return (width,height,shapes)
 
 
-pInput :: Parser ([[Point]],[(Int,Int,[Int])])
+pInput :: Parser ([Shape],[(Int,Int,[Int])])
 pInput = do shapes <- some pShape
             regions <- some pRegion
             return (shapes,regions)
 
 -- Part 1
 
-part1 :: ([[Point]],[(Int,Int,[Int])]) -> Int
-part1 _ = 1
+adjust :: Shape -> Shape
+adjust sh = map (\(x,y) -> (x-minX,y-minY)) sh
+  where minX = minimum (map pX sh)
+        minY = minimum (map pY sh)
 
--- Part 2
+flipX :: Shape -> Shape
+flipX = adjust . map (\(x,y) -> (-x,y))
 
-part2 :: ([[Point]],[(Int,Int,[Int])]) -> Int
-part2 _ = 2
+flipY :: Shape -> Shape
+flipY = adjust . map (\(x,y) -> (x,-y))
+
+rotate :: Shape -> Shape
+rotate = map (\(x,y) -> (y,x))
+
+flipRot :: Shape -> [Shape]
+flipRot sh = nub (flips ++ (map rotate flips))
+    where flips = [sh, flipX sh, flipY sh, flipX $ flipY sh]
+
+
+minArea :: [Shape] -> [Int] -> Int
+minArea shs ns = sum [(length (shs!!i))*(ns!!i) | i <- [0..length shs -1]]
+
+maxArea ::  [Int] -> Int
+maxArea ns = 9 * sum ns
+
+easy :: [Shape] -> [(Int,Int,[Int])] -> Int
+easy shs regs = length $ filter (\(w,h,ns) -> maxArea ns <= w*h) regs
+
+tooHard :: [Shape] -> [(Int,Int,[Int])] -> Int
+tooHard shs regs = length $ filter (\(w,h,ns) -> minArea shs ns > w*h) regs
+
