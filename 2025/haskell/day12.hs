@@ -21,23 +21,37 @@ puzzle :: String -> IO ()
 puzzle fileName = do
   input <- readFile fileName
   let xs = parseAll pInput input
-  putStrLn ("Part 1: " ++ show (part1 xs))
+   putStrLn ("Part 1: " ++ show (part1 xs))
   putStrLn ("Part 2: " ++ show (part2 xs))
 
 -- Parsing the input
 
-pData :: Parser ()
-pData = return ()
+pShape :: Parser [Point]
+pShape = do natural >> symbol ":"
+            sh <- some neLine
+            return [(x,y) | y <- [0..length sh -1], x <- [0..length (sh!!y) -1],
+                            (sh!!y)!!x == '#']
 
-pInput :: Parser [()]
-pInput = pLines pData
+pRegion :: Parser (Int,Int,[Int])
+pRegion = do width <- natural
+             symbol "x"
+             height <- natural
+             symbol ":"
+             shapes <- pLine (some natural)
+             return (width,height,shapes)
+
+
+pInput :: Parser ([[Point]],[(Int,Int,[Int])])
+pInput = do shapes <- some pShape
+            regions <- some pRegion
+            return (shapes,regions)
 
 -- Part 1
 
-part1 :: [()] -> Int
+part1 :: ([[Point]],[(Int,Int,[Int])]) -> Int
 part1 _ = 1
 
 -- Part 2
 
-part2 :: [()] -> Int
+part2 :: ([[Point]],[(Int,Int,[Int])]) -> Int
 part2 _ = 2
