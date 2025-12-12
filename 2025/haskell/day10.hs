@@ -17,22 +17,51 @@ import AoCTools
 main :: IO ()
 main = do
   args <- getArgs
-  puzzle (head args)
+  puzzle (head args) (args!!1)
 
-puzzle :: String -> IO ()
-puzzle fileName = do
+puzzle :: String -> String -> IO ()
+puzzle fileName is = do
   input <- readFile fileName
+  let i = read is
   let ms = parseAll pInput input
       (noSol,sol) = partition (\(c,_,_) -> c==(-1)) $
                               map (\(_,bs,js) -> (jolt bs js, bs, js)) ms
-      (_,bs,js) = head noSol
+      (_,bs,js) = noSol!!i
+
+  -- done by running glpsol on each model in noSol
+  let results = [94, --machine 0
+                 93, --machine 1
+                 215, --machine 2
+                 28, --machine 3
+                 143, --machine 4
+                 84, --machine 5
+                 65, --machine 6
+                 117, --machine 7
+                 141, --machine 8
+                 190, --machine 9
+                 234, --machine 10
+                 26, --machine 11
+                 85, --machine 12
+                 134, --machine 13
+                 114, --machine 14
+                 247, --machine 15
+                 91, --machine 16
+                 86, --machine 17
+                 117, --machine 18
+                 107, --machine 19
+                 137, --machine 20
+                 76, --machine 21
+                 63, --machine 22
+                 78, --machine 23
+                 107 --machine 24
+                ]
   putStrLn (show $ bs)
   putStrLn (show $ js)
   
   writeFile "machine.mod" (printModel bs js)
   -- sequence $ map (putStrLn . show) noSol
   -- putStrLn ("Part 1: " ++ show (part1 ms))
-  putStrLn ("Part 2: " ++ show (sum [c | (c,_,_) <- sol]))
+  putStrLn ("Part 2: " ++ (show $ sum $ [c | (c,_,_) <- sol] ++ results))
 
 -- Parsing the input
 
