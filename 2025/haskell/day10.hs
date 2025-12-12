@@ -23,8 +23,16 @@ puzzle :: String -> IO ()
 puzzle fileName = do
   input <- readFile fileName
   let ms = parseAll pInput input
-  putStrLn ("Part 1: " ++ show (part1 ms))
-  putStrLn ("Part 2: " ++ show (part2 ms))
+      (noSol,sol) = partition (\(c,_,_) -> c==(-1)) $
+                              map (\(_,bs,js) -> (jolt bs js, bs, js)) ms
+      (_,bs,js) = head noSol
+  putStrLn (show $ bs)
+  putStrLn (show $ js)
+  
+  writeFile "machine.mod" (printModel bs js)
+  -- sequence $ map (putStrLn . show) noSol
+  -- putStrLn ("Part 1: " ++ show (part1 ms))
+  putStrLn ("Part 2: " ++ show (sum [c | (c,_,_) <- sol]))
 
 -- Parsing the input
 
@@ -89,19 +97,21 @@ constraints buttons joltage =
 
 
 jolt :: [[Int]] -> [Int] -> Int
-jolt buttons joltage = intSolve prob constr where -- round solution where
-  prob = optProblem buttons
-  constr = constraints buttons joltage
-{-  Optimal (solution,_) = exact prob constr []
-  n = length buttons
-  m = length joltage
-  bs = map (map fromIntegral) buttons
-  js = map fromIntegral joltage
-  problem = Minimize (take n (repeat 1))
-  constraints = Dense [[if i `elem` b then 1 else 0 | b <- bs] :==: (js!!i)
-                      | i <- [0..m-1]]
+jolt buttons joltage = if all isWhole psD then round solD else -1 -- intSolve prob constr where -- round solution where
+  where  prob = optProblem buttons
+         constr = constraints buttons joltage
+         Optimal (solD,psD) = exact prob constr []
+{-
+         n = length buttons
+         m = length joltage
+         bs = map (map fromIntegral) buttons
+         js = map fromIntegral joltage
+         problem = Minimize (take n (repeat 1))
+         constraints = Dense [[if i `elem` b then 1 else 0 | b <- bs] :==: (js!!i)
+                             | i <- [0..m-1]]
   Optimal (solution,_) = exact problem constraints []
 -}
+
 
 joltP :: [[Int]] -> [Int] -> (Int,[Int])
 joltP buttons joltage = (round solD, map round psD) where
@@ -114,6 +124,20 @@ joltP buttons joltage = (round solD, map round psD) where
                       | i <- [0..m-1]]
   Optimal (solD,psD) = simplex problem constraints []
 
+
+printModel :: [[Int]] -> [Int] -> String
+printModel buttons joltage = vars ++ opt ++ constrs ++ res
+  where nb = length buttons
+        nj = length joltage
+        vars = unlines $  map (\i -> "var b"++(show i)++" integer >=0;") [0..nb-1]
+        vsum = intercalate " + " (map (('b':).show) [0..nb-1])
+        constr j = "s.t. " ++
+                   intercalate " + " ["b"++(show i) | i <- [0..nb-1], j `elem` buttons!!i]
+                   ++ " = " ++ show (joltage!!j)++";"
+        constrs = unlines $ map constr [0..nj-1]
+        opt = "\nminimize obj: " ++ vsum ++ ";\n"
+        res = "solve;\ndisplay "++ vsum ++";\nend;"
+        
 
 isWhole :: Double -> Bool
 isWhole x = let n = floor x in x == fromIntegral n 
@@ -132,9 +156,6 @@ intSolve problem (Dense cs) =
             in if s0 == (floor solD) then s0 else
                 min s0 (intSolve problem (Dense (x :>=: fromIntegral (ceiling vx) : cs)))
      _ -> 1000000
-          
- 
-
 
 {-
   if all isWhole psD then floor solD else intSolve prob constr'
